@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بوابة النور - التمهيد للمسابقة</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 50: '#ecfdf5', 600: '#059669', 800: '#064e3b' },
+                        amber: { 400: '#fbbf24', 500: '#f59e0b' },
+                    },
+                    fontFamily: {
+                        title: ['Cairo', 'sans-serif'],
+                        body: ['Tajawal', 'sans-serif'],
+                        quran: ['Amiri', 'serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 3s infinite',
+                        'slide-up': 'slideUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(245, 158, 11, 0.2)' },
+                            '50%': { boxShadow: '0 0 40px rgba(245, 158, 11, 0.6)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(50px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f0fdfa;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+                url('https://www.transparenttextures.com/patterns/arabesque.png');
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* تأثير تقليب البطاقة */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        .card-inner {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-flip:hover .card-inner, .card-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* تأثير الزجاج */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .text-glow { text-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // محرك صوتي بسيط للتفاعل
+        const playSound = (type) => {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            if (type === 'hover') {
+                osc.frequency.setValueAtTime(400, ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.05);
+            } else if (type === 'click') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.2);
+            }
+        };
+
+        // مكون البطاقة القلابة
+        const FlipCard = ({ title, icon, contentFront, contentBack, color }) => {
+            const [isFlipped, setIsFlipped] = useState(false);
+
+            return (
+                <div 
+                    className={`group perspective-1000 h-80 w-full cursor-pointer ${isFlipped ? 'card-flipped' : ''}`} 
+                    onClick={() => { setIsFlipped(!isFlipped); playSound('click'); }}
+                    onMouseEnter={() => playSound('hover')}
+                >
+                    <div className="card-inner relative w-full h-full text-center transition-all duration-700 transform-style-3d shadow-xl rounded-3xl">
+                        
+                        {/* الوجه الأمامي */}
+                        <div className={`absolute w-full h-full backface-hidden rounded-3xl p-6 flex flex-col items-center justify-center bg-white border-b-8 ${color} border-t border-l border-r border-gray-100`}>
+                            <div className={`w-20 h-20 rounded-full mb-6 flex items-center justify-center ${color.replace('border', 'bg').replace('-500', '-100')} ${color.replace('border', 'text').replace('-500', '-600')}`}>
+                                {icon}
+                            </div>
+                            <h3 className="text-2xl font-black font-title text-gray-800 mb-4">{title}</h3>
+                            <p className="text-gray-500 font-body text-lg">{contentFront}</p>
+                            <div className="mt-6 text-sm text-gray-400 font-bold animate-pulse">اضغط لكشف السر</div>
+                        </div>
+
+                        {/* الوجه الخلفي */}
+                        <div className={`absolute w-full h-full backface-hidden rotate-y-180 rounded-3xl p-6 flex flex-col items-center justify-center text-white ${color.replace('border', 'bg').replace('-500', '-600')} shadow-inner`}>
+                            <i data-lucide="lightbulb" className="mb-4 animate-bounce"></i>
+                            <p className="text-xl font-bold font-title leading-relaxed">{contentBack}</p>
+                            <div className="mt-4 opacity-80 text-sm">هذا سيأتيك في المسابقة!</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, []);
+
+            const goToQuiz = () => {
+                playSound('click');
+                // تأثير انتقال بسيط
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 1s';
+                setTimeout(() => {
+                    window.location.href = 'Quran_Quiz.html';
+                }, 1000);
+            };
+
+            return (
+                <div className="min-h-screen">
+                    
+                    {/* الهيدر الترحيبي */}
+                    <header className="relative min-h-[90vh] flex flex-col items-center justify-center text-center p-6 overflow-hidden">
+                        {/* زخارف خلفية */}
+                        <div className="absolute top-10 left-10 animate-float opacity-30"><i data-lucide="moon" size={60} className="text-amber-500"></i></div>
+                        <div className="absolute bottom-20 right-10 animate-float opacity-30" style={{animationDelay: '2s'}}><i data-lucide="star" size={50} className="text-emerald-600"></i></div>
+                        
+                        <div className="glass p-10 md:p-16 rounded-[3rem] shadow-2xl border-4 border-amber-400 max-w-4xl mx-auto z-10 animate-slide-up">
+                            <div className="inline-block bg-emerald-100 text-emerald-800 px-6 py-2 rounded-full font-black font-title mb-6 shadow-sm">
+                                الصف الثاني والثالث الابتدائي
+                            </div>
+                            <h1 className="text-5xl md:text-7xl font-black text-emerald-800 font-title mb-4 leading-tight text-shadow">
+                                مسابقة النور
+                            </h1>
+                            <h2 className="text-2xl md:text-4xl font-bold text-amber-500 font-quran mb-8">
+                                في رحاب سورة الإخلاص والمولد المهدوي
+                            </h2>
+                            <p className="text-gray-600 text-xl md:text-2xl font-body max-w-2xl mx-auto mb-10 leading-relaxed">
+                                أهلاً بكم يا أبطال في رحلة ممتعة! استعدوا لاختبار معلوماتكم عن كتاب الله وعن إمام زماننا.. ولكن قبل البدء، هل أنتم مستعدون للمراجعة السريعة؟
+                            </p>
+                            
+                            <button 
+                                onClick={() => document.getElementById('learn-section').scrollIntoView({behavior: 'smooth'})}
+                                className="animate-bounce bg-white text-emerald-600 border-2 border-emerald-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-emerald-50 transition"
+                            >
+                                <span className="flex items-center gap-2">
+                                    هيا نراجع المعلومات
+                                    <i data-lucide="arrow-down"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* قسم القصة والمعلومات */}
+                    <section id="learn-section" className="py-20 px-4 max-w-7xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="text-4xl font-black text-emerald-800 font-title mb-4">ماذا يجب أن أعرف؟</h2>
+                            <p className="text-xl text-gray-500 font-body">اضغط على البطاقات لتعرف الإجابات السرية!</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            
+                            {/* بطاقة بلال */}
+                            <FlipCard 
+                                title="قصة المؤذن الأول"
+                                icon={<i data-lucide="mic" size={40}></i>}
+                                color="border-gray-500"
+                                contentFront="صحابي جليل، عذبه الكفار بوضع صخرة كبيرة على صدره تحت الشمس الحارقة.. هل تعرفه؟"
+                                contentBack="إنه بلال الحبشي! وكان يردد كلمة عظيمة هي: (أَحَدٌ.. أَحَدٌ). وهو أول مؤذن في الإسلام."
+                            />
+
+                            {/* بطاقة سورة الإخلاص */}
+                            <FlipCard 
+                                title="سورة التوحيد"
+                                icon={<i data-lucide="book-open" size={40}></i>}
+                                color="border-amber-500"
+                                contentFront="سورة قصيرة جداً ولكنها تعدل ثلث القرآن الكريم.. وتتحدث عن صفات الله الواحد."
+                                contentBack="إنها سورة الإخلاص. (الصمد) تعني: الذي يقصده الجميع في حوائجهم. (لم يولد) أي ليس له أب أو أم."
+                            />
+
+                            {/* بطاقة الإمام المهدي */}
+                            <FlipCard 
+                                title="منقذ البشرية"
+                                icon={<i data-lucide="sun" size={40}></i>}
+                                color="border-emerald-500"
+                                contentFront="الإمام الثاني عشر، الذي ننتظره ليملأ الأرض قسطاً وعدلاً بعدما ملئت ظلماً وجوراً."
+                                contentBack="هو الإمام المهدي (عج). ولد في 15 شعبان في سامراء. وعندما نسمع لقب (القائم) نقف احتراماً له."
+                            />
+
+                        </div>
+                    </section>
+
+                    {/* قسم الدعوة للعمل (بدء المسابقة) */}
+                    <section className="py-20 bg-emerald-800 relative overflow-hidden text-center text-white">
+                        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                        
+                        <div className="relative z-10 max-w-4xl mx-auto px-6">
+                            <h2 className="text-4xl md:text-5xl font-black font-title mb-8">هل أنتم جاهزون للتحدي؟</h2>
+                            <p className="text-xl md:text-2xl font-body mb-12 text-emerald-100">
+                                25 سؤالاً بانتظاركم.. والكثير من النقاط والمفاجآت. الأسرع والأدق هو الفائز!
+                            </p>
+                            
+                            <button 
+                                onClick={goToQuiz}
+                                className="group relative inline-flex items-center justify-center px-10 py-6 text-3xl font-black text-white transition-all duration-200 bg-amber-500 font-title rounded-[2rem] hover:bg-amber-400 hover:scale-105 shadow-[0_0_40px_rgba(245,158,11,0.6)] ring-4 ring-amber-300 ring-offset-4 ring-offset-emerald-800"
+                            >
+                                <span className="ml-4">انطلق للمسابقة</span>
+                                <i data-lucide="rocket" className="w-10 h-10 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* الفوتر */}
+                    <footer className="bg-emerald-900 text-emerald-200 py-8 text-center font-body border-t border-emerald-700">
+                        <p className="font-bold text-lg">إعداد وتصميم: أ. حسن سديف</p>
+                        <p className="text-sm mt-2 opacity-60">جميع الحقوق محفوظة للمسابقة القرآنية 2026</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
