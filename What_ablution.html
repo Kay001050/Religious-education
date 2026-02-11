@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة: بماذا أتوضأ؟ - صلاتي حياتي</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+
+        :root {
+            --primary: #2c3e50;
+            --accent: #8e44ad;
+            --correct: #27ae60;
+            --wrong: #c0392b;
+            --gold: #f1c40f;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f3f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none; /* منع تحديد النص للأطفال */
+        }
+
+        /* شريط النقاط العلوي */
+        .score-board {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: white;
+            padding: 10px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .score-item {
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-correct { background-color: #eafaf1; color: var(--correct); border: 2px solid var(--correct); }
+        .score-wrong { background-color: #fdedec; color: var(--wrong); border: 2px solid var(--wrong); }
+
+        header {
+            margin-top: 80px;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--accent); margin: 0; font-size: 2rem; }
+        p { color: #7f8c8d; margin-top: 5px; }
+
+        /* شبكة البطاقات */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            width: 95%;
+            max-width: 1000px;
+            padding-bottom: 50px;
+        }
+
+        .card-container {
+            background-color: transparent;
+            height: 200px;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-container.flipped .card {
+            transform: rotateY(180deg);
+        }
+
+        .card-container.disabled {
+            pointer-events: none; /* تعطيل النقر بعد الإجابة */
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-front { background: white; }
+        .card-front img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .tap-hint {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        
+        .card-back.valid { background: #eafaf1; border-color: var(--correct); color: var(--correct); }
+        .card-back.invalid { background: #fdedec; border-color: var(--wrong); color: var(--wrong); }
+
+        .result-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .item-name { font-weight: 900; font-size: 1.1rem; margin-bottom: 5px; color: #333; }
+        .item-desc { font-size: 0.8rem; line-height: 1.4; color: #555; }
+
+        /* نافذة السؤال (Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid var(--accent);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-img-wrapper {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #eee;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .modal-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+        .question-text { font-size: 1.4rem; font-weight: bold; margin-bottom: 25px; color: var(--primary); }
+
+        .choices-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            border-radius: 15px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+        }
+
+        .btn-yes { background: linear-gradient(135deg, #2ecc71, #27ae60); box-shadow: 0 4px 0 #219150; }
+        .btn-no { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 4px 0 #962d22; }
+
+        .choice-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* شاشة النهاية */
+        .final-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #2c3e50, #8e44ad);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .final-title { font-size: 3rem; margin-bottom: 20px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .final-score { font-size: 1.5rem; margin-bottom: 30px; background: rgba(255,255,255,0.2); padding: 10px 30px; border-radius: 50px; }
+        
+        .religious-msg {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: var(--gold);
+            font-weight: 900;
+            max-width: 600px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .restart-btn {
+            background: white;
+            color: var(--accent);
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            font-family: 'Tajawal', sans-serif;
+            transition: 0.3s;
+        }
+        .restart-btn:hover { transform: scale(1.1); }
+
+        /* بديل الصورة */
+        .fallback { font-size: 3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        .fallback span { font-size: 1rem; margin-top: 5px; color: #7f8c8d; }
+
+    </style>
+</head>
+<body>
+
+    <div class="score-board">
+        <div class="score-item score-correct">
+            <span>✅</span>
+            <span id="scoreCorrect">0</span>
+        </div>
+        <div class="score-item score-wrong">
+            <span>❌</span>
+            <span id="scoreWrong">0</span>
+        </div>
+    </div>
+
+    <header>
+        <h1>💧 لعبة صلاتي حياتي (بماذا أتوضئ؟)</h1>
+        <p>اضغط على البطاقة لتختبر نفسك (يصح أم لا)</p>
+        <p>إعداد: أ. حسن سديف</p>
+    </header>
+
+    <div class="grid-container" id="cardsGrid">
+        </div>
+
+    <div class="modal-overlay" id="questionModal">
+        <div class="modal-content">
+            <div class="modal-img-wrapper">
+                <img id="modalImg" src="" alt="صورة السؤال">
+                <div id="modalEmoji" style="font-size: 4rem; display:none; align-items: center; justify-content: center; height: 100%;"></div>
+            </div>
+            <div class="question-text">
+                هل يصح الوضوء بـ <span id="modalItemName" style="color: var(--accent);"></span>؟
+            </div>
+            <div class="choices-container">
+                <button class="choice-btn btn-yes" onclick="answer(true)">نعم، يصح ✅</button>
+                <button class="choice-btn btn-no" onclick="answer(false)">لا، لا يصح ❌</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="final-screen" id="finalScreen">
+        <div class="final-title">🎉 ما شاء الله! 🎉</div>
+        <div class="final-score">
+            إجابات صحيحة: <span id="finalCorrect">0</span> | أخطاء: <span id="finalWrong">0</span>
+        </div>
+        <div class="religious-msg">
+            "أحسنت يا بطل<br>جعلك الله من جنود قائم آل محمد"
+        </div>
+        <button class="restart-btn" onclick="location.reload()">🔄 العب مرة أخرى</button>
+    </div>
+
+    <script>
+        // البيانات (نفس أسماء الصور)
+        const items = [
+            // القائمة الأولى: يصح الوضوء
+            { file: "tap_water.jpg", name: "ماء الحنفية", valid: true, desc: "ماء مطلق طاهر ومطهر", emoji: "🚰" },
+            { file: "rain.jpg", name: "ماء المطر", valid: true, desc: "أنزله الله طهوراً", emoji: "🌧️" },
+            { file: "sea_water.jpg", name: "ماء البحر", valid: true, desc: "هو الطهور ماؤه", emoji: "🌊" },
+            { file: "river_water.jpg", name: "ماء النهر", valid: true, desc: "ماء جارٍ مطلق", emoji: "🏞️" },
+            { file: "well_water.jpg", name: "ماء البئر", valid: true, desc: "ماء نبع من الأرض", emoji: "🕳️" },
+            { file: "snow.jpg", name: "الثلج", valid: true, desc: "يصح إذا ذاب وصار ماءً", emoji: "⛄" },
+            { file: "hail.jpg", name: "البَرَد", valid: true, desc: "يصح بعد ذوبانه", emoji: "🌨️" },
+            { file: "dirty_water.jpg", name: "ماء به تراب قليل", valid: true, desc: "يصح لأنه ما زال ماءً", emoji: "🟤" },
+            { file: "zamzam.jpg", name: "ماء زمزم", valid: true, desc: "خير ماء على وجه الأرض", emoji: "🕋" },
+            { file: "spring_water.jpg", name: "ماء العين", valid: true, desc: "ماء خارج من الأرض", emoji: "⛲" },
+
+            // القائمة الثانية: لا يصح الوضوء
+            { file: "rose_water.jpg", name: "ماء الورد", valid: false, desc: "ماء مضاف (تغيرت رائحته)", emoji: "🌹" },
+            { file: "vimto.jpg", name: "شربت فيمتو", valid: false, desc: "ماء مضاف (عصير)", emoji: "🍷" },
+            { file: "orange_juice.jpg", name: "عصير برتقال", valid: false, desc: "عصير وليس ماءً", emoji: "🍊" },
+            { file: "sugar_water.jpg", name: "ماء وسكر", valid: false, desc: "تغير طعمه فأصبح مضافاً", emoji: "🍬" },
+            { file: "blood.jpg", name: "دم", valid: false, desc: "نجس! يمنع الصلاة", emoji: "🩸" },
+            { file: "tea.jpg", name: "شاي", valid: false, desc: "تغير لونه وطعمه", emoji: "☕" },
+            { file: "milk.jpg", name: "حليب", valid: false, desc: "طاهر ولكنه ليس ماء", emoji: "🥛" },
+            { file: "coffee.jpg", name: "قهوة", valid: false, desc: "ماء مضاف", emoji: "☕" },
+            { file: "mud.jpg", name: "طين كثيف", valid: false, desc: "لا يسمى ماءً", emoji: "🧱" },
+            { file: "oil.jpg", name: "زيت", valid: false, desc: "مادة تمنع وصول الماء", emoji: "🛢️" },
+            { file: "vinegar.jpg", name: "خل", valid: false, desc: "سائل طاهر ليس ماء", emoji: "🏺" },
+            { file: "pepsi.jpg", name: "بيبسي", valid: false, desc: "ماء مضاف", emoji: "🥤" },
+            { file: "soup.jpg", name: "شوربة", valid: false, desc: "ماء مضاف دسم", emoji: "🍲" },
+            { file: "ink.jpg", name: "حبر", valid: false, desc: "يغير لون الماء ويمنع وصوله", emoji: "✒️" }
+        ];
+
+        // متغيرات اللعبة
+        let scoreCorrect = 0;
+        let scoreWrong = 0;
+        let answeredCards = 0;
+        let activeCardIndex = null;
+        let activeCardObj = null; // الكائن (البيانات)
+        let shuffledItems = [];
+
+        // عناصر DOM
+        const grid = document.getElementById('cardsGrid');
+        const modal = document.getElementById('questionModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalEmoji = document.getElementById('modalEmoji');
+        const modalTitle = document.getElementById('modalItemName');
+        
+        // خلط المصفوفة
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // بدء اللعبة
+        function initGame() {
+            shuffledItems = shuffle([...items]);
+            grid.innerHTML = '';
+            
+            shuffledItems.forEach((item, index) => {
+                const container = document.createElement('div');
+                container.className = 'card-container';
+                container.dataset.index = index;
+                
+                // HTML البطاقة
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-front">
+                            <img src="${item.file}" alt="${item.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="fallback" style="display:none;">
+                                <div>${item.emoji}</div>
+                                <span>${item.name}</span>
+                            </div>
+                            <div class="tap-hint">اضغط للإجابة</div>
+                        </div>
+                        <div class="card-back ${item.valid ? 'valid' : 'invalid'}">
+                            <div class="result-icon">${item.valid ? '✅' : '❌'}</div>
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-desc">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+
+                // عند الضغط على البطاقة
+                container.onclick = function() {
+                    // إذا كانت البطاقة مقلوبة مسبقاً لا تفعل شيئاً
+                    if (this.classList.contains('flipped')) return;
+                    openModal(index);
+                };
+
+                grid.appendChild(container);
+            });
+        }
+
+        // فتح نافذة السؤال
+        function openModal(index) {
+            activeCardIndex = index;
+            activeCardObj = shuffledItems[index];
+
+            // تعبئة بيانات المودال
+            modalTitle.innerText = activeCardObj.name;
+            
+            // محاولة عرض الصورة، وفي حال الفشل عرض الإيموجي
+            modalImg.style.display = 'block';
+            modalEmoji.style.display = 'none';
+            modalImg.src = activeCardObj.file;
+            
+            modalImg.onerror = function() {
+                this.style.display = 'none';
+                modalEmoji.style.display = 'flex';
+                modalEmoji.innerText = activeCardObj.emoji;
+            };
+
+            modal.style.display = 'flex';
+        }
+
+        // معالجة الجواب
+        function answer(userChoice) {
+            // إغلاق النافذة
+            modal.style.display = 'none';
+
+            // التحقق من صحة الجواب
+            // المستخدم اختار "نعم" (true) والبطاقة صالحة (true) => صحيح
+            // المستخدم اختار "لا" (false) والبطاقة غير صالحة (false) => صحيح
+            const isCorrect = (userChoice === activeCardObj.valid);
+
+            if (isCorrect) {
+                scoreCorrect++;
+                document.getElementById('scoreCorrect').innerText = scoreCorrect;
+                // صوت بسيط (اختياري) أو تأثير
+            } else {
+                scoreWrong++;
+                document.getElementById('scoreWrong').innerText = scoreWrong;
+            }
+
+            // قلب البطاقة
+            const cardElement = grid.children[activeCardIndex];
+            cardElement.classList.add('flipped');
+            cardElement.classList.add('disabled'); // منع الضغط مرة أخرى
+
+            // زيادة عداد الإجابات
+            answeredCards++;
+
+            // التحقق من نهاية اللعبة
+            if (answeredCards === items.length) {
+                setTimeout(showFinalScreen, 1500);
+            }
+        }
+
+        function showFinalScreen() {
+            document.getElementById('finalCorrect').innerText = scoreCorrect;
+            document.getElementById('finalWrong').innerText = scoreWrong;
+            document.getElementById('finalScreen').style.display = 'flex';
+        }
+
+        // تشغيل اللعبة عند التحميل
+        window.onload = initGame;
+
+    </script>
+</body>
+</html>
