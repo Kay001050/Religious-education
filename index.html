@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>H-EDU | منصة تعليمية</title>
+    <title>H-EDU | منصة تعليمية متطورة</title>
     <meta name="description" content="منصة تعليمية دينية تفاعلية للمسابقات والألعاب والدروس..">
     <meta name="author" content="أ. حسن سديف">
 
@@ -19,6 +19,8 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font for Code Block -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- Tailwind Config -->
     <script>
@@ -43,6 +45,7 @@
                         cairo: ['Cairo', 'sans-serif'],
                         tajawal: ['Tajawal', 'sans-serif'],
                         amiri: ['Amiri', 'serif'],
+                        code: ['Fira Code', 'monospace'],
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
@@ -50,6 +53,7 @@
                         'bounce-slow': 'bounce 3s infinite',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 8s linear infinite',
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
@@ -82,6 +86,7 @@
         .dark .glass {
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
         }
         .dark .bg-white { background-color: #1e293b; color: #f8fafc; }
         .dark .text-slate-800 { color: #f1f5f9; }
@@ -97,8 +102,8 @@
         /* Glassmorphism Utilities */
         .glass {
             background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
         
@@ -160,25 +165,73 @@
             transform: rotate(180deg);
         }
 
-        /* FAB (Floating Action Button) Styles */
-        .fab-menu-item {
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        /* === ENHANCED FAB (Floating Action Button) STYLES === */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 60;
+            display: flex;
+            flex-direction: column-reverse; /* Main button at bottom */
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             opacity: 0;
-            transform: scale(0) translateY(20px);
+            transform: translateY(20px) scale(0.8);
             pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .fab-active .fab-menu-item {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-            pointer-events: auto;
+
+        /* Staggered Animation Delay */
+        .fab-container.active .fab-item { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .fab-container.active .fab-item:nth-child(1) { transition-delay: 50ms; }
+        .fab-container.active .fab-item:nth-child(2) { transition-delay: 100ms; }
+        .fab-container.active .fab-item:nth-child(3) { transition-delay: 150ms; }
+        .fab-container.active .fab-item:nth-child(4) { transition-delay: 200ms; }
+        .fab-container.active .fab-item:nth-child(5) { transition-delay: 250ms; }
+
+        .fab-main {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.4);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 4px solid white;
         }
-        .fab-active .fab-menu-item:nth-child(1) { transition-delay: 50ms; }
-        .fab-active .fab-menu-item:nth-child(2) { transition-delay: 100ms; }
-        .fab-active .fab-menu-item:nth-child(3) { transition-delay: 150ms; }
-        .fab-active .fab-menu-item:nth-child(4) { transition-delay: 200ms; }
-        .fab-active .fab-menu-item:nth-child(5) { transition-delay: 250ms; }
-        .fab-main-btn { transition: transform 0.3s ease; }
-        .fab-active .fab-main-btn { transform: rotate(45deg); }
+        .dark .fab-main { border-color: #1e293b; }
+        
+        .fab-main:hover { transform: scale(1.1); box-shadow: 0 20px 25px -5px rgba(34, 197, 94, 0.5); }
+        .fab-main:active { transform: scale(0.95); }
+        .fab-main i { transition: transform 0.3s ease; }
+        .fab-container.active .fab-main i { transform: rotate(45deg); }
+
+        .fab-label {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #475569;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+        .dark .fab-label { background: #1e293b; color: #e2e8f0; }
+
+        .fab-item:hover .fab-label { opacity: 1; transform: translateX(0); }
 
         /* Toast Notifications */
         #toast-container {
@@ -209,6 +262,15 @@
             from { opacity: 0; transform: translateX(-50px); }
             to { opacity: 1; transform: translateX(0); }
         }
+        
+        /* Skeleton Loading Animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .dark .skeleton { background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%); }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="font-tajawal text-slate-700 antialiased selection:bg-brand-500 selection:text-white">
@@ -263,7 +325,7 @@
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 animate-fade-in-up">
             
-            <!-- Teacher Profile Card (Collapsible Redesign) -->
+            <!-- Teacher Profile Card -->
             <div class="lg:col-span-4 xl:col-span-3">
                 <div class="bg-white dark:bg-dark-surface rounded-3xl shadow-xl border border-slate-100 dark:border-dark-border overflow-hidden h-full flex flex-col relative group">
                     
@@ -362,7 +424,7 @@
                             </p>
                         </div>
                         
-                        <!-- Search Bar (Added Feature) -->
+                        <!-- Search Bar -->
                         <div class="w-full md:w-80 relative group">
                             <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-500 to-gold-500 rounded-xl blur opacity-30 group-hover:opacity-75 transition duration-500"></div>
                             <div class="relative flex items-center bg-white rounded-xl p-1">
@@ -409,45 +471,48 @@
         </div>
     </footer>
 
-    <!-- ================= FLOATING ACTION BUTTON (FAB) ================= -->
-    <div id="fab-wrapper" class="fixed bottom-8 left-8 z-[60] flex flex-col-reverse items-end gap-4 pointer-events-none">
-        
-        <!-- Main FAB Button -->
-        <button onclick="toggleFab()" class="pointer-events-auto fab-main-btn w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-2xl shadow-brand-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all ring-4 ring-white/30 dark:ring-slate-900/50">
-            <i data-lucide="arrow-up" class="w-8 h-8"></i>
+    <!-- ================= ADVANCED FLOATING ACTION BUTTON (FAB) ================= -->
+    <div class="fab-container" id="fabContainer">
+        <!-- Main Button -->
+        <button class="fab-main" onclick="toggleFabMenu()">
+            <i data-lucide="plus" class="w-8 h-8"></i>
         </button>
 
-        <!-- Menu Items -->
-        <button onclick="quickFilter('game')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الألعاب</span>
-            <div class="w-12 h-12 rounded-full bg-pink-500 text-white shadow-lg flex items-center justify-center hover:bg-pink-600 transition-colors">
-                <i data-lucide="gamepad-2" class="w-6 h-6"></i>
-            </div>
-        </button>
-        <button onclick="quickFilter('quiz')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">المسابقات</span>
-            <div class="w-12 h-12 rounded-full bg-purple-500 text-white shadow-lg flex items-center justify-center hover:bg-purple-600 transition-colors">
-                <i data-lucide="trophy" class="w-6 h-6"></i>
-            </div>
-        </button>
-        <button onclick="quickFilter('lesson')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الدروس</span>
-            <div class="w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
-                <i data-lucide="book-open-check" class="w-6 h-6"></i>
-            </div>
-        </button>
-        <button onclick="quickFilter('event')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الفعاليات</span>
-            <div class="w-12 h-12 rounded-full bg-amber-500 text-white shadow-lg flex items-center justify-center hover:bg-amber-600 transition-colors">
-                <i data-lucide="calendar" class="w-6 h-6"></i>
-            </div>
-        </button>
-         <button onclick="quickFilter('all')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الكل</span>
-            <div class="w-12 h-12 rounded-full bg-slate-700 text-white shadow-lg flex items-center justify-center hover:bg-slate-800 transition-colors">
-                <i data-lucide="grid" class="w-6 h-6"></i>
-            </div>
-        </button>
+        <!-- Items -->
+        <div class="fab-item">
+            <button onclick="quickFilter('all')" class="w-12 h-12 rounded-full bg-slate-700 text-white shadow-lg hover:bg-slate-800 flex items-center justify-center transition-colors">
+                <i data-lucide="grid" class="w-5 h-5"></i>
+            </button>
+            <span class="fab-label">عرض الكل</span>
+        </div>
+        
+        <div class="fab-item">
+            <button onclick="quickFilter('quiz')" class="w-12 h-12 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600 flex items-center justify-center transition-colors">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+            </button>
+            <span class="fab-label">المسابقات</span>
+        </div>
+
+        <div class="fab-item">
+            <button onclick="quickFilter('game')" class="w-12 h-12 rounded-full bg-pink-500 text-white shadow-lg hover:bg-pink-600 flex items-center justify-center transition-colors">
+                <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+            </button>
+            <span class="fab-label">الألعاب</span>
+        </div>
+
+        <div class="fab-item">
+            <button onclick="quickFilter('lesson')" class="w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg hover:bg-blue-600 flex items-center justify-center transition-colors">
+                <i data-lucide="book-open-check" class="w-5 h-5"></i>
+            </button>
+            <span class="fab-label">الدروس</span>
+        </div>
+
+        <div class="fab-item">
+            <button onclick="scrollToTop()" class="w-12 h-12 rounded-full bg-brand-500 text-white shadow-lg hover:bg-brand-600 flex items-center justify-center transition-colors">
+                <i data-lucide="arrow-up" class="w-5 h-5"></i>
+            </button>
+            <span class="fab-label">أعلى الصفحة</span>
+        </div>
     </div>
 
     <!-- ================= MODALS ================= -->
@@ -477,7 +542,7 @@
         </div>
     </div>
 
-    <!-- 2. Admin Dashboard Modal (Highly Enhanced) -->
+    <!-- 2. ULTIMATE ADMIN DASHBOARD -->
     <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-slate-50/95 dark:bg-[#0f172a]/95 backdrop-blur-xl overflow-y-auto">
         <div class="min-h-screen py-8 px-4 md:px-8">
             <div class="max-w-7xl mx-auto">
@@ -489,7 +554,7 @@
                         </div>
                         <div>
                             <h2 class="text-2xl font-black font-cairo text-slate-800 dark:text-white">نظام إدارة المحتوى المتقدم</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">V 4.0 PRO | ULTIMATE EDITION</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">V 5.0 PRO | ULTIMATE EDITION</p>
                         </div>
                     </div>
                     <div class="flex gap-3 w-full md:w-auto">
@@ -497,8 +562,8 @@
                             <i data-lucide="upload-cloud" class="w-4 h-4"></i> استيراد
                         </button>
                         <input type="file" id="importDataTrigger" class="hidden" onchange="importData(this)">
-                        <button onclick="copyCode()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-600 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg shadow-gold-500/20">
-                            <i data-lucide="code" class="w-4 h-4"></i> تصدير
+                        <button onclick="downloadCode()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-600 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg shadow-gold-500/20">
+                            <i data-lucide="download" class="w-4 h-4"></i> تنزيل
                         </button>
                         <button onclick="toggleAdminModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 text-slate-500 dark:text-slate-300 px-4 py-3 rounded-xl transition-all font-bold">
                             <i data-lucide="x" class="w-5 h-5"></i>
@@ -510,27 +575,54 @@
                     <!-- Left Column: Dashboard & Form -->
                     <div class="lg:col-span-8 xl:col-span-9 space-y-8">
                         
-                        <!-- STATS WIDGETS & CHARTS -->
+                        <!-- ADVANCED STATS WIDGETS -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden">
-                                <i data-lucide="trophy" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden group">
+                                <i data-lucide="trophy" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12 group-hover:scale-110 transition-transform"></i>
                                 <div class="text-3xl font-black mb-1" id="statQuiz">0</div>
                                 <div class="text-xs font-bold opacity-80">مسابقات</div>
                             </div>
-                            <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg shadow-pink-500/20 relative overflow-hidden">
-                                <i data-lucide="gamepad-2" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                            <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg shadow-pink-500/20 relative overflow-hidden group">
+                                <i data-lucide="gamepad-2" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12 group-hover:scale-110 transition-transform"></i>
                                 <div class="text-3xl font-black mb-1" id="statGame">0</div>
                                 <div class="text-xs font-bold opacity-80">ألعاب</div>
                             </div>
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden">
-                                <i data-lucide="book-open-check" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden group">
+                                <i data-lucide="book-open-check" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12 group-hover:scale-110 transition-transform"></i>
                                 <div class="text-3xl font-black mb-1" id="statLesson">0</div>
                                 <div class="text-xs font-bold opacity-80">دروس</div>
                             </div>
-                            <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-5 text-white shadow-lg shadow-brand-500/20 relative overflow-hidden">
-                                <i data-lucide="layers" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                            <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-5 text-white shadow-lg shadow-brand-500/20 relative overflow-hidden group">
+                                <i data-lucide="layers" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12 group-hover:scale-110 transition-transform"></i>
                                 <div class="text-3xl font-black mb-1" id="statTotal">0</div>
                                 <div class="text-xs font-bold opacity-80">إجمالي</div>
+                            </div>
+                        </div>
+
+                        <!-- System Health & Storage Widget (New Feature) -->
+                        <div class="bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border mb-8">
+                            <h4 class="font-bold text-lg mb-4 text-slate-800 dark:text-white flex items-center gap-2">
+                                <i data-lucide="activity" class="text-green-500"></i> صحة النظام والمساحة
+                            </h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-xs text-slate-500 mb-1">
+                                        <span>مساحة التخزين المستخدمة</span>
+                                        <span>15%</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500 w-[15%] rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-slate-500 mb-1">
+                                        <span>أداء السيرفر (محاكاة)</span>
+                                        <span class="text-green-500 font-bold">ممتاز 99ms</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-green-500 w-[95%] rounded-full"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -638,7 +730,7 @@
                                 <div class="flex gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
                                 <span class="text-xs text-slate-400 font-mono">database_update.js</span>
                             </div>
-                            <div class="relative flex-1 bg-[#1e1e1e] p-4 font-mono text-xs text-green-400 overflow-y-auto">
+                            <div class="relative flex-1 bg-[#1e1e1e] p-4 font-code text-xs text-green-400 overflow-y-auto">
                                 <pre id="codeExportArea" class="whitespace-pre-wrap">Generating...</pre>
                             </div>
                             <div class="p-3 bg-[#2d2d2d] border-t border-slate-700 flex gap-2">
@@ -725,6 +817,7 @@ let contentData = [
 ];
 
         let currentFilter = 'all';
+        let favorites = JSON.parse(localStorage.getItem('h-edu-favorites')) || [];
 
         // --- 2. INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -799,8 +892,6 @@ let contentData = [
         // --- 6. SEARCH & FILTER ---
         function handleSearch(query) {
             const lowerQ = query.toLowerCase();
-            // Apply filter on top of current category filter? Or just global search?
-            // Let's do global search that overrides category filter for better UX
             if (query.trim() === '') {
                 renderGrid(contentData.filter(item => currentFilter === 'all' || item.grade === currentFilter));
                 return;
@@ -814,7 +905,11 @@ let contentData = [
         }
 
         function quickFilter(type) {
-            document.getElementById('fab-wrapper').classList.remove('fab-active');
+            // Close FAB menu
+            const fab = document.getElementById('fabContainer');
+            if (fab.classList.contains('active')) fab.classList.remove('active');
+
+            // Scroll
             document.getElementById('grid-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
             
             setTimeout(() => {
@@ -897,6 +992,7 @@ let contentData = [
                 const typeInfo = typeConfig.find(t => t.id === item.type) || typeConfig[5];
                 const gradeInfo = gradeConfig.find(g => g.id === item.grade) || { icon: 'users', color: 'text-slate-500' };
                 const iconToUse = item.icon || typeInfo.icon;
+                const isFav = favorites.includes(item.id);
 
                 const card = `
                 <a href="${item.link}" class="interactive-card bg-white dark:bg-dark-surface rounded-[2rem] p-0 relative overflow-hidden group block border border-slate-100 dark:border-dark-border shadow-sm h-full flex flex-col">
@@ -909,11 +1005,15 @@ let contentData = [
                     </div>
 
                     <div class="p-6 pt-8 flex-1 flex flex-col">
-                        <div class="flex justify-end mb-3">
+                        <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                                 <i data-lucide="${gradeInfo.icon}" class="w-3.5 h-3.5 ${gradeInfo.color}"></i>
                                 <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">${item.grade}</span>
                             </div>
+                            <!-- Favorite Heart -->
+                            <button onclick="event.preventDefault(); toggleFavorite(${item.id})" class="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isFav ? 'text-red-500' : 'text-slate-300'}">
+                                <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-current' : ''}"></i>
+                            </button>
                         </div>
 
                         <h3 class="text-xl font-black font-cairo text-slate-800 dark:text-white mb-2 leading-tight group-hover:text-brand-600 transition-colors line-clamp-2">${item.title}</h3>
@@ -931,6 +1031,18 @@ let contentData = [
                 container.innerHTML += card;
             });
             lucide.createIcons();
+        }
+
+        function toggleFavorite(id) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(f => f !== id);
+                showToast('تمت الإزالة من المفضلة', 'success');
+            } else {
+                favorites.push(id);
+                showToast('تمت الإضافة إلى المفضلة', 'success');
+            }
+            localStorage.setItem('h-edu-favorites', JSON.stringify(favorites));
+            renderGrid(contentData.filter(item => currentFilter === 'all' || item.grade === currentFilter)); // Re-render to update heart icon
         }
 
         function filterContent(grade) {
@@ -1029,6 +1141,7 @@ let contentData = [
                             </div>
                         </div>
                         <div class="flex gap-1">
+                            <button onclick="duplicateItem(${originalIndex})" class="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
                             <button onclick="editItem(${originalIndex})" class="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
                             <button onclick="deleteItem(${originalIndex})" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
@@ -1098,6 +1211,18 @@ let contentData = [
             document.getElementById('addItemForm').scrollIntoView({ behavior: 'smooth' });
         }
 
+        function duplicateItem(idx) {
+            const item = contentData[idx];
+            const newItem = { ...item, id: Date.now(), title: item.title + ' (نسخة)' };
+            contentData.unshift(newItem);
+            renderAdminList();
+            renderGrid(contentData);
+            updateStats();
+            updateCharts();
+            generateExportCode();
+            showToast('تم نسخ العنصر بنجاح', 'success');
+        }
+
         function resetForm() {
             document.getElementById('addItemForm').reset();
             document.getElementById('editItemId').value = "";
@@ -1164,6 +1289,19 @@ let contentData = [
             document.getElementById('codeExportArea').textContent = `// Data Export\nlet contentData = ${json};`;
         }
 
+        function downloadCode() {
+            const json = JSON.stringify(contentData, null, 4);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "h-edu-data.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('تم تنزيل ملف البيانات بنجاح', 'success');
+        }
+
         function copyCode() {
             const t = document.getElementById('codeExportArea').textContent;
             navigator.clipboard.writeText(t).then(() => showToast('تم نسخ الكود للحافظة!', 'success'));
@@ -1194,6 +1332,16 @@ let contentData = [
             };
             reader.readAsText(file);
             input.value = ''; // Reset
+        }
+
+        // --- FAB LOGIC ---
+        function toggleFabMenu() {
+            document.getElementById('fabContainer').classList.toggle('active');
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('fabContainer').classList.remove('active');
         }
 
     </script>
