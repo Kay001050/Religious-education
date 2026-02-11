@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مسابقة المولد المهدوي - الصف الثاني وثالث</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #059669; /* أخضر مهدوي */
+            --secondary: #F59E0B; /* ذهبي */
+            --accent: #10B981;
+            --bg-pattern: url('https://www.transparenttextures.com/patterns/arabesque.png');
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #ecfdf5;
+            background-image: var(--bg-pattern);
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-cairo { font-family: 'Cairo', sans-serif; }
+        
+        /* تأثيرات حركية */
+        @keyframes shine {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+        
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+
+        .card-3d {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+        }
+        .card-3d:active { transform: scale(0.95); }
+        .card-flipped { transform: rotateY(180deg); opacity: 0; pointer-events: none; }
+
+        /* تخصيص السكرول بار */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #d1fae5; }
+        ::-webkit-scrollbar-thumb { background: #059669; border-radius: 4px; }
+
+        .modal-enter { animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // ==========================================
+        // 1. قاعدة البيانات (الأسئلة)
+        // ==========================================
+        // تم إعداد 25 سؤالاً متنوعاً (مهدوي، صلاة، وضوء)
+        const QUESTIONS_DB = [
+            // أسئلة المولد والإمام المهدي (أساسية)
+            { id: 1, type: 'mahdi', q: "متى ولد الإمام المهدي (عجل الله فرجه)؟", a: ["15 شعبان", "10 محرم", "27 رجب", "15 رمضان"], correct: 0 },
+            { id: 2, type: 'mahdi', q: "من هي والدة الإمام المهدي (عليه السلام)؟", a: ["السيدة فاطمة", "السيدة نرجس", "السيدة خديجة", "السيدة زينب"], correct: 1 },
+            { id: 3, type: 'mahdi', q: "من هو والد الإمام المهدي (عليه السلام)؟", a: ["الإمام الحسين", "الإمام الحسن العسكري", "الإمام الرضا", "الإمام علي"], correct: 1 },
+            { id: 4, type: 'mahdi', q: "في أي مدينة ولد منقذ البشرية؟", a: ["كربلاء", "النجف", "سامراء", "مكة"], correct: 2 },
+            { id: 5, type: 'mahdi', q: "ما معنى لقب (المهدي)؟", a: ["الذي يهديه الله للحق", "القوي جداً", "الذي يطير", "الرجل الكبير"], correct: 0 },
+            { id: 6, type: 'mahdi', q: "ماذا نفعل عندما نسمع لقب (القائم)؟", a: ["نصفق بقوة", "نقف احتراماً ونضع اليد على الرأس", "نجلس بهدوء", "ننام"], correct: 1 },
+            { id: 7, type: 'wudu', q: "كم مرة نمسح الرأس في الوضوء؟", a: ["3 مرات", "مرة واحدة", "مرتين", "لا نمسح"], correct: 1 },
+            { id: 8, type: 'wudu', q: "بأي يد نمسح القدم اليمنى؟", a: ["باليد اليسرى", "باليد اليمنى", "بالمنديل", "لا يهم"], correct: 1 },
+            { id: 9, type: 'behavior', q: "هل الإمام المهدي يحب الطفل الكسول؟", a: ["نعم", "لا، يحب النشيط", "ربما", "لا أعرف"], correct: 1 },
+            { id: 10, type: 'mahdi', q: "أين سيظهر الإمام المهدي أول مرة؟", a: ["في الكوفة", "عند الكعبة (مكة)", "في بيتنا", "في المدرسة"], correct: 1 },
+            
+            // أسئلة إضافية لإكمال العدد 25
+            { id: 11, type: 'behavior', q: "هل الإمام المهدي يفرح بنا عندما نصلي؟", a: ["لا يهتم", "نعم يفرح كثيراً", "يحزن", "يغضب"], correct: 1 },
+            { id: 12, type: 'wudu', q: "ما هو أول عمل في الوضوء؟", a: ["مسح الرأس", "غسل اليدين والمضمضة", "النية", "غسل الرجلين"], correct: 2 }, // النية وغسل الوجه (تبسيط)
+            { id: 13, type: 'mahdi', q: "هل الإمام المهدي حي ويرزق؟", a: ["نعم هو حي", "لا لقد مات", "غير موجود", "سوف يولد"], correct: 0 },
+            { id: 14, type: 'behavior', q: "كيف نساعد الإمام المهدي؟", a: ["بالنوم", "بالأخلاق الحسنة والصلاة", "باللعب فقط", "بالصراخ"], correct: 1 },
+            { id: 15, type: 'mahdi', q: "كم عدد السفراء في الغيبة الصغرى؟", a: ["سفير واحد", "10 سفراء", "4 سفراء", "لا يوجد"], correct: 2 },
+            { id: 16, type: 'wudu', q: "هل يجوز الوضوء بماء متسخ بنجاسة؟", a: ["نعم عادي", "لا، يجب أن يكون ماءً طاهراً مطلقاً", "يجوز إذا كنا مستعجلين", "نعم"], correct: 1 },
+            { id: 17, type: 'mahdi', q: "ما هو أفضل دعاء للإمام المهدي؟", a: ["دعاء الفرج (اللهم كن لوليك)", "دعاء السفر", "دعاء الطعام", "دعاء النوم"], correct: 0 },
+            { id: 18, type: 'behavior', q: "هل يحب الإمام المهدي الطفل الذي يكذب؟", a: ["نعم", "لا، يحب الصادق", "قليلاً", "أحياناً"], correct: 1 },
+            { id: 19, type: 'behavior', q: "هل الإمام المهدي يرانا؟", a: ["لا يرانا", "نعم، تعرض عليه أعمالنا", "فقط يوم الجمعة", "لا يعرفنا"], correct: 1 },
+            { id: 20, type: 'wudu', q: "ماذا نمسح بعد الرأس؟", a: ["الوجه", "القدمين", "اليد اليمنى", "الأذن"], correct: 1 },
+            { id: 21, type: 'mahdi', q: "لقب الإمام هو (الحجة)، ماذا يعني؟", a: ["حجة الله على خلقه", "الحاج", "الرجل القوي", "المسافر"], correct: 0 },
+            { id: 22, type: 'behavior', q: "هل يحب الإمام المهدي أن نطيع الوالدين؟", a: ["لا", "نعم، بر الوالدين مهم", "فقط الأم", "فقط الأب"], correct: 1 },
+            { id: 23, type: 'wudu', q: "هل يبطل الوضوء بالنوم؟", a: ["لا", "نعم", "فقط النوم القليل", "لا أعرف"], correct: 1 },
+            { id: 24, type: 'mahdi', q: "ما هو عمر الإمام المهدي عندما استلم الإمامة؟", a: ["5 سنوات", "40 سنة", "20 سنة", "سنة واحدة"], correct: 0 },
+            { id: 25, type: 'behavior', q: "ماذا نقول في الصلاة على محمد وآل محمد؟", a: ["شكراً", "اللهم صل على محمد وآل محمد", "الحمدلله", "السلام عليكم"], correct: 1 },
+        ];
+
+        // ==========================================
+        // 2. محرك الأصوات (بدون ملفات خارجية)
+        // ==========================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const playTone = (freq, type, duration, vol = 0.1) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        };
+
+        const Sounds = {
+            hover: () => playTone(300, 'sine', 0.1, 0.05),
+            click: () => playTone(600, 'triangle', 0.1, 0.1),
+            correct: () => {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.4, 0.2), i * 100));
+            },
+            wrong: () => {
+                playTone(150, 'sawtooth', 0.4, 0.2);
+                setTimeout(() => playTone(130, 'sawtooth', 0.4, 0.2), 150);
+            },
+            spin: () => playTone(800, 'square', 0.05, 0.05),
+            win: () => {
+                const notes = [523, 659, 783, 1046, 783, 1046];
+                notes.forEach((n, i) => setTimeout(() => playTone(n, 'triangle', 0.3, 0.2), i * 150));
+            }
+        };
+
+        // ==========================================
+        // 3. المكونات الفرعية
+        // ==========================================
+
+        // مكون: عجلة الحظ
+        const Wheel = ({ isOpen, onClose, students, setStudents }) => {
+            const [rotation, setRotation] = useState(0);
+            const [isSpinning, setIsSpinning] = useState(false);
+            const [winner, setWinner] = useState(null);
+            const [editMode, setEditMode] = useState(false);
+            const [textInput, setTextInput] = useState(students.join('\n'));
+
+            const spin = () => {
+                if (isSpinning || students.length < 2) return;
+                setIsSpinning(true);
+                setWinner(null);
+
+                const spins = Math.floor(Math.random() * 5) + 5; // 5-10 spins
+                const extraDeg = Math.floor(Math.random() * 360);
+                const totalDeg = rotation + (spins * 360) + extraDeg;
+                
+                setRotation(totalDeg);
+
+                // Sound Effect Loop
+                let count = 0;
+                const ticker = setInterval(() => {
+                    count++;
+                    if(count > 25) clearInterval(ticker);
+                    Sounds.spin();
+                }, 150);
+
+                setTimeout(() => {
+                    setIsSpinning(false);
+                    const actualDeg = totalDeg % 360;
+                    const segmentAngle = 360 / students.length;
+                    // Logic: arrow at top center.
+                    const winIndex = Math.floor(((360 - actualDeg + (segmentAngle/2)) % 360) / segmentAngle);
+                    const safeIndex = (winIndex + students.length) % students.length; // Ensure positive
+                    
+                    setWinner(students[safeIndex]);
+                    Sounds.correct();
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                }, 4000);
+            };
+
+            const saveNames = () => {
+                const names = textInput.split('\n').filter(n => n.trim().length > 0);
+                setStudents(names);
+                localStorage.setItem('mahdi_class_names', JSON.stringify(names));
+                setEditMode(false);
+            };
+
+            if (!isOpen) return null;
+
+            const wheelColors = ['#10B981', '#3B82F6', '#F59E0B', '#EC4899', '#8B5CF6', '#EF4444'];
+            const conicGradient = `conic-gradient(${students.map((_, i) => `${wheelColors[i % wheelColors.length]} ${(i/students.length)*100}% ${((i+1)/students.length)*100}%`).join(', ')})`;
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
+                    <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                        {/* Header */}
+                        <div className="bg-emerald-600 p-4 flex justify-between items-center text-white shadow-md z-10">
+                            <h2 className="text-xl font-bold font-cairo flex items-center gap-2"><i data-lucide="users"></i> قرعة الأبطال</h2>
+                            <button onClick={onClose} className="hover:bg-emerald-700 p-2 rounded-full transition"><i data-lucide="x"></i></button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto flex-1 flex flex-col items-center bg-slate-50">
+                            {editMode ? (
+                                <div className="w-full">
+                                    <label className="block text-gray-700 font-bold mb-2">أدخل أسماء الطلاب (كل اسم في سطر):</label>
+                                    <textarea 
+                                        value={textInput}
+                                        onChange={(e) => setTextInput(e.target.value)}
+                                        className="w-full h-64 border-2 border-emerald-300 rounded-xl p-3 focus:outline-none focus:border-emerald-600 font-bold"
+                                    ></textarea>
+                                    <button onClick={saveNames} className="w-full mt-4 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700">حفظ القائمة</button>
+                                </div>
+                            ) : (
+                                <>
+                                    {winner ? (
+                                        <div className="text-center py-8 animate-pop">
+                                            <div className="text-gray-500 font-bold mb-2">الفائز هو البطل:</div>
+                                            <h1 className="text-5xl font-black text-emerald-600 mb-8 drop-shadow-sm font-cairo">{winner}</h1>
+                                            <div className="flex gap-2 justify-center">
+                                                <button onClick={() => setWinner(null)} className="bg-blue-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-600">إغلاق</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="relative mb-8 mt-4">
+                                                {/* Arrow */}
+                                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-10">
+                                                    <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[30px] border-t-red-600 filter drop-shadow-lg"></div>
+                                                </div>
+                                                {/* Wheel */}
+                                                <div 
+                                                    className="w-64 h-64 rounded-full border-8 border-yellow-400 shadow-2xl relative transition-transform duration-[4000ms] cubic-bezier(0.15, 0, 0.15, 1)"
+                                                    style={{ background: conicGradient, transform: `rotate(${rotation}deg)` }}
+                                                >
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <div className="w-12 h-12 bg-white rounded-full shadow-inner z-10 flex items-center justify-center">
+                                                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <button 
+                                                onClick={spin}
+                                                disabled={isSpinning}
+                                                className={`w-full py-4 rounded-2xl text-2xl font-black text-white shadow-lg mb-4 transform transition hover:scale-105 active:scale-95
+                                                ${isSpinning ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-orange-500 animate-pulse'}`}
+                                            >
+                                                {isSpinning ? 'جاري التدوير...' : 'دَوّر العجلة!'}
+                                            </button>
+                                            
+                                            <button onClick={() => setEditMode(true)} className="text-gray-500 hover:text-emerald-600 font-bold flex items-center gap-2 text-sm">
+                                                <i data-lucide="edit-3" size={16}></i> تعديل الأسماء ({students.length})
+                                            </button>
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // مكون: سؤال المسابقة
+        const QuestionModal = ({ question, onClose, onAnswer }) => {
+            const [selected, setSelected] = useState(null);
+            const [status, setStatus] = useState(null); // correct, wrong
+
+            useEffect(() => {
+                Sounds.click();
+            }, []);
+
+            const handleOptionClick = (index) => {
+                if (selected !== null) return;
+                setSelected(index);
+                
+                if (index === question.correct) {
+                    setStatus('correct');
+                    Sounds.correct();
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } });
+                    setTimeout(() => onAnswer(true), 2500);
+                } else {
+                    setStatus('wrong');
+                    Sounds.wrong();
+                    setTimeout(() => onAnswer(false), 2000);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-emerald-900/90 backdrop-blur-sm p-4 modal-enter">
+                    <div className="w-full max-w-3xl bg-white rounded-[2rem] overflow-hidden shadow-2xl border-4 border-yellow-400">
+                        <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 p-8 text-center text-white relative">
+                            <div className="absolute top-2 right-2 opacity-20"><i data-lucide="moon" size={80}></i></div>
+                            <h2 className="text-2xl md:text-3xl font-bold font-cairo leading-relaxed">{question.q}</h2>
+                        </div>
+                        
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-100">
+                            {question.a.map((opt, i) => {
+                                let style = "bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-400 hover:bg-blue-50";
+                                let icon = <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-500 ml-3">{i+1}</span>;
+
+                                if (selected !== null) {
+                                    if (i === question.correct) {
+                                        style = "bg-green-100 border-green-600 text-green-800 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
+                                        icon = <i data-lucide="check-circle" className="ml-3 text-green-600"></i>;
+                                    } else if (i === selected) {
+                                        style = "bg-red-100 border-red-500 text-red-800";
+                                        icon = <i data-lucide="x-circle" className="ml-3 text-red-600"></i>;
+                                    } else {
+                                        style = "opacity-40 grayscale";
+                                    }
+                                }
+
+                                return (
+                                    <button 
+                                        key={i}
+                                        onClick={() => handleOptionClick(i)}
+                                        disabled={selected !== null}
+                                        className={`p-4 rounded-xl text-lg md:text-xl font-bold text-right flex items-center transition-all duration-300 transform hover:scale-[1.02] active:scale-95 ${style}`}
+                                    >
+                                        {icon}
+                                        {opt}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* شريط المساعدة */}
+                        <div className="bg-gray-50 p-4 border-t border-gray-200 flex justify-between items-center">
+                            <div className="text-gray-500 font-bold text-sm">مساعدة الأستاذ متاحة</div>
+                            {status === 'wrong' && <div className="text-red-600 font-bold animate-pulse">حاول مرة أخرى مع طالب آخر!</div>}
+                            {status === 'correct' && <div className="text-green-600 font-bold animate-bounce">أحسنت يا بطل!</div>}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 4. التطبيق الرئيسي
+        // ==========================================
+        const App = () => {
+            const [view, setView] = useState('welcome'); // welcome, game, end
+            const [cards, setCards] = useState([]);
+            const [currentCard, setCurrentCard] = useState(null);
+            const [wheelOpen, setWheelOpen] = useState(false);
+            const [students, setStudents] = useState(["أحمد", "محمد", "علي", "حسين", "حسن", "رضا", "عباس", "قاسم", "زين العابدين", "جعفر"]);
+            const [score, setScore] = useState(0);
+
+            // عند التشغيل
+            useEffect(() => {
+                lucide.createIcons();
+                
+                // تحميل الأسماء المحفوظة
+                const saved = localStorage.getItem('mahdi_class_names');
+                if (saved) setStudents(JSON.parse(saved));
+
+                // تجهيز البطاقات
+                const initialCards = QUESTIONS_DB.map((q, index) => ({
+                    ...q,
+                    isSolved: false,
+                    displayNum: index + 1
+                }));
+                setCards(initialCards);
+            }, []);
+
+            // تحديث الأيقونات عند تغير الحالة
+            useEffect(() => {
+                setTimeout(() => lucide.createIcons(), 100);
+            }, [view, currentCard, wheelOpen]);
+
+            const startGame = () => {
+                Sounds.click();
+                setView('game');
+            };
+
+            const handleCardClick = (card) => {
+                if (card.isSolved) return;
+                setCurrentCard(card);
+            };
+
+            const handleAnswer = (isCorrect) => {
+                if (isCorrect) {
+                    // تحديث البطاقة لتصبح محلولة
+                    setCards(prev => prev.map(c => c.id === currentCard.id ? { ...c, isSolved: true } : c));
+                    setScore(s => s + 10);
+                }
+                setCurrentCard(null); // إغلاق السؤال
+                
+                // فحص انتهاء اللعبة (مثلاً بعد 10 إجابات صحيحة أو انتهاء الوقت)
+                // هنا نتركها مفتوحة للأستاذ ليقرر متى ينهي
+            };
+
+            // واجهة الترحيب
+            const WelcomeScreen = () => (
+                <div className="min-h-screen flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                    
+                    <div className="glass bg-white/80 backdrop-blur-md p-10 rounded-[3rem] shadow-xl border-4 border-yellow-400 max-w-2xl w-full z-10 animate-float">
+                        <div className="flex justify-center mb-4">
+                            <i data-lucide="star" className="w-20 h-20 text-yellow-500 fill-current animate-pulse"></i>
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-black text-emerald-800 font-cairo mb-4 drop-shadow-md">منقذ البشرية</h1>
+                        <p className="text-xl md:text-2xl text-emerald-600 font-bold mb-8">مسابقة تفاعلية - الصف الثاني وثالث الابتدائي</p>
+                        
+                        <button onClick={startGame} className="group relative inline-flex items-center justify-center px-8 py-5 text-2xl font-bold text-white transition-all duration-200 bg-emerald-600 font-tajawal rounded-full hover:bg-emerald-700 hover:scale-105 shadow-lg w-full md:w-auto">
+                            <span className="ml-3">ابدأ المسابقة</span>
+                            <i data-lucide="play-circle" className="w-8 h-8 group-hover:rotate-12 transition"></i>
+                        </button>
+                        
+                        <div className="mt-8 text-gray-400 font-bold text-sm">إعداد: أ. حسن سديف</div>
+                    </div>
+                </div>
+            );
+
+            // واجهة اللعبة (شبكة البطاقات)
+            const GameScreen = () => (
+                <div className="min-h-screen flex flex-col pb-20">
+                    {/* الشريط العلوي */}
+                    <div className="bg-white/90 backdrop-blur shadow-sm p-4 sticky top-0 z-30 flex justify-between items-center px-4 md:px-10 border-b border-emerald-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                                <i data-lucide="award" size={24}></i>
+                            </div>
+                            <div>
+                                <div className="text-xs text-gray-500 font-bold">النقاط</div>
+                                <div className="text-xl font-black text-emerald-800">{score}</div>
+                            </div>
+                        </div>
+                        <div className="text-emerald-800 font-black text-xl font-cairo hidden md:block">مسابقة مولد الإمام المهدي (عج)</div>
+                        <button onClick={() => setView('welcome')} className="text-gray-400 hover:text-red-500 transition">
+                            <i data-lucide="log-out"></i>
+                        </button>
+                    </div>
+
+                    {/* شبكة البطاقات */}
+                    <div className="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full">
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-6">
+                            {cards.map((card) => (
+                                <button
+                                    key={card.id}
+                                    onClick={() => handleCardClick(card)}
+                                    disabled={card.isSolved}
+                                    className={`aspect-[4/5] rounded-2xl shadow-lg flex flex-col items-center justify-center text-3xl md:text-5xl font-black relative overflow-hidden transition-all duration-500
+                                        ${card.isSolved 
+                                            ? 'bg-gray-200 text-gray-400 scale-95 opacity-50 cursor-default' 
+                                            : 'bg-gradient-to-br from-emerald-500 to-teal-700 text-white hover:scale-105 hover:shadow-2xl shine-effect cursor-pointer border-b-8 border-teal-900'
+                                        }`}
+                                >
+                                    {card.isSolved ? (
+                                        <i data-lucide="check" size={40}></i>
+                                    ) : (
+                                        <>
+                                            <div className="absolute top-2 right-2 opacity-30">
+                                                <i data-lucide={card.type === 'mahdi' ? 'moon' : (card.type === 'wudu' ? 'droplets' : 'heart')} size={24}></i>
+                                            </div>
+                                            <span className="font-cairo drop-shadow-md">{card.displayNum}</span>
+                                        </>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* زر العجلة العائم */}
+                    <button 
+                        onClick={() => setWheelOpen(true)}
+                        className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-5 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.6)] hover:scale-110 transition-transform duration-300 border-4 border-white flex items-center gap-2 group"
+                    >
+                        <i data-lucide="aperture" className="w-8 h-8 group-hover:rotate-180 transition-transform duration-700"></i>
+                        <span className="font-bold hidden md:inline pr-2">القرعة</span>
+                    </button>
+                </div>
+            );
+
+            return (
+                <>
+                    {view === 'welcome' && <WelcomeScreen />}
+                    {view === 'game' && <GameScreen />}
+                    
+                    {currentCard && (
+                        <QuestionModal 
+                            question={currentCard} 
+                            onClose={() => setCurrentCard(null)} 
+                            onAnswer={handleAnswer} 
+                        />
+                    )}
+
+                    <Wheel 
+                        isOpen={wheelOpen} 
+                        onClose={() => setWheelOpen(false)} 
+                        students={students}
+                        setStudents={setStudents}
+                    />
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
