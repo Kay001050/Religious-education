@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -23,6 +23,7 @@
     <!-- Tailwind Config -->
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -32,13 +33,10 @@
                         gold: {
                             400: '#fbbf24', 500: '#f59e0b', 600: '#d97706',
                         },
-                        type: {
-                            quiz: '#8b5cf6',    // Purple
-                            game: '#ec4899',    // Pink
-                            lesson: '#3b82f6',  // Blue
-                            event: '#f59e0b',   // Gold
-                            ai: '#10b981',      // Emerald
-                            other: '#64748b'    // Slate
+                        dark: {
+                            bg: '#0f172a',
+                            surface: '#1e293b',
+                            border: '#334155'
                         }
                     },
                     fontFamily: {
@@ -51,6 +49,7 @@
                         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
                         'bounce-slow': 'bounce 3s infinite',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
@@ -72,7 +71,28 @@
                 radial-gradient(at 100% 100%, hsla(220,70%,90%,1) 0, transparent 50%);
             background-attachment: fixed;
             overflow-x: hidden;
+            transition: background-color 0.3s ease;
         }
+
+        /* Dark Mode Overrides */
+        .dark body {
+            background-color: #0f172a;
+            background-image: none;
+        }
+        .dark .glass {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .dark .bg-white { background-color: #1e293b; color: #f8fafc; }
+        .dark .text-slate-800 { color: #f1f5f9; }
+        .dark .text-slate-600 { color: #cbd5e1; }
+        .dark .text-slate-500 { color: #94a3b8; }
+        .dark .text-slate-400 { color: #64748b; }
+        .dark .border-slate-200 { border-color: #334155; }
+        .dark .border-slate-100 { border-color: #334155; }
+        .dark .bg-slate-50 { background-color: #0f172a; }
+        .dark .custom-input { background: #0f172a; border-color: #334155; color: white; }
+        .dark .custom-input:focus { background: #1e293b; border-color: #22c55e; }
 
         /* Glassmorphism Utilities */
         .glass {
@@ -82,12 +102,6 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
         
-        .glass-dark {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
         /* Card Hover Effects */
         .interactive-card {
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -96,11 +110,15 @@
             transform: translateY(-12px) scale(1.01);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
+        .dark .interactive-card:hover {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Input Styling */
@@ -115,11 +133,31 @@
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
         }
 
-        /* Radio Button Selector Styling (For Admin Panel) */
+        /* Radio Button Selector Styling */
         .radio-selector input:checked + div {
             border-color: currentColor;
             background-color: rgba(0,0,0,0.05);
             transform: scale(1.05);
+        }
+        .dark .radio-selector input:checked + div {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* Accordion/Transition Logic */
+        .accordion-content {
+            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+            max-height: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 1000px; /* Arbitrary large height */
+            transition: max-height 0.5s cubic-bezier(1, 0, 1, 0);
+        }
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+        .rotate-icon.open {
+            transform: rotate(180deg);
         }
 
         /* FAB (Floating Action Button) Styles */
@@ -134,25 +172,19 @@
             transform: scale(1) translateY(0);
             pointer-events: auto;
         }
-        /* Staggered animation delays for menu items */
         .fab-active .fab-menu-item:nth-child(1) { transition-delay: 50ms; }
         .fab-active .fab-menu-item:nth-child(2) { transition-delay: 100ms; }
         .fab-active .fab-menu-item:nth-child(3) { transition-delay: 150ms; }
         .fab-active .fab-menu-item:nth-child(4) { transition-delay: 200ms; }
         .fab-active .fab-menu-item:nth-child(5) { transition-delay: 250ms; }
-
-        .fab-main-btn {
-            transition: transform 0.3s ease;
-        }
-        .fab-active .fab-main-btn {
-            transform: rotate(45deg); /* Rotate icon to X */
-        }
+        .fab-main-btn { transition: transform 0.3s ease; }
+        .fab-active .fab-main-btn { transform: rotate(45deg); }
 
         /* Toast Notifications */
         #toast-container {
             position: fixed;
             top: 20px;
-            left: 20px; /* RTL layout: left side */
+            left: 20px;
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -161,7 +193,7 @@
         .toast {
             min-width: 300px;
             background: white;
-            border-right: 4px solid; /* Accent border */
+            border-right: 4px solid;
             padding: 16px;
             border-radius: 8px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -169,27 +201,13 @@
             align-items: center;
             justify-content: space-between;
             animation: slideInLeft 0.3s ease-out forwards;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
         }
-        .toast::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            background: rgba(0,0,0,0.1);
-            width: 100%;
-            transform-origin: left;
-            animation: progress linear forwards;
-        }
+        .dark .toast { background: #1e293b; color: white; }
         @keyframes slideInLeft {
             from { opacity: 0; transform: translateX(-50px); }
             to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes progress {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
         }
     </style>
 </head>
@@ -199,8 +217,8 @@
     <div id="toast-container"></div>
 
     <!-- ================= Navbar ================= -->
-    <nav class="fixed top-0 w-full z-50 glass border-b border-slate-200/50 transition-all duration-300" id="navbar">
-        <div class="container mx-auto px-4 h-24 flex items-center justify-between">
+    <nav class="fixed top-0 w-full z-50 glass border-b border-slate-200/50 dark:border-dark-border transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
             <!-- Logo Area -->
             <div class="flex items-center gap-4">
                 <div class="relative w-12 h-12 group cursor-pointer">
@@ -211,23 +229,29 @@
                     </div>
                 </div>
                 <div class="leading-none hidden md:block">
-                    <h1 class="font-black font-cairo text-2xl text-slate-800 tracking-tight">H-EDU</h1>
+                    <h1 class="font-black font-cairo text-2xl text-slate-800 dark:text-white tracking-tight">H-EDU</h1>
                     <p class="text-[10px] font-bold text-brand-600 tracking-widest uppercase">المنصة التعليمية</p>
                 </div>
             </div>
 
             <!-- Actions -->
             <div class="flex items-center gap-3">
-                <a href="https://instagram.com/bh_h16" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 hover:text-pink-600 border border-slate-200 hover:border-pink-200 transition-all text-sm font-bold text-slate-600 group">
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+
+                <a href="https://instagram.com/bh_h16" target="_blank" class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 dark:bg-slate-800 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 hover:text-pink-600 border border-slate-200 dark:border-slate-700 hover:border-pink-200 transition-all text-sm font-bold text-slate-600 dark:text-slate-300 group">
                     <i data-lucide="instagram" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                    <span class="hidden sm:inline">@bh_h16</span>
+                    <span>@bh_h16</span>
                 </a>
                 
-                <button onclick="toggleLoginModal()" class="hidden sm:flex items-center gap-2 bg-slate-900 hover:bg-brand-600 text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-slate-900/20 hover:shadow-brand-500/30 transform hover:-translate-y-0.5">
+                <button onclick="toggleLoginModal()" class="hidden sm:flex items-center gap-2 bg-slate-900 dark:bg-brand-600 hover:bg-brand-600 text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-slate-900/20 hover:shadow-brand-500/30 transform hover:-translate-y-0.5">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                     <span>لوحة المعلم</span>
                 </button>
-                <button onclick="toggleLoginModal()" class="sm:hidden bg-slate-900 text-white p-2.5 rounded-full shadow-lg">
+                <button onclick="toggleLoginModal()" class="sm:hidden bg-slate-900 dark:bg-brand-600 text-white p-2.5 rounded-full shadow-lg">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -235,63 +259,79 @@
     </nav>
 
     <!-- ================= Main Content ================= -->
-    <main class="container mx-auto px-4 pt-32 pb-20 min-h-screen">
+    <main class="container mx-auto px-4 pt-28 pb-20 min-h-screen">
         
-        <!-- Hero & Profile Section -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 animate-fade-in-up">
             
-            <!-- Teacher Profile Card (Redesigned) -->
+            <!-- Teacher Profile Card (Collapsible Redesign) -->
             <div class="lg:col-span-4 xl:col-span-3">
-                <div class="glass-card interactive-card bg-white rounded-3xl p-0 relative overflow-hidden h-full flex flex-col shadow-xl border border-slate-100">
-                    <!-- Header Image/Gradient -->
-                    <div class="h-36 bg-gradient-to-br from-brand-600 via-brand-700 to-emerald-900 relative flex items-center justify-center">
+                <div class="bg-white dark:bg-dark-surface rounded-3xl shadow-xl border border-slate-100 dark:border-dark-border overflow-hidden h-full flex flex-col relative group">
+                    
+                    <!-- Header: Always Visible -->
+                    <div class="h-32 bg-gradient-to-br from-brand-600 via-brand-700 to-emerald-900 relative flex items-center justify-center p-4">
                         <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                        <div class="absolute -bottom-10 right-6 z-10">
-                            <div class="w-24 h-24 bg-white rounded-2xl p-1.5 shadow-2xl rotate-3 border-4 border-white">
-                                <div class="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center text-brand-600 overflow-hidden">
-                                    <i data-lucide="user" class="w-12 h-12"></i>
+                        <div class="absolute top-4 right-4 z-10">
+                             <div class="w-14 h-14 bg-white rounded-xl p-0.5 shadow-2xl border-2 border-white">
+                                <div class="w-full h-full bg-slate-100 rounded-lg flex items-center justify-center text-brand-600 overflow-hidden">
+                                    <i data-lucide="user" class="w-8 h-8"></i>
                                 </div>
                             </div>
                         </div>
+                        <div class="absolute bottom-4 left-4 z-10">
+                            <h2 class="text-xl font-black font-cairo text-white leading-none">أ. حسن سديف</h2>
+                            <p class="text-[10px] text-green-100 opacity-90 mt-1">طالب مقدمات & معلم</p>
+                        </div>
                     </div>
 
-                    <div class="pt-12 px-6 pb-6 flex flex-col flex-1 text-center">
-                        <h2 class="text-2xl font-black font-cairo text-slate-800 mb-1">أ. حسن سديف</h2>
-                        <div class="flex flex-wrap justify-center gap-2 mb-6">
-                            <span class="bg-brand-50 text-brand-700 text-[10px] font-bold px-2 py-1 rounded-lg border border-brand-100">طالب مقدمات</span>
-                            <span class="bg-gold-50 text-gold-700 text-[10px] font-bold px-2 py-1 rounded-lg border border-gold-100">AI Developer</span>
-                        </div>
+                    <!-- Toggle Button -->
+                    <button onclick="toggleProfileCard()" class="w-full bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-dark-border py-3 flex items-center justify-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <span id="profileBtnText">عرض معلومات بطاقة المعلم</span>
+                        <i data-lucide="chevron-down" id="profileIcon" class="w-4 h-4 rotate-icon transition-transform duration-300"></i>
+                    </button>
 
-                        <div class="space-y-3 text-sm text-slate-600 mb-6 bg-slate-50/80 p-4 rounded-2xl border border-slate-100 flex-1">
-                            <div class="flex items-start gap-3">
-                                <div class="bg-white p-1.5 rounded-lg shadow-sm shrink-0 text-brand-600 mt-0.5"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>
-                                <span class="text-right leading-relaxed">طالب في حوزة الغدير للعلوم الإسلامية</span>
+                    <!-- Content: Collapsible -->
+                    <div id="profileContent" class="accordion-content bg-white dark:bg-dark-surface flex-1 flex flex-col">
+                        <div class="px-6 py-6 flex flex-col gap-5">
+                            
+                            <!-- Badges -->
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <span class="bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-brand-100 dark:border-brand-700">طالب مقدمات</span>
+                                <span class="bg-gold-50 dark:bg-gold-900/30 text-gold-700 dark:text-gold-300 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-gold-100 dark:border-gold-700">AI Developer</span>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <div class="bg-white p-1.5 rounded-lg shadow-sm shrink-0 text-gold-500 mt-0.5"><i data-lucide="building-2" class="w-4 h-4"></i></div>
-                                <span class="text-right leading-relaxed">مركز المرتضى (ع) - معلم</span>
-                            </div>
-                              <div class="flex items-start gap-3">
-      <div class="bg-white p-1.5 rounded-lg shadow-sm shrink-0 text-gold-500 mt-0.5"><i data-lucide="building-2" class="w-4 h-4"></i></div>
-     <span class="text-right leading-relaxed">الجمعية الأهلية - معلم مساعد</span>
-  </div>
-                            <div class="flex items-start gap-3">
-                                <div class="bg-white p-1.5 rounded-lg shadow-sm shrink-0 text-purple-500 mt-0.5"><i data-lucide="cpu" class="w-4 h-4"></i></div>
-                                <span class="text-right leading-relaxed">صانع أكواد AI وكاتب محتوى</span>
-                            </div>
-                        </div>
 
-                        <div class="mt-auto w-full grid grid-cols-1 gap-3">
-                            <a href="https://wa.me/97336166806" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-green-500/20 group">
- <i data-lucide="message-circle" class="w-4 h-4 group-hover:scale-110 transition-transform"></i> للتواصل واتساب
-                            </a>
-                            <div class="grid grid-cols-2 gap-3">
-                                <a href="mailto:hasan.sdaif16@gmail.com" class="flex items-center justify-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2.5 rounded-xl text-xs font-bold transition-colors">
-                                    <i data-lucide="mail" class="w-3.5 h-3.5"></i> بريد إلكتروني
+                            <!-- Info List -->
+                            <div class="space-y-3 text-sm text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-dark-border">
+                                <div class="flex items-start gap-3">
+                                    <div class="bg-white dark:bg-dark-surface p-1.5 rounded-lg shadow-sm shrink-0 text-brand-600 mt-0.5"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>
+                                    <span class="text-right leading-relaxed">طالب في حوزة الغدير للعلوم الإسلامية</span>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="bg-white dark:bg-dark-surface p-1.5 rounded-lg shadow-sm shrink-0 text-gold-500 mt-0.5"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+                                    <span class="text-right leading-relaxed">مركز المرتضى (ع) - معلم</span>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="bg-white dark:bg-dark-surface p-1.5 rounded-lg shadow-sm shrink-0 text-gold-500 mt-0.5"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+                                    <span class="text-right leading-relaxed">الجمعية الأهلية - معلم مساعد</span>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="bg-white dark:bg-dark-surface p-1.5 rounded-lg shadow-sm shrink-0 text-purple-500 mt-0.5"><i data-lucide="cpu" class="w-4 h-4"></i></div>
+                                    <span class="text-right leading-relaxed">صانع أكواد AI وكاتب محتوى</span>
+                                </div>
+                            </div>
+
+                            <!-- Contact Actions -->
+                            <div class="grid grid-cols-1 gap-3 mt-auto">
+                                <a href="https://wa.me/97336166806" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-green-500/20 group">
+                                    <i data-lucide="message-circle" class="w-4 h-4 group-hover:scale-110 transition-transform"></i> للتواصل واتساب
                                 </a>
-                                <a href="https://instagram.com/bh_h16" target="_blank" class="flex items-center justify-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2.5 rounded-xl text-xs font-bold transition-colors">
-                                    <i data-lucide="instagram" class="w-3.5 h-3.5"></i> إنستقرام
-                                </a>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <a href="mailto:hasan.sdaif16@gmail.com" class="flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 py-2.5 rounded-xl text-xs font-bold transition-colors">
+                                        <i data-lucide="mail" class="w-3.5 h-3.5"></i> بريد إلكتروني
+                                    </a>
+                                    <a href="https://instagram.com/bh_h16" target="_blank" class="flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 py-2.5 rounded-xl text-xs font-bold transition-colors">
+                                        <i data-lucide="instagram" class="w-3.5 h-3.5"></i> إنستقرام
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -302,31 +342,45 @@
             <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-8">
                 
                 <!-- Hero Banner -->
-                <div class="relative bg-slate-900 rounded-[2.5rem] p-8 md:p-8 text-white overflow-hidden shadow-2xl border border-slate-800">
+                <div class="relative bg-slate-900 dark:bg-black rounded-[2.5rem] p-8 md:p-10 text-white overflow-hidden shadow-2xl border border-slate-800">
                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
-                    <div class="absolute -right-20 -top-20 w-80 h-80 bg-brand-600 rounded-full blur-[100px] opacity-30"></div>
-                    <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-gold-600 rounded-full blur-[100px] opacity-20"></div>
+                    <div class="absolute -right-20 -top-20 w-80 h-80 bg-brand-600 rounded-full blur-[100px] opacity-30 animate-pulse-slow"></div>
+                    <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-gold-600 rounded-full blur-[100px] opacity-20 animate-pulse-slow" style="animation-delay: 1s;"></div>
                     
-                    <div class="relative z-10">
-                        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 mb-6">
-                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            <span class="text-sm font-bold tracking-wide">المحتوى مُحدث ومتاح</span>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div>
+                            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 mb-6">
+                                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                <span class="text-sm font-bold tracking-wide">المحتوى مُحدث ومتاح</span>
+                            </div>
+                            <h2 class="text-4xl md:text-5xl font-black font-cairo mb-4 leading-[1.15]">
+                                التعليم الديني.. <br/>
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-gold-400">خطوات في طريق المعرفة</span>
+                            </h2>
+                            <p class="text-slate-300 text-lg max-w-xl leading-relaxed">
+                                أضع بين أيديكم هذه الأعمال البسيطة من مسابقات وأنشطة، لعلها تزرع معلومة نافعة أو ترسم ابتسامة على وجوه أحبتنا الصغار.
+                            </p>
                         </div>
-                        <h2 class="text-4xl md:text-4xl font-black font-cairo mb-6 leading-[1.1]">
-                            التعليم الديني.. <br/>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-gold-400">خطوات في طريق المعرفة</span>
-                        </h2>
-                        <p class="text-slate-300 text-lg max-w-xl leading-relaxed mb-8">
-                            أضع بين أيديكم هذه الأعمال البسيطة من مسابقات وأنشطة، لعلها تزرع معلومة نافعة أو ترسم ابتسامة على وجوه أحبتنا الصغار.
-                        </p>
+                        
+                        <!-- Search Bar (Added Feature) -->
+                        <div class="w-full md:w-80 relative group">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-500 to-gold-500 rounded-xl blur opacity-30 group-hover:opacity-75 transition duration-500"></div>
+                            <div class="relative flex items-center bg-white rounded-xl p-1">
+                                <i data-lucide="search" class="w-5 h-5 text-slate-400 mr-3"></i>
+                                <input type="text" id="globalSearch" oninput="handleSearch(this.value)" placeholder="ابحث عن درس أو مسابقة..." class="w-full bg-transparent outline-none text-slate-800 placeholder-slate-400 font-medium h-10">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Filters Section -->
                 <div class="flex flex-col gap-4">
-                    <div class="flex items-center gap-2 text-sm font-bold text-slate-500 px-1">
-                        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-                        <span>تصفية حسب الفئة العمرية:</span>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 px-1">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                            <span>تصفية حسب الفئة العمرية:</span>
+                        </div>
+                        <span id="resultCount" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-slate-500 dark:text-slate-400">عرض الكل</span>
                     </div>
                     <div class="flex flex-wrap gap-2" id="gradeFilters">
                         <!-- Filters generated via JS -->
@@ -344,14 +398,14 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 pt-12 pb-8 relative">
+    <footer class="bg-white dark:bg-dark-surface border-t border-slate-200 dark:border-dark-border pt-12 pb-8 relative">
         <div class="container mx-auto px-4 text-center">
-            <div class="flex justify-center items-center gap-3 text-slate-800 mb-6">
+            <div class="flex justify-center items-center gap-3 text-slate-800 dark:text-white mb-6">
                 <i data-lucide="heart-handshake" class="w-6 h-6 text-red-400 animate-bounce-slow"></i>
                 <span class="font-black font-cairo text-2xl">خادمكم الصغير</span>
             </div>
-            <p class="text-slate-500 text-sm font-medium mb-2">جميع الحقوق محفوظة © 2026 | أ. حسن سديف</p>
-            <p class="text-slate-400 text-xs mt-6 font-mono opacity-50">نُشر بعونٍ من الرحمن</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2">جميع الحقوق محفوظة © 2026 | أ. حسن سديف</p>
+            <p class="text-slate-400 dark:text-slate-500 text-xs mt-6 font-mono opacity-50">نُشر بعونٍ من الرحمن</p>
         </div>
     </footer>
 
@@ -359,55 +413,49 @@
     <div id="fab-wrapper" class="fixed bottom-8 left-8 z-[60] flex flex-col-reverse items-end gap-4 pointer-events-none">
         
         <!-- Main FAB Button -->
-        <button onclick="toggleFab()" class="pointer-events-auto fab-main-btn w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-2xl shadow-brand-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all ring-4 ring-white/30">
+        <button onclick="toggleFab()" class="pointer-events-auto fab-main-btn w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-2xl shadow-brand-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all ring-4 ring-white/30 dark:ring-slate-900/50">
             <i data-lucide="arrow-up" class="w-8 h-8"></i>
         </button>
 
-        <!-- Menu Items (Targeting Types) -->
-        <!-- Game -->
+        <!-- Menu Items -->
         <button onclick="quickFilter('game')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الألعاب</span>
+            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الألعاب</span>
             <div class="w-12 h-12 rounded-full bg-pink-500 text-white shadow-lg flex items-center justify-center hover:bg-pink-600 transition-colors">
                 <i data-lucide="gamepad-2" class="w-6 h-6"></i>
             </div>
         </button>
-        <!-- Quiz -->
         <button onclick="quickFilter('quiz')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">المسابقات</span>
+            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">المسابقات</span>
             <div class="w-12 h-12 rounded-full bg-purple-500 text-white shadow-lg flex items-center justify-center hover:bg-purple-600 transition-colors">
                 <i data-lucide="trophy" class="w-6 h-6"></i>
             </div>
         </button>
-        <!-- Lesson -->
         <button onclick="quickFilter('lesson')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الدروس</span>
+            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الدروس</span>
             <div class="w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
                 <i data-lucide="book-open-check" class="w-6 h-6"></i>
             </div>
         </button>
-        <!-- Events -->
         <button onclick="quickFilter('event')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الفعاليات</span>
+            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الفعاليات</span>
             <div class="w-12 h-12 rounded-full bg-amber-500 text-white shadow-lg flex items-center justify-center hover:bg-amber-600 transition-colors">
                 <i data-lucide="calendar" class="w-6 h-6"></i>
             </div>
         </button>
-         <!-- All -->
          <button onclick="quickFilter('all')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
-            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الكل</span>
+            <span class="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الكل</span>
             <div class="w-12 h-12 rounded-full bg-slate-700 text-white shadow-lg flex items-center justify-center hover:bg-slate-800 transition-colors">
                 <i data-lucide="grid" class="w-6 h-6"></i>
             </div>
         </button>
     </div>
 
-
     <!-- ================= MODALS ================= -->
 
     <!-- 1. Login Modal -->
     <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-8 shadow-2xl relative transform scale-95 transition-transform duration-300 border border-slate-100">
-            <button onclick="toggleLoginModal()" class="absolute top-4 left-4 text-slate-400 hover:text-red-500 transition-colors p-2 hover:bg-slate-50 rounded-full">
+        <div class="bg-white dark:bg-dark-surface rounded-3xl w-full max-w-sm p-8 shadow-2xl relative transform scale-95 transition-transform duration-300 border border-slate-100 dark:border-dark-border">
+            <button onclick="toggleLoginModal()" class="absolute top-4 left-4 text-slate-400 hover:text-red-500 transition-colors p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             
@@ -415,13 +463,13 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-700 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30 rotate-3">
                     <i data-lucide="lock" class="w-8 h-8"></i>
                 </div>
-                <h3 class="font-black text-xl text-slate-800">دخول المعلم</h3>
+                <h3 class="font-black text-xl text-slate-800 dark:text-white">دخول المعلم</h3>
                 <p class="text-xs text-slate-500 mt-1">المنطقة المحمية للتحكم بالمحتوى</p>
             </div>
 
             <div class="space-y-4">
-                <input type="password" id="adminPass" placeholder="كلمة المرور" class="w-full custom-input rounded-xl px-5 py-4 text-center tracking-widest font-mono text-lg outline-none" onkeydown="if(event.key==='Enter') attemptLogin()">
-                <button onclick="attemptLogin()" class="w-full bg-slate-900 hover:bg-brand-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 transform active:scale-95">
+                <input type="password" id="adminPass" placeholder="كلمة المرور" class="w-full custom-input rounded-xl px-5 py-4 text-center tracking-widest font-mono text-lg outline-none dark:text-white" onkeydown="if(event.key==='Enter') attemptLogin()">
+                <button onclick="attemptLogin()" class="w-full bg-slate-900 dark:bg-brand-600 hover:bg-brand-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 transform active:scale-95">
                     <span>دخول</span>
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 </button>
@@ -430,25 +478,29 @@
     </div>
 
     <!-- 2. Admin Dashboard Modal (Highly Enhanced) -->
-    <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-slate-50/95 backdrop-blur-xl overflow-y-auto">
+    <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-slate-50/95 dark:bg-[#0f172a]/95 backdrop-blur-xl overflow-y-auto">
         <div class="min-h-screen py-8 px-4 md:px-8">
             <div class="max-w-7xl mx-auto">
                 <!-- Header -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 gap-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="bg-slate-900 p-3 rounded-2xl text-white">
+                        <div class="bg-slate-900 dark:bg-brand-600 p-3 rounded-2xl text-white">
                             <i data-lucide="settings-2" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h2 class="text-2xl font-black font-cairo text-slate-800">نظام إدارة المحتوى المتقدم</h2>
-                            <p class="text-xs text-slate-500 font-mono">V 3.0 PRO | ADMIN DASHBOARD</p>
+                            <h2 class="text-2xl font-black font-cairo text-slate-800 dark:text-white">نظام إدارة المحتوى المتقدم</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">V 4.0 PRO | ULTIMATE EDITION</p>
                         </div>
                     </div>
                     <div class="flex gap-3 w-full md:w-auto">
-                        <button onclick="copyCode()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-gold-500/20">
-                            <i data-lucide="code" class="w-4 h-4"></i> نسخ الكود للنشر
+                        <button onclick="document.getElementById('importDataTrigger').click()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20">
+                            <i data-lucide="upload-cloud" class="w-4 h-4"></i> استيراد
                         </button>
-                        <button onclick="toggleAdminModal()" class="bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-500 px-4 py-3 rounded-xl transition-all font-bold">
+                        <input type="file" id="importDataTrigger" class="hidden" onchange="importData(this)">
+                        <button onclick="copyCode()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-600 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg shadow-gold-500/20">
+                            <i data-lucide="code" class="w-4 h-4"></i> تصدير
+                        </button>
+                        <button onclick="toggleAdminModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 text-slate-500 dark:text-slate-300 px-4 py-3 rounded-xl transition-all font-bold">
                             <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -458,8 +510,8 @@
                     <!-- Left Column: Dashboard & Form -->
                     <div class="lg:col-span-8 xl:col-span-9 space-y-8">
                         
-                        <!-- STATS WIDGETS (New Addition) -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- STATS WIDGETS & CHARTS -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden">
                                 <i data-lucide="trophy" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
                                 <div class="text-3xl font-black mb-1" id="statQuiz">0</div>
@@ -482,66 +534,84 @@
                             </div>
                         </div>
 
+                        <!-- Simple CSS Bar Chart for Content Distribution -->
+                        <div class="bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border">
+                            <h4 class="font-bold text-lg mb-4 text-slate-800 dark:text-white">تحليل توزيع الفئات</h4>
+                            <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex w-full">
+                                <div id="barQuiz" class="h-full bg-purple-500 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="barGame" class="h-full bg-pink-500 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="barLesson" class="h-full bg-blue-500 transition-all duration-1000" style="width: 0%"></div>
+                                <div id="barOther" class="h-full bg-slate-400 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-2 font-mono">
+                                <span>مسابقات</span><span>ألعاب</span><span>دروس</span><span>أخرى</span>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                            <!-- Add Item Form -->
-                            <div class="xl:col-span-2 bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 h-fit">
-                                <h3 class="font-bold text-xl mb-6 flex items-center gap-2 text-slate-800 border-b border-slate-100 pb-4">
-                                    <i data-lucide="plus-circle" class="text-brand-600 w-6 h-6"></i>
-                                    إضافة محتوى جديد
-                                </h3>
+                            <!-- Add/Edit Item Form -->
+                            <div class="xl:col-span-2 bg-white dark:bg-dark-surface p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border h-fit">
+                                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100 dark:border-dark-border">
+                                    <h3 class="font-bold text-xl text-slate-800 dark:text-white flex items-center gap-2">
+                                        <i data-lucide="plus-circle" class="text-brand-600 w-6 h-6"></i>
+                                        <span id="formTitle">إضافة محتوى جديد</span>
+                                    </h3>
+                                    <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full hover:bg-red-200">إلغاء التعديل</button>
+                                </div>
                                 
-                                <form id="addItemForm" onsubmit="handleAddItem(event)" class="space-y-6">
+                                <form id="addItemForm" onsubmit="handleSaveItem(event)" class="space-y-6">
+                                    <input type="hidden" id="editItemId" value="">
+                                    
                                     <!-- Title & Desc -->
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">عنوان النشاط</label>
-                                            <input type="text" id="newTitle" required class="w-full custom-input rounded-xl px-4 py-3 font-bold text-slate-800 outline-none" placeholder="مثال: مسابقة الصلاة">
+                                            <input type="text" id="newTitle" required class="w-full custom-input rounded-xl px-4 py-3 font-bold text-slate-800 dark:text-white outline-none" placeholder="مثال: مسابقة الصلاة">
                                         </div>
                                         <div>
                                             <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">رابط الملف (HTML)</label>
                                             <div class="relative">
                                                 <i data-lucide="link" class="absolute right-4 top-3.5 text-slate-400 w-5 h-5"></i>
-                                                <input type="text" id="newLink" required placeholder="page.html" dir="ltr" class="w-full custom-input rounded-xl pl-4 pr-12 py-3 font-mono text-slate-600 outline-none">
+                                                <input type="text" id="newLink" required placeholder="page.html" dir="ltr" class="w-full custom-input rounded-xl pl-4 pr-12 py-3 font-mono text-slate-600 dark:text-slate-300 outline-none">
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
                                         <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">الوصف المختصر</label>
-                                        <input type="text" id="newDesc" class="w-full custom-input rounded-xl px-4 py-3 text-slate-600 outline-none" placeholder="نبذة قصيرة عن المحتوى...">
+                                        <input type="text" id="newDesc" class="w-full custom-input rounded-xl px-4 py-3 text-slate-600 dark:text-slate-300 outline-none" placeholder="نبذة قصيرة عن المحتوى...">
                                     </div>
 
-                                    <!-- VISUAL SELECTOR: TYPE -->
+                                    <!-- TYPE SELECTOR -->
                                     <div>
                                         <label class="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">نوع الصفحة (اختر الأيقونة)</label>
-                                        <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="typeSelector">
-                                            <!-- JS will inject radio buttons here -->
-                                        </div>
+                                        <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="typeSelector"></div>
                                         <input type="hidden" id="newType" value="quiz">
                                     </div>
 
-                                    <!-- VISUAL SELECTOR: GRADE -->
+                                    <!-- GRADE SELECTOR -->
                                     <div>
                                         <label class="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">الفئة المستهدفة</label>
-                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="gradeSelector">
-                                            <!-- JS will inject radio buttons here -->
-                                        </div>
+                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="gradeSelector"></div>
                                         <input type="hidden" id="newGrade" value="الحلقة الأولى (1-3)">
                                     </div>
                                     
                                     <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 transform active:scale-[0.99]">
-                                        <i data-lucide="save" class="w-5 h-5"></i> حفظ وإضافة للقائمة
+                                        <i data-lucide="save" class="w-5 h-5"></i> <span id="submitBtnText">حفظ وإضافة للقائمة</span>
                                     </button>
                                 </form>
                             </div>
 
                             <!-- Content List -->
-                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 h-fit xl:max-h-[600px] xl:overflow-y-auto">
-                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800 sticky top-0 bg-white z-10 py-2">
-                                    <i data-lucide="list-end" class="text-slate-400"></i> قائمة المحتوى الحالية
-                                </h3>
+                            <div class="bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border h-fit xl:max-h-[700px] xl:overflow-y-auto">
+                                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-dark-border sticky top-0 bg-white dark:bg-dark-surface z-10">
+                                    <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                                        <i data-lucide="list-end" class="text-slate-400"></i> القائمة
+                                    </h3>
+                                    <input type="text" id="adminSearch" oninput="renderAdminList()" placeholder="بحث سريع..." class="bg-slate-100 dark:bg-slate-900 text-xs rounded-lg px-3 py-1 outline-none dark:text-white border-none">
+                                </div>
                                 <div id="adminItemsList" class="space-y-3">
-                                    <!-- Items -->
+                                    <!-- Items injected here -->
                                 </div>
                             </div>
                         </div>
@@ -550,28 +620,19 @@
                     <!-- Right Column: Guide & Code -->
                     <div class="lg:col-span-4 xl:col-span-3 space-y-6">
                         <!-- Guide -->
-                        <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl shadow-xl text-white relative overflow-hidden">
+                        <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl shadow-xl text-white relative overflow-hidden border border-slate-700">
                             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                             <h4 class="font-bold text-lg mb-4 text-gold-400 flex items-center gap-2"><i data-lucide="lightbulb" class="w-5 h-5"></i> دليل النشر السريع</h4>
                             <ol class="list-decimal list-inside space-y-3 text-sm text-slate-300 leading-relaxed">
                                 <li>قم بإضافة وتعديل العناصر الجديدة.</li>
-                                <li>اضغط زر <span class="bg-white/20 px-2 py-0.5 rounded text-white font-bold text-xs">نسخ الكود</span> الموجود بالأسفل.</li>
+                                <li>اضغط زر <span class="bg-white/20 px-2 py-0.5 rounded text-white font-bold text-xs">تصدير الكود</span>.</li>
                                 <li>افتح ملف <code class="bg-black/30 px-1 rounded">index.html</code> على GitHub.</li>
-                                <li>ابحث عن متغير <code class="bg-black/30 px-1 rounded">contentData</code> واستبدله بالكامل بالكود الجديد.</li>
-                                <li>احفظ التغييرات (Commit changes) وانتظر التحديث.</li>
+                                <li>ابحث عن متغير <code class="bg-black/30 px-1 rounded">contentData</code> واستبدله.</li>
+                                <li>احفظ التغييرات (Commit).</li>
                             </ol>
-                            
-                            <div class="mt-6 pt-6 border-t border-white/10">
-                                <h5 class="text-xs font-bold text-slate-400 uppercase mb-3">ملاحظات هامة</h5>
-                                <ul class="space-y-2 text-xs text-slate-400">
-                                    <li class="flex gap-2"><i data-lucide="check-circle" class="w-3 h-3 text-green-400 shrink-0"></i> تأكد من رفع ملف HTML الخاص بالدرس/المسابقة أولاً.</li>
-                                    <li class="flex gap-2"><i data-lucide="check-circle" class="w-3 h-3 text-green-400 shrink-0"></i> الأيقونات تتحدد تلقائياً بناءً على النوع المختار.</li>
-                                    <li class="flex gap-2"><i data-lucide="alert-triangle" class="w-3 h-3 text-gold-400 shrink-0"></i> لا تشارك كلمة المرور مع أي شخص.</li>
-                                </ul>
-                            </div>
                         </div>
 
-                        <!-- Code Export -->
+                        <!-- Code Export Box -->
                         <div class="bg-[#1e1e1e] rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 flex flex-col h-[500px]">
                             <div class="bg-[#2d2d2d] px-4 py-3 flex items-center justify-between border-b border-slate-700">
                                 <div class="flex gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
@@ -601,12 +662,12 @@
         const ADMIN_PASSWORD = "0990"; 
 
         const typeConfig = [
-            { id: 'quiz', label: 'مسابقة', icon: 'trophy', color: 'text-type-quiz', bg: 'bg-purple-50', border: 'border-purple-200' },
-            { id: 'game', label: 'لعبة', icon: 'gamepad-2', color: 'text-type-game', bg: 'bg-pink-50', border: 'border-pink-200' },
-            { id: 'lesson', label: 'درس', icon: 'book-open-check', color: 'text-type-lesson', bg: 'bg-blue-50', border: 'border-blue-200' },
-            { id: 'event', label: 'فعالية', icon: 'calendar', color: 'text-type-event', bg: 'bg-gold-50', border: 'border-gold-200' },
-            { id: 'ai', label: 'ذكاء اصطناعي', icon: 'cpu', color: 'text-type-ai', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-            { id: 'other', label: 'أخرى', icon: 'file', color: 'text-type-other', bg: 'bg-slate-50', border: 'border-slate-200' }
+            { id: 'quiz', label: 'مسابقة', icon: 'trophy', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+            { id: 'game', label: 'لعبة', icon: 'gamepad-2', color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
+            { id: 'lesson', label: 'درس', icon: 'book-open-check', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+            { id: 'event', label: 'فعالية', icon: 'calendar', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
+            { id: 'ai', label: 'ذكاء اصطناعي', icon: 'cpu', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+            { id: 'other', label: 'أخرى', icon: 'file', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' }
         ];
 
         const gradeConfig = [
@@ -620,70 +681,49 @@
 
         // --- DATA ---
         let contentData = [
-            {
-                "id": 1770808063796,
-                "title": "لعبة بماذا أتوضأ؟",
-                "desc": "لعبة تفاعلية لتمييز الماء الطاهر والمضاف",
-                "link": "What_ablution.html",
-                "type": "game",
-                "grade": "الحلقة الأولى (1-3)",
-                "date": "2026-02-11",
-                "icon": "droplets"
-            },
-            {
-                "id": 1770808009503,
-                "title": "مسابقة النور القرآني",
-                "link": "Quran.html",
-                "type": "quiz",
-                "grade": "الحلقة الأولى (1-3)",
-                "date": "2026-02-11",
-                "icon": "book-open"
-            },
-            {
-                "id": 1770807946844,
-                "title": "مسابقة المنتظر الصغير",
-                "desc": "صلاتي حياتي - مولد الإمام المهدي (عج)",
-                "link": "Mehdi.html",
-                "type": "quiz",
-                "grade": "الحلقة الأولى (1-3)",
-                "date": "2026-02-11",
-                "icon": "moon-star"
-            }
+            { "id": 1770808063796, "title": "لعبة بماذا أتوضأ؟", "desc": "لعبة تفاعلية لتمييز الماء الطاهر والمضاف", "link": "What_ablution.html", "type": "game", "grade": "الحلقة الأولى (1-3)", "date": "2026-02-11", "icon": "droplets" },
+            { "id": 1770808009503, "title": "مسابقة النور القرآني", "link": "Quran.html", "type": "quiz", "grade": "الحلقة الأولى (1-3)", "date": "2026-02-11", "icon": "book-open" },
+            { "id": 1770807946844, "title": "مسابقة المنتظر الصغير", "desc": "صلاتي حياتي - مولد الإمام المهدي (عج)", "link": "Mehdi.html", "type": "quiz", "grade": "الحلقة الأولى (1-3)", "date": "2026-02-11", "icon": "moon-star" }
         ];
+
+        let currentFilter = 'all';
 
         // --- 2. INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             initAdminSelectors();
             initGradeFilters();
             renderGrid(contentData);
-            updateStats(); // New: Update dashboard stats
+            updateStats();
+            updateCharts();
+            
+            // Check Dark Mode Preference
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+
             lucide.createIcons();
             generateExportCode();
         });
 
-        // --- 3. TOAST NOTIFICATION SYSTEM ---
+        // --- 3. TOAST NOTIFICATION ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             
-            let colors = type === 'success' ? 'border-green-500 text-green-700' : 'border-red-500 text-red-700';
+            let colors = type === 'success' ? 'border-green-500' : 'border-red-500';
             let icon = type === 'success' ? 'check-circle' : 'alert-circle';
             let duration = 3000;
 
             toast.className = `toast ${colors}`;
-            toast.style.animation = `progress ${duration}ms linear forwards, slideInLeft 0.3s ease-out forwards`;
-            
             toast.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <i data-lucide="${icon}" class="w-5 h-5"></i>
-                    <span class="text-sm font-bold text-slate-800">${message}</span>
+                    <i data-lucide="${icon}" class="w-5 h-5 ${type === 'success' ? 'text-green-600' : 'text-red-600'}"></i>
+                    <span class="text-sm font-bold text-slate-800 dark:text-white">${message}</span>
                 </div>
             `;
 
             container.appendChild(toast);
             lucide.createIcons();
-
-            // Remove after animation
             setTimeout(() => {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateX(-50px)';
@@ -692,30 +732,62 @@
             }, duration);
         }
 
-        // --- 4. FAB LOGIC ---
-        function toggleFab() {
-            const wrapper = document.getElementById('fab-wrapper');
-            wrapper.classList.toggle('fab-active');
+        // --- 4. PROFILE CARD TOGGLE ---
+        function toggleProfileCard() {
+            const content = document.getElementById('profileContent');
+            const icon = document.getElementById('profileIcon');
+            const btnText = document.getElementById('profileBtnText');
+            
+            content.classList.toggle('open');
+            icon.classList.toggle('open');
+            
+            if (content.classList.contains('open')) {
+                btnText.textContent = "إخفاء معلومات بطاقة المعلم";
+            } else {
+                btnText.textContent = "عرض معلومات بطاقة المعلم";
+            }
+        }
+
+        // --- 5. DARK MODE ---
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // --- 6. SEARCH & FILTER ---
+        function handleSearch(query) {
+            const lowerQ = query.toLowerCase();
+            // Apply filter on top of current category filter? Or just global search?
+            // Let's do global search that overrides category filter for better UX
+            if (query.trim() === '') {
+                renderGrid(contentData.filter(item => currentFilter === 'all' || item.grade === currentFilter));
+                return;
+            }
+            
+            const filtered = contentData.filter(item => 
+                (item.title.toLowerCase().includes(lowerQ) || item.desc.toLowerCase().includes(lowerQ)) &&
+                (currentFilter === 'all' || item.grade === currentFilter)
+            );
+            renderGrid(filtered);
         }
 
         function quickFilter(type) {
-            // Close FAB
             document.getElementById('fab-wrapper').classList.remove('fab-active');
-            
-            // Scroll to top of grid
             document.getElementById('grid-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Wait slightly for scroll then filter
+            
             setTimeout(() => {
                 if (type === 'all') {
-                    // Reset filters visually
-                    document.querySelectorAll('#gradeFilters button').forEach(btn => {
-                        btn.classList.remove('bg-brand-600', 'text-white', 'border-transparent', 'shadow-md');
-                        btn.classList.add('glass', 'text-slate-600', 'border-slate-200');
-                    });
+                    currentFilter = 'all';
+                    document.getElementById('globalSearch').value = '';
                     renderGrid(contentData);
+                    resetFilterUI();
                 } else {
-                    // Find items matching type
+                    currentFilter = type;
+                    document.getElementById('globalSearch').value = '';
                     const filtered = contentData.filter(item => item.type === type);
                     renderGrid(filtered);
                     showToast(`تم عرض ${type === 'game' ? 'الألعاب' : type === 'quiz' ? 'المسابقات' : 'القسم المطلوب'}`, 'success');
@@ -723,7 +795,7 @@
             }, 300);
         }
 
-        // --- 5. ADMIN PANEL SELECTORS INITIALIZATION ---
+        // --- 7. ADMIN & UI INIT ---
         function initAdminSelectors() {
             const typeContainer = document.getElementById('typeSelector');
             const gradeContainer = document.getElementById('gradeSelector');
@@ -732,7 +804,7 @@
             typeContainer.innerHTML = typeConfig.map((t, idx) => `
                 <label class="radio-selector cursor-pointer group">
                     <input type="radio" name="typeSelect" value="${t.id}" class="hidden" onchange="document.getElementById('newType').value='${t.id}'; document.querySelectorAll('#typeSelector div').forEach(el=>el.classList.remove('ring-2','ring-offset-2','ring-slate-200')); this.parentElement.querySelector('div').classList.add('ring-2','ring-offset-2','ring-slate-200')" ${idx===0?'checked':''}>
-                    <div class="flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-100 hover:border-slate-300 transition-all text-slate-500 group-hover:text-slate-800 h-20">
+                    <div class="flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-100 dark:border-slate-700 hover:border-slate-300 transition-all text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white h-20">
                         <i data-lucide="${t.icon}" class="w-6 h-6 mb-1 ${t.color}"></i>
                         <span class="text-[10px] font-bold">${t.label}</span>
                     </div>
@@ -743,7 +815,7 @@
             gradeContainer.innerHTML = gradeConfig.map((g, idx) => `
                 <label class="radio-selector cursor-pointer group">
                     <input type="radio" name="gradeSelect" value="${g.id}" class="hidden" onchange="document.getElementById('newGrade').value='${g.id}'; document.querySelectorAll('#gradeSelector div').forEach(el=>el.classList.remove('ring-2','ring-offset-2','ring-slate-200')); this.parentElement.querySelector('div').classList.add('ring-2','ring-offset-2','ring-slate-200')" ${idx===0?'checked':''}>
-                    <div class="flex items-center justify-center gap-2 p-2 rounded-xl border-2 border-slate-100 hover:border-slate-300 transition-all text-slate-500 group-hover:text-slate-800">
+                    <div class="flex items-center justify-center gap-2 p-2 rounded-xl border-2 border-slate-100 dark:border-slate-700 hover:border-slate-300 transition-all text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white">
                         <i data-lucide="${g.icon}" class="w-4 h-4"></i>
                         <span class="text-xs font-bold">${g.label}</span>
                     </div>
@@ -751,46 +823,18 @@
             `).join('');
         }
 
-        // --- 6. DASHBOARD STATS ---
-        function updateStats() {
-            const total = contentData.length;
-            const quiz = contentData.filter(i => i.type === 'quiz').length;
-            const game = contentData.filter(i => i.type === 'game').length;
-            const lesson = contentData.filter(i => i.type === 'lesson').length;
-
-            // Animate Numbers
-            animateValue("statTotal", 0, total, 1000);
-            animateValue("statQuiz", 0, quiz, 1000);
-            animateValue("statGame", 0, game, 1000);
-            animateValue("statLesson", 0, lesson, 1000);
-        }
-
-        function animateValue(id, start, end, duration) {
-            const obj = document.getElementById(id);
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        // --- 7. RENDERING LOGIC ---
+        // --- 8. RENDERING LOGIC ---
         function initGradeFilters() {
             const container = document.getElementById('gradeFilters');
             let html = `
-                <button onclick="filterContent('all')" class="filter-btn active px-6 py-2.5 rounded-full glass border-slate-200 text-slate-600 font-bold text-sm transition-all hover:border-brand-500 hover:text-brand-600 shadow-sm flex items-center gap-2">
+                <button onclick="filterContent('all')" class="filter-btn active px-6 py-2.5 rounded-full glass border-slate-200 dark:border-dark-border text-slate-600 dark:text-slate-300 font-bold text-sm transition-all hover:border-brand-500 hover:text-brand-600 shadow-sm flex items-center gap-2">
                     <i data-lucide="grid" class="w-4 h-4"></i> الكل
                 </button>
             `;
             
             gradeConfig.forEach(g => {
                 html += `
-                    <button onclick="filterContent('${g.id}')" class="filter-btn px-6 py-2.5 rounded-full glass border-slate-200 text-slate-600 font-bold text-sm transition-all hover:border-brand-500 hover:text-brand-600 shadow-sm flex items-center gap-2">
+                    <button onclick="filterContent('${g.id}')" class="filter-btn px-6 py-2.5 rounded-full glass border-slate-200 dark:border-dark-border text-slate-600 dark:text-slate-300 font-bold text-sm transition-all hover:border-brand-500 hover:text-brand-600 shadow-sm flex items-center gap-2">
                         <i data-lucide="${g.icon}" class="w-4 h-4"></i> ${g.label}
                     </button>
                 `;
@@ -802,8 +846,11 @@
             const container = document.getElementById('grid-container');
             container.innerHTML = '';
 
+            // Update result count
+            document.getElementById('resultCount').textContent = `عرض ${data.length} نتيجة`;
+
             if (data.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-20 text-slate-400"><i data-lucide="ghost" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>لا توجد عناصر</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-20 text-slate-400 dark:text-slate-600"><i data-lucide="ghost" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>لا توجد عناصر</div>`;
                 lucide.createIcons();
                 return;
             }
@@ -814,33 +861,29 @@
                 const iconToUse = item.icon || typeInfo.icon;
 
                 const card = `
-                <a href="${item.link}" class="interactive-card bg-white rounded-[2rem] p-0 relative overflow-hidden group block border border-slate-100 shadow-sm h-full flex flex-col">
-                    <!-- Top Banner Area (Type) -->
-                    <div class="h-32 bg-gradient-to-br ${typeInfo.bg} relative overflow-hidden flex items-center justify-center">
+                <a href="${item.link}" class="interactive-card bg-white dark:bg-dark-surface rounded-[2rem] p-0 relative overflow-hidden group block border border-slate-100 dark:border-dark-border shadow-sm h-full flex flex-col">
+                    <div class="h-32 bg-gradient-to-br ${typeInfo.bg} dark:bg-opacity-10 relative overflow-hidden flex items-center justify-center">
                         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
                         <i data-lucide="${typeInfo.icon}" class="w-16 h-16 ${typeInfo.color} absolute -bottom-4 left-8 drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300"></i>
-                        <span class="relative z-10 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${typeInfo.color} shadow-sm border border-white">
+                        <span class="relative z-10 bg-white/90 dark:bg-slate-900 backdrop-blur px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${typeInfo.color} shadow-sm border border-white dark:border-slate-700">
                             ${typeInfo.label}
                         </span>
                     </div>
 
-                    <!-- Content Body -->
                     <div class="p-6 pt-8 flex-1 flex flex-col">
-                        <!-- Grade Badge -->
                         <div class="flex justify-end mb-3">
-                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                                 <i data-lucide="${gradeInfo.icon}" class="w-3.5 h-3.5 ${gradeInfo.color}"></i>
-                                <span class="text-[11px] font-bold text-slate-600">${item.grade}</span>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">${item.grade}</span>
                             </div>
                         </div>
 
-                        <h3 class="text-xl font-black font-cairo text-slate-800 mb-2 leading-tight group-hover:text-brand-600 transition-colors line-clamp-2">${item.title}</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed mb-6 flex-1 line-clamp-3">${item.desc}</p>
+                        <h3 class="text-xl font-black font-cairo text-slate-800 dark:text-white mb-2 leading-tight group-hover:text-brand-600 transition-colors line-clamp-2">${item.title}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-6 flex-1 line-clamp-3">${item.desc}</p>
                         
-                        <!-- Action -->
-                        <div class="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
+                        <div class="mt-auto pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
                             <span class="text-xs font-bold text-slate-400">اضغط للبدء</span>
-                            <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                            <div class="w-8 h-8 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
                                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                             </div>
                         </div>
@@ -853,6 +896,8 @@
         }
 
         function filterContent(grade) {
+            currentFilter = grade;
+            
             // UI Update
             document.querySelectorAll('#gradeFilters button').forEach(btn => {
                 const isAll = grade === 'all';
@@ -860,18 +905,29 @@
                 
                 if (isAll && btn.textContent.includes('الكل') || isTarget) {
                     btn.classList.add('bg-brand-600', 'text-white', 'border-transparent', 'shadow-md');
-                    btn.classList.remove('glass', 'text-slate-600', 'border-slate-200');
+                    btn.classList.remove('glass', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200');
                 } else {
                     btn.classList.remove('bg-brand-600', 'text-white', 'border-transparent', 'shadow-md');
-                    btn.classList.add('glass', 'text-slate-600', 'border-slate-200');
+                    btn.classList.add('glass', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200');
                 }
             });
-
-            if (grade === 'all') renderGrid(contentData);
-            else renderGrid(contentData.filter(item => item.grade === grade));
+            
+            // Re-apply search text if exists, else just filter grade
+            const searchVal = document.getElementById('globalSearch').value;
+            handleSearch(searchVal);
         }
 
-        // --- 8. ADMIN SYSTEM LOGIC ---
+        function resetFilterUI() {
+            document.querySelectorAll('#gradeFilters button').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'border-transparent', 'shadow-md');
+                btn.classList.add('glass', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200');
+            });
+            const allBtn = document.querySelector('#gradeFilters button:first-child');
+            allBtn.classList.add('bg-brand-600', 'text-white', 'border-transparent', 'shadow-md');
+            allBtn.classList.remove('glass', 'text-slate-600', 'dark:text-slate-300');
+        }
+
+        // --- 9. ADMIN SYSTEM CRUD & LOGIC ---
         function toggleLoginModal() {
             const m = document.getElementById('loginModal');
             if (m.classList.contains('hidden')) {
@@ -900,35 +956,53 @@
             m.classList.toggle('hidden');
             if(!m.classList.contains('hidden')) {
                 renderAdminList();
-                updateStats(); // Refresh stats
+                updateStats(); 
+                updateCharts();
             }
         }
 
         function renderAdminList() {
             const list = document.getElementById('adminItemsList');
+            const search = document.getElementById('adminSearch').value.toLowerCase();
+            
             list.innerHTML = '';
-            contentData.forEach((item, idx) => {
+            
+            const filtered = contentData.filter(item => item.title.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">لا توجد نتائج</div>';
+                return;
+            }
+
+            filtered.forEach((item, idx) => {
                 const t = typeConfig.find(x => x.id === item.type) || typeConfig[5];
+                // Find original index for deletion/editing
+                const originalIndex = contentData.findIndex(x => x.id === item.id);
+
                 list.innerHTML += `
-                    <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-brand-200 transition-colors group">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-brand-200 dark:hover:border-brand-900 transition-colors group">
                         <div class="flex items-center gap-3 overflow-hidden">
-                            <div class="w-10 h-10 rounded-lg ${t.bg} flex items-center justify-center text-xl ${t.color}">
+                            <div class="w-10 h-10 rounded-lg ${t.bg} dark:bg-opacity-20 flex items-center justify-center text-xl ${t.color}">
                                 <i data-lucide="${t.icon}" class="w-5 h-5"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-sm font-bold text-slate-800 truncate">${item.title}</div>
-                                <div class="text-[10px] text-slate-500 truncate">${item.grade}</div>
+                                <div class="text-sm font-bold text-slate-800 dark:text-white truncate">${item.title}</div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-500 truncate">${item.grade}</div>
                             </div>
                         </div>
-                        <button onclick="deleteItem(${idx})" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="flex gap-1">
+                            <button onclick="editItem(${originalIndex})" class="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteItem(${originalIndex})" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
                     </div>
                 `;
             });
             lucide.createIcons();
         }
 
-        function handleAddItem(e) {
+        function handleSaveItem(e) {
             e.preventDefault();
+            const editId = document.getElementById('editItemId').value;
             const title = document.getElementById('newTitle').value;
             const link = document.getElementById('newLink').value;
             const desc = document.getElementById('newDesc').value;
@@ -937,20 +1011,64 @@
             
             const typeInfo = typeConfig.find(t => t.id === type);
             
-            const newItem = {
-                id: Date.now(),
-                title, link, desc, type, grade,
-                date: new Date().toISOString().split('T')[0],
-                icon: typeInfo.icon 
-            };
+            if (editId) {
+                // Edit Mode
+                const idx = contentData.findIndex(x => x.id == editId);
+                if (idx > -1) {
+                    contentData[idx] = { ...contentData[idx], title, link, desc, type, grade, icon: typeInfo.icon };
+                    showToast('تم تعديل المحتوى بنجاح!', 'success');
+                }
+            } else {
+                // Add Mode
+                const newItem = {
+                    id: Date.now(),
+                    title, link, desc, type, grade,
+                    date: new Date().toISOString().split('T')[0],
+                    icon: typeInfo.icon 
+                };
+                contentData.unshift(newItem);
+                showToast('تمت إضافة المحتوى بنجاح!', 'success');
+            }
 
-            contentData.unshift(newItem);
+            resetForm();
             renderAdminList();
-            renderGrid(contentData);
+            renderGrid(contentData); // Refresh public view
             updateStats();
+            updateCharts();
             generateExportCode();
-            showToast('تمت إضافة المحتوى بنجاح!', 'success');
-            e.target.reset();
+        }
+
+        function editItem(idx) {
+            const item = contentData[idx];
+            document.getElementById('editItemId').value = item.id;
+            document.getElementById('newTitle').value = item.title;
+            document.getElementById('newLink').value = item.link;
+            document.getElementById('newDesc').value = item.desc;
+            document.getElementById('newType').value = item.type;
+            document.getElementById('newGrade').value = item.grade;
+
+            // Update Visual Selectors
+            document.querySelectorAll(`input[name="typeSelect"][value="${item.type}"]`).forEach(el => el.click());
+            document.querySelectorAll(`input[name="gradeSelect"][value="${item.grade}"]`).forEach(el => el.click());
+
+            // Update UI state
+            document.getElementById('formTitle').textContent = "تعديل المحتوى";
+            document.getElementById('submitBtnText').textContent = "حفظ التعديلات";
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+            // Scroll to form
+            document.getElementById('addItemForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('addItemForm').reset();
+            document.getElementById('editItemId').value = "";
+            document.getElementById('formTitle').textContent = "إضافة محتوى جديد";
+            document.getElementById('submitBtnText').textContent = "حفظ وإضافة للقائمة";
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            // Reset radio to first
+            document.querySelector('input[name="typeSelect"]').click();
+            document.querySelector('input[name="gradeSelect"]').click();
         }
 
         function deleteItem(idx) {
@@ -959,9 +1077,48 @@
                 renderAdminList();
                 renderGrid(contentData);
                 updateStats();
+                updateCharts();
                 generateExportCode();
                 showToast('تم حذف العنصر', 'error');
             }
+        }
+
+        // --- 10. STATS, CHARTS & DATA OPS ---
+        function updateStats() {
+            const total = contentData.length;
+            const quiz = contentData.filter(i => i.type === 'quiz').length;
+            const game = contentData.filter(i => i.type === 'game').length;
+            const lesson = contentData.filter(i => i.type === 'lesson').length;
+
+            animateValue("statTotal", 0, total, 1000);
+            animateValue("statQuiz", 0, quiz, 1000);
+            animateValue("statGame", 0, game, 1000);
+            animateValue("statLesson", 0, lesson, 1000);
+        }
+
+        function updateCharts() {
+            const total = contentData.length || 1;
+            const quiz = (contentData.filter(i => i.type === 'quiz').length / total) * 100;
+            const game = (contentData.filter(i => i.type === 'game').length / total) * 100;
+            const lesson = (contentData.filter(i => i.type === 'lesson').length / total) * 100;
+            const other = 100 - (quiz + game + lesson);
+
+            document.getElementById('barQuiz').style.width = `${quiz}%`;
+            document.getElementById('barGame').style.width = `${game}%`;
+            document.getElementById('barLesson').style.width = `${lesson}%`;
+            document.getElementById('barOther').style.width = `${other}%`;
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
         }
 
         function generateExportCode() {
@@ -972,6 +1129,33 @@
         function copyCode() {
             const t = document.getElementById('codeExportArea').textContent;
             navigator.clipboard.writeText(t).then(() => showToast('تم نسخ الكود للحافظة!', 'success'));
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        contentData = imported;
+                        renderAdminList();
+                        renderGrid(contentData);
+                        updateStats();
+                        updateCharts();
+                        generateExportCode();
+                        showToast('تم استيراد البيانات بنجاح!', 'success');
+                    } else {
+                        throw new Error("Invalid format");
+                    }
+                } catch (err) {
+                    showToast('ملف غير صالح', 'error');
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset
         }
 
     </script>
