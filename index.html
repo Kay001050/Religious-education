@@ -8,7 +8,6 @@
     <meta name="author" content="أ. حسن سديف">
 
     <!-- === شعار الموقع === -->
-    <!-- تأكد من وضع صورة باسم logo.png بجانب ملف index.html في GitHub -->
     <link rel="icon" type="image/png" href="logo.png">
 
     <!-- Tailwind CSS -->
@@ -51,10 +50,12 @@
                         'float': 'float 6s ease-in-out infinite',
                         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
                         'bounce-slow': 'bounce 3s infinite',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
-                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
                     }
                 }
             }
@@ -120,20 +121,91 @@
             background-color: rgba(0,0,0,0.05);
             transform: scale(1.05);
         }
+
+        /* FAB (Floating Action Button) Styles */
+        .fab-menu-item {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0;
+            transform: scale(0) translateY(20px);
+            pointer-events: none;
+        }
+        .fab-active .fab-menu-item {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+        /* Staggered animation delays for menu items */
+        .fab-active .fab-menu-item:nth-child(1) { transition-delay: 50ms; }
+        .fab-active .fab-menu-item:nth-child(2) { transition-delay: 100ms; }
+        .fab-active .fab-menu-item:nth-child(3) { transition-delay: 150ms; }
+        .fab-active .fab-menu-item:nth-child(4) { transition-delay: 200ms; }
+        .fab-active .fab-menu-item:nth-child(5) { transition-delay: 250ms; }
+
+        .fab-main-btn {
+            transition: transform 0.3s ease;
+        }
+        .fab-active .fab-main-btn {
+            transform: rotate(45deg); /* Rotate icon to X */
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 20px; /* RTL layout: left side */
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 300px;
+            background: white;
+            border-right: 4px solid; /* Accent border */
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideInLeft 0.3s ease-out forwards;
+            overflow: hidden;
+            position: relative;
+        }
+        .toast::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(0,0,0,0.1);
+            width: 100%;
+            transform-origin: left;
+            animation: progress linear forwards;
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes progress {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
     </style>
 </head>
 <body class="font-tajawal text-slate-700 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
     <!-- ================= Navbar ================= -->
     <nav class="fixed top-0 w-full z-50 glass border-b border-slate-200/50 transition-all duration-300" id="navbar">
         <div class="container mx-auto px-4 h-24 flex items-center justify-between">
             <!-- Logo Area -->
             <div class="flex items-center gap-4">
-                <!-- If logo.png exists it will show, otherwise shows default icon -->
                 <div class="relative w-12 h-12 group cursor-pointer">
                     <div class="absolute inset-0 bg-brand-500 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
                     <div class="relative bg-white p-1.5 rounded-xl border border-slate-100 shadow-lg flex items-center justify-center overflow-hidden">
-                        <!-- Image Logo Fallback -->
                         <img src="logo.png" alt="Logo" class="w-full h-full object-contain" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex'">
                         <i id="fallback-logo" data-lucide="mosque" class="w-8 h-8 text-brand-600 hidden"></i>
                     </div>
@@ -155,7 +227,6 @@
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                     <span>لوحة المعلم</span>
                 </button>
-                <!-- Mobile Login Button -->
                 <button onclick="toggleLoginModal()" class="sm:hidden bg-slate-900 text-white p-2.5 rounded-full shadow-lg">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 </button>
@@ -284,6 +355,52 @@
         </div>
     </footer>
 
+    <!-- ================= FLOATING ACTION BUTTON (FAB) ================= -->
+    <div id="fab-wrapper" class="fixed bottom-8 left-8 z-[60] flex flex-col-reverse items-end gap-4 pointer-events-none">
+        
+        <!-- Main FAB Button -->
+        <button onclick="toggleFab()" class="pointer-events-auto fab-main-btn w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-2xl shadow-brand-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all ring-4 ring-white/30">
+            <i data-lucide="arrow-up" class="w-8 h-8"></i>
+        </button>
+
+        <!-- Menu Items (Targeting Types) -->
+        <!-- Game -->
+        <button onclick="quickFilter('game')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
+            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الألعاب</span>
+            <div class="w-12 h-12 rounded-full bg-pink-500 text-white shadow-lg flex items-center justify-center hover:bg-pink-600 transition-colors">
+                <i data-lucide="gamepad-2" class="w-6 h-6"></i>
+            </div>
+        </button>
+        <!-- Quiz -->
+        <button onclick="quickFilter('quiz')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
+            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">المسابقات</span>
+            <div class="w-12 h-12 rounded-full bg-purple-500 text-white shadow-lg flex items-center justify-center hover:bg-purple-600 transition-colors">
+                <i data-lucide="trophy" class="w-6 h-6"></i>
+            </div>
+        </button>
+        <!-- Lesson -->
+        <button onclick="quickFilter('lesson')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
+            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الدروس</span>
+            <div class="w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
+                <i data-lucide="book-open-check" class="w-6 h-6"></i>
+            </div>
+        </button>
+        <!-- Events -->
+        <button onclick="quickFilter('event')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
+            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الفعاليات</span>
+            <div class="w-12 h-12 rounded-full bg-amber-500 text-white shadow-lg flex items-center justify-center hover:bg-amber-600 transition-colors">
+                <i data-lucide="calendar" class="w-6 h-6"></i>
+            </div>
+        </button>
+         <!-- All -->
+         <button onclick="quickFilter('all')" class="fab-menu-item pointer-events-auto flex items-center gap-3 group">
+            <span class="bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">الكل</span>
+            <div class="w-12 h-12 rounded-full bg-slate-700 text-white shadow-lg flex items-center justify-center hover:bg-slate-800 transition-colors">
+                <i data-lucide="grid" class="w-6 h-6"></i>
+            </div>
+        </button>
+    </div>
+
 
     <!-- ================= MODALS ================= -->
 
@@ -312,7 +429,7 @@
         </div>
     </div>
 
-    <!-- 2. Admin Dashboard Modal (Advanced) -->
+    <!-- 2. Admin Dashboard Modal (Highly Enhanced) -->
     <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-slate-50/95 backdrop-blur-xl overflow-y-auto">
         <div class="min-h-screen py-8 px-4 md:px-8">
             <div class="max-w-7xl mx-auto">
@@ -323,8 +440,8 @@
                             <i data-lucide="settings-2" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h2 class="text-2xl font-black font-cairo text-slate-800">نظام إدارة المحتوى</h2>
-                            <p class="text-xs text-slate-500 font-mono">V 2.0 | ADMIN DASHBOARD</p>
+                            <h2 class="text-2xl font-black font-cairo text-slate-800">نظام إدارة المحتوى المتقدم</h2>
+                            <p class="text-xs text-slate-500 font-mono">V 3.0 PRO | ADMIN DASHBOARD</p>
                         </div>
                     </div>
                     <div class="flex gap-3 w-full md:w-auto">
@@ -338,83 +455,120 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <!-- Left Column: Add Item Form (Visual) -->
-                    <div class="lg:col-span-7 xl:col-span-8 space-y-6">
-                        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200">
-                            <h3 class="font-bold text-xl mb-6 flex items-center gap-2 text-slate-800 border-b border-slate-100 pb-4">
-                                <i data-lucide="plus-circle" class="text-brand-600 w-6 h-6"></i>
-                                إضافة محتوى جديد
-                            </h3>
-                            
-                            <form id="addItemForm" onsubmit="handleAddItem(event)" class="space-y-6">
-                                <!-- Title & Desc -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">عنوان النشاط</label>
-                                        <input type="text" id="newTitle" required class="w-full custom-input rounded-xl px-4 py-3 font-bold text-slate-800 outline-none" placeholder="مثال: مسابقة الصلاة">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">رابط الملف (HTML)</label>
-                                        <div class="relative">
-                                            <i data-lucide="link" class="absolute right-4 top-3.5 text-slate-400 w-5 h-5"></i>
-                                            <input type="text" id="newLink" required placeholder="page.html" dir="ltr" class="w-full custom-input rounded-xl pl-4 pr-12 py-3 font-mono text-slate-600 outline-none">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">الوصف المختصر</label>
-                                    <input type="text" id="newDesc" class="w-full custom-input rounded-xl px-4 py-3 text-slate-600 outline-none" placeholder="نبذة قصيرة عن المحتوى...">
-                                </div>
-
-                                <!-- VISUAL SELECTOR: TYPE -->
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">نوع الصفحة (اختر الأيقونة)</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" id="typeSelector">
-                                        <!-- JS will inject radio buttons here -->
-                                    </div>
-                                    <input type="hidden" id="newType" value="quiz">
-                                </div>
-
-                                <!-- VISUAL SELECTOR: GRADE -->
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">الفئة المستهدفة</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="gradeSelector">
-                                        <!-- JS will inject radio buttons here -->
-                                    </div>
-                                    <input type="hidden" id="newGrade" value="الحلقة الأولى (1-3)">
-                                </div>
-                                
-                                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 transform active:scale-[0.99]">
-                                    <i data-lucide="save" class="w-5 h-5"></i> حفظ وإضافة للقائمة
-                                </button>
-                            </form>
+                    <!-- Left Column: Dashboard & Form -->
+                    <div class="lg:col-span-8 xl:col-span-9 space-y-8">
+                        
+                        <!-- STATS WIDGETS (New Addition) -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden">
+                                <i data-lucide="trophy" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                                <div class="text-3xl font-black mb-1" id="statQuiz">0</div>
+                                <div class="text-xs font-bold opacity-80">مسابقات</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg shadow-pink-500/20 relative overflow-hidden">
+                                <i data-lucide="gamepad-2" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                                <div class="text-3xl font-black mb-1" id="statGame">0</div>
+                                <div class="text-xs font-bold opacity-80">ألعاب</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/20 relative overflow-hidden">
+                                <i data-lucide="book-open-check" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                                <div class="text-3xl font-black mb-1" id="statLesson">0</div>
+                                <div class="text-xs font-bold opacity-80">دروس</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-5 text-white shadow-lg shadow-brand-500/20 relative overflow-hidden">
+                                <i data-lucide="layers" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12"></i>
+                                <div class="text-3xl font-black mb-1" id="statTotal">0</div>
+                                <div class="text-xs font-bold opacity-80">إجمالي</div>
+                            </div>
                         </div>
 
-                        <!-- Content List -->
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800">
-                                <i data-lucide="list-end" class="text-slate-400"></i> قائمة المحتوى الحالية
-                            </h3>
-                            <div id="adminItemsList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <!-- Items -->
+                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                            <!-- Add Item Form -->
+                            <div class="xl:col-span-2 bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 h-fit">
+                                <h3 class="font-bold text-xl mb-6 flex items-center gap-2 text-slate-800 border-b border-slate-100 pb-4">
+                                    <i data-lucide="plus-circle" class="text-brand-600 w-6 h-6"></i>
+                                    إضافة محتوى جديد
+                                </h3>
+                                
+                                <form id="addItemForm" onsubmit="handleAddItem(event)" class="space-y-6">
+                                    <!-- Title & Desc -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">عنوان النشاط</label>
+                                            <input type="text" id="newTitle" required class="w-full custom-input rounded-xl px-4 py-3 font-bold text-slate-800 outline-none" placeholder="مثال: مسابقة الصلاة">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">رابط الملف (HTML)</label>
+                                            <div class="relative">
+                                                <i data-lucide="link" class="absolute right-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                                                <input type="text" id="newLink" required placeholder="page.html" dir="ltr" class="w-full custom-input rounded-xl pl-4 pr-12 py-3 font-mono text-slate-600 outline-none">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">الوصف المختصر</label>
+                                        <input type="text" id="newDesc" class="w-full custom-input rounded-xl px-4 py-3 text-slate-600 outline-none" placeholder="نبذة قصيرة عن المحتوى...">
+                                    </div>
+
+                                    <!-- VISUAL SELECTOR: TYPE -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">نوع الصفحة (اختر الأيقونة)</label>
+                                        <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="typeSelector">
+                                            <!-- JS will inject radio buttons here -->
+                                        </div>
+                                        <input type="hidden" id="newType" value="quiz">
+                                    </div>
+
+                                    <!-- VISUAL SELECTOR: GRADE -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">الفئة المستهدفة</label>
+                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="gradeSelector">
+                                            <!-- JS will inject radio buttons here -->
+                                        </div>
+                                        <input type="hidden" id="newGrade" value="الحلقة الأولى (1-3)">
+                                    </div>
+                                    
+                                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 transform active:scale-[0.99]">
+                                        <i data-lucide="save" class="w-5 h-5"></i> حفظ وإضافة للقائمة
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Content List -->
+                            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 h-fit xl:max-h-[600px] xl:overflow-y-auto">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800 sticky top-0 bg-white z-10 py-2">
+                                    <i data-lucide="list-end" class="text-slate-400"></i> قائمة المحتوى الحالية
+                                </h3>
+                                <div id="adminItemsList" class="space-y-3">
+                                    <!-- Items -->
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: Code & Guide -->
-                    <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+                    <!-- Right Column: Guide & Code -->
+                    <div class="lg:col-span-4 xl:col-span-3 space-y-6">
                         <!-- Guide -->
                         <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl shadow-xl text-white relative overflow-hidden">
                             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                             <h4 class="font-bold text-lg mb-4 text-gold-400 flex items-center gap-2"><i data-lucide="lightbulb" class="w-5 h-5"></i> دليل النشر السريع</h4>
                             <ol class="list-decimal list-inside space-y-3 text-sm text-slate-300 leading-relaxed">
-                                <li>أضف العناصر الجديدة.</li>
-                                <li>اضغط زر <span class="bg-white/20 px-2 py-0.5 rounded text-white font-bold text-xs">نسخ الكود</span>.</li>
-                                <li>افتح ملف <code class="bg-black/30 px-1 rounded">index.html</code> في GitHub.</li>
-                                <li>ابحث عن <code class="bg-black/30 px-1 rounded">contentData</code> واستبدله بالجديد.</li>
-                                <li>احفظ التغييرات (Commit).</li>
+                                <li>قم بإضافة وتعديل العناصر الجديدة.</li>
+                                <li>اضغط زر <span class="bg-white/20 px-2 py-0.5 rounded text-white font-bold text-xs">نسخ الكود</span> الموجود بالأسفل.</li>
+                                <li>افتح ملف <code class="bg-black/30 px-1 rounded">index.html</code> على GitHub.</li>
+                                <li>ابحث عن متغير <code class="bg-black/30 px-1 rounded">contentData</code> واستبدله بالكامل بالكود الجديد.</li>
+                                <li>احفظ التغييرات (Commit changes) وانتظر التحديث.</li>
                             </ol>
+                            
+                            <div class="mt-6 pt-6 border-t border-white/10">
+                                <h5 class="text-xs font-bold text-slate-400 uppercase mb-3">ملاحظات هامة</h5>
+                                <ul class="space-y-2 text-xs text-slate-400">
+                                    <li class="flex gap-2"><i data-lucide="check-circle" class="w-3 h-3 text-green-400 shrink-0"></i> تأكد من رفع ملف HTML الخاص بالدرس/المسابقة أولاً.</li>
+                                    <li class="flex gap-2"><i data-lucide="check-circle" class="w-3 h-3 text-green-400 shrink-0"></i> الأيقونات تتحدد تلقائياً بناءً على النوع المختار.</li>
+                                    <li class="flex gap-2"><i data-lucide="alert-triangle" class="w-3 h-3 text-gold-400 shrink-0"></i> لا تشارك كلمة المرور مع أي شخص.</li>
+                                </ul>
+                            </div>
                         </div>
 
                         <!-- Code Export -->
@@ -428,7 +582,7 @@
                             </div>
                             <div class="p-3 bg-[#2d2d2d] border-t border-slate-700 flex gap-2">
                                 <button onclick="generateExportCode()" class="flex-1 bg-brand-700 hover:bg-brand-600 text-white py-2 rounded-lg text-xs font-bold transition-colors">
-                                    <i data-lucide="refresh-cw" class="w-3 h-3 inline"></i> تحديث المعاينة
+                                    <i data-lucide="refresh-cw" class="w-3 h-3 inline"></i> تحديث
                                 </button>
                                 <button onclick="copyCode()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-xs font-bold transition-colors">
                                     <i data-lucide="clipboard" class="w-3 h-3 inline"></i> نسخ
@@ -444,9 +598,8 @@
     <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         // --- 1. CONFIGURATION ---
-        const ADMIN_PASSWORD = "0990"; // كلمة مرور المعلم
+        const ADMIN_PASSWORD = "0990"; 
 
-        // تعريف الأنواع (Types) - الأيقونات والألوان والأسماء
         const typeConfig = [
             { id: 'quiz', label: 'مسابقة', icon: 'trophy', color: 'text-type-quiz', bg: 'bg-purple-50', border: 'border-purple-200' },
             { id: 'game', label: 'لعبة', icon: 'gamepad-2', color: 'text-type-game', bg: 'bg-pink-50', border: 'border-pink-200' },
@@ -456,7 +609,6 @@
             { id: 'other', label: 'أخرى', icon: 'file', color: 'text-type-other', bg: 'bg-slate-50', border: 'border-slate-200' }
         ];
 
-        // تعريف الفئات (Grades)
         const gradeConfig = [
             { id: 'الحلقة الأولى (1-3)', label: 'الحلقة الأولى', icon: 'shovel', color: 'text-green-600', bg: 'bg-green-100' },
             { id: 'الحلقة الثانية (4-6)', label: 'الحلقة الثانية', icon: 'bicycle', color: 'text-blue-600', bg: 'bg-blue-100' },
@@ -466,51 +618,112 @@
             { id: 'عام', label: 'عام', icon: 'users', color: 'text-slate-600', bg: 'bg-slate-100' }
         ];
 
-        // قائمة المحتوى الأساسية (محدثة ببياناتك)
-        // انسخ هذا القسم فقط عند التحديث في GitHub
-        // Data Export
-let contentData = [
-    {
-        "id": 1770808063796,
-        "title": "لعبة بماذا أتوضأ؟",
-        "desc": "لعبة تفاعلية لتمييز الماء الطاهر والمضاف",
-        "link": "What_ablution.html",
-        "type": "game",
-        "grade": "الحلقة الأولى (1-3)",
-        "date": "2026-02-11",
-        "icon": "droplets"
-    },
-    {
-        "id": 1770808009503,
-        "title": "مسابقة النور القرآني",
-        "link": "Quran.html",
-        "type": "quiz",
-        "grade": "الحلقة الأولى (1-3)",
-        "date": "2026-02-11",
-        "icon": "book-open"
-    },
-    {
-        "id": 1770807946844,
-        "title": "مسابقة المنتظر الصغير",
-        "desc": "صلاتي حياتي - مولد الإمام المهدي (عج)",
-        "link": "Mehdi.html",
-        "type": "quiz",
-        "grade": "الحلقة الأولى (1-3)",
-        "date": "2026-02-11",
-        "icon": "moon-star"
-    }
-];
+        // --- DATA ---
+        let contentData = [
+            {
+                "id": 1770808063796,
+                "title": "لعبة بماذا أتوضأ؟",
+                "desc": "لعبة تفاعلية لتمييز الماء الطاهر والمضاف",
+                "link": "What_ablution.html",
+                "type": "game",
+                "grade": "الحلقة الأولى (1-3)",
+                "date": "2026-02-11",
+                "icon": "droplets"
+            },
+            {
+                "id": 1770808009503,
+                "title": "مسابقة النور القرآني",
+                "link": "Quran.html",
+                "type": "quiz",
+                "grade": "الحلقة الأولى (1-3)",
+                "date": "2026-02-11",
+                "icon": "book-open"
+            },
+            {
+                "id": 1770807946844,
+                "title": "مسابقة المنتظر الصغير",
+                "desc": "صلاتي حياتي - مولد الإمام المهدي (عج)",
+                "link": "Mehdi.html",
+                "type": "quiz",
+                "grade": "الحلقة الأولى (1-3)",
+                "date": "2026-02-11",
+                "icon": "moon-star"
+            }
+        ];
 
         // --- 2. INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             initAdminSelectors();
             initGradeFilters();
             renderGrid(contentData);
+            updateStats(); // New: Update dashboard stats
             lucide.createIcons();
             generateExportCode();
         });
 
-        // --- 3. ADMIN PANEL SELECTORS INITIALIZATION ---
+        // --- 3. TOAST NOTIFICATION SYSTEM ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let colors = type === 'success' ? 'border-green-500 text-green-700' : 'border-red-500 text-red-700';
+            let icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            let duration = 3000;
+
+            toast.className = `toast ${colors}`;
+            toast.style.animation = `progress ${duration}ms linear forwards, slideInLeft 0.3s ease-out forwards`;
+            
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold text-slate-800">${message}</span>
+                </div>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Remove after animation
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // --- 4. FAB LOGIC ---
+        function toggleFab() {
+            const wrapper = document.getElementById('fab-wrapper');
+            wrapper.classList.toggle('fab-active');
+        }
+
+        function quickFilter(type) {
+            // Close FAB
+            document.getElementById('fab-wrapper').classList.remove('fab-active');
+            
+            // Scroll to top of grid
+            document.getElementById('grid-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Wait slightly for scroll then filter
+            setTimeout(() => {
+                if (type === 'all') {
+                    // Reset filters visually
+                    document.querySelectorAll('#gradeFilters button').forEach(btn => {
+                        btn.classList.remove('bg-brand-600', 'text-white', 'border-transparent', 'shadow-md');
+                        btn.classList.add('glass', 'text-slate-600', 'border-slate-200');
+                    });
+                    renderGrid(contentData);
+                } else {
+                    // Find items matching type
+                    const filtered = contentData.filter(item => item.type === type);
+                    renderGrid(filtered);
+                    showToast(`تم عرض ${type === 'game' ? 'الألعاب' : type === 'quiz' ? 'المسابقات' : 'القسم المطلوب'}`, 'success');
+                }
+            }, 300);
+        }
+
+        // --- 5. ADMIN PANEL SELECTORS INITIALIZATION ---
         function initAdminSelectors() {
             const typeContainer = document.getElementById('typeSelector');
             const gradeContainer = document.getElementById('gradeSelector');
@@ -519,7 +732,7 @@ let contentData = [
             typeContainer.innerHTML = typeConfig.map((t, idx) => `
                 <label class="radio-selector cursor-pointer group">
                     <input type="radio" name="typeSelect" value="${t.id}" class="hidden" onchange="document.getElementById('newType').value='${t.id}'; document.querySelectorAll('#typeSelector div').forEach(el=>el.classList.remove('ring-2','ring-offset-2','ring-slate-200')); this.parentElement.querySelector('div').classList.add('ring-2','ring-offset-2','ring-slate-200')" ${idx===0?'checked':''}>
-                    <div class="flex flex-col items-center justify-center p-3 rounded-xl border-2 border-slate-100 hover:border-slate-300 transition-all text-slate-500 group-hover:text-slate-800 h-20">
+                    <div class="flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-100 hover:border-slate-300 transition-all text-slate-500 group-hover:text-slate-800 h-20">
                         <i data-lucide="${t.icon}" class="w-6 h-6 mb-1 ${t.color}"></i>
                         <span class="text-[10px] font-bold">${t.label}</span>
                     </div>
@@ -538,10 +751,37 @@ let contentData = [
             `).join('');
         }
 
-        // --- 4. RENDERING LOGIC ---
+        // --- 6. DASHBOARD STATS ---
+        function updateStats() {
+            const total = contentData.length;
+            const quiz = contentData.filter(i => i.type === 'quiz').length;
+            const game = contentData.filter(i => i.type === 'game').length;
+            const lesson = contentData.filter(i => i.type === 'lesson').length;
+
+            // Animate Numbers
+            animateValue("statTotal", 0, total, 1000);
+            animateValue("statQuiz", 0, quiz, 1000);
+            animateValue("statGame", 0, game, 1000);
+            animateValue("statLesson", 0, lesson, 1000);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // --- 7. RENDERING LOGIC ---
         function initGradeFilters() {
             const container = document.getElementById('gradeFilters');
-            // Create "All" button
             let html = `
                 <button onclick="filterContent('all')" class="filter-btn active px-6 py-2.5 rounded-full glass border-slate-200 text-slate-600 font-bold text-sm transition-all hover:border-brand-500 hover:text-brand-600 shadow-sm flex items-center gap-2">
                     <i data-lucide="grid" class="w-4 h-4"></i> الكل
@@ -569,12 +809,10 @@ let contentData = [
             }
 
             data.forEach((item, index) => {
-                // Get Config Details
                 const typeInfo = typeConfig.find(t => t.id === item.type) || typeConfig[5];
                 const gradeInfo = gradeConfig.find(g => g.id === item.grade) || { icon: 'users', color: 'text-slate-500' };
                 const iconToUse = item.icon || typeInfo.icon;
 
-                // Design the Card
                 const card = `
                 <a href="${item.link}" class="interactive-card bg-white rounded-[2rem] p-0 relative overflow-hidden group block border border-slate-100 shadow-sm h-full flex flex-col">
                     <!-- Top Banner Area (Type) -->
@@ -633,7 +871,7 @@ let contentData = [
             else renderGrid(contentData.filter(item => item.grade === grade));
         }
 
-        // --- 5. ADMIN SYSTEM LOGIC ---
+        // --- 8. ADMIN SYSTEM LOGIC ---
         function toggleLoginModal() {
             const m = document.getElementById('loginModal');
             if (m.classList.contains('hidden')) {
@@ -651,15 +889,19 @@ let contentData = [
             if(p === ADMIN_PASSWORD) {
                 toggleLoginModal();
                 toggleAdminModal();
+                showToast('مرحباً بك أستاذ حسن', 'success');
             } else {
-                alert('كلمة المرور غير صحيحة');
+                showToast('كلمة المرور غير صحيحة', 'error');
             }
         }
 
         function toggleAdminModal() {
             const m = document.getElementById('adminModal');
             m.classList.toggle('hidden');
-            if(!m.classList.contains('hidden')) renderAdminList();
+            if(!m.classList.contains('hidden')) {
+                renderAdminList();
+                updateStats(); // Refresh stats
+            }
         }
 
         function renderAdminList() {
@@ -699,23 +941,26 @@ let contentData = [
                 id: Date.now(),
                 title, link, desc, type, grade,
                 date: new Date().toISOString().split('T')[0],
-                icon: typeInfo.icon // Auto assign icon based on type
+                icon: typeInfo.icon 
             };
 
             contentData.unshift(newItem);
             renderAdminList();
             renderGrid(contentData);
+            updateStats();
             generateExportCode();
-            alert('تمت الإضافة بنجاح! اضغط "نسخ الكود" لنشر التغييرات.');
+            showToast('تمت إضافة المحتوى بنجاح!', 'success');
             e.target.reset();
         }
 
         function deleteItem(idx) {
-            if(confirm('حذف هذا العنصر؟')) {
+            if(confirm('هل أنت متأكد من حذف هذا العنصر؟')) {
                 contentData.splice(idx,1);
                 renderAdminList();
                 renderGrid(contentData);
+                updateStats();
                 generateExportCode();
+                showToast('تم حذف العنصر', 'error');
             }
         }
 
@@ -726,7 +971,7 @@ let contentData = [
 
         function copyCode() {
             const t = document.getElementById('codeExportArea').textContent;
-            navigator.clipboard.writeText(t).then(() => alert('تم نسخ الكود!'));
+            navigator.clipboard.writeText(t).then(() => showToast('تم نسخ الكود للحافظة!', 'success'));
         }
 
     </script>
