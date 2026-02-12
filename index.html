@@ -337,7 +337,6 @@
             <div class="lg:col-span-4 xl:col-span-3">
                 <div class="bg-white dark:bg-dark-surface rounded-3xl shadow-xl border border-slate-100 dark:border-dark-border overflow-hidden h-full flex flex-col relative group">
                     
-                    <!-- Header: Always Visible -->
                     <div class="h-32 bg-gradient-to-br from-brand-600 via-brand-700 to-emerald-900 relative flex items-center justify-center p-4">
                         <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                         <div class="absolute top-4 right-4 z-10">
@@ -353,23 +352,19 @@
                         </div>
                     </div>
 
-                    <!-- Toggle Button -->
                     <button onclick="toggleProfileCard()" class="w-full bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-dark-border py-3 flex items-center justify-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                         <span id="profileBtnText">عرض معلومات بطاقة المعلم</span>
                         <i data-lucide="chevron-down" id="profileIcon" class="w-4 h-4 rotate-icon transition-transform duration-300"></i>
                     </button>
 
-                    <!-- Content: Collapsible -->
                     <div id="profileContent" class="accordion-content bg-white dark:bg-dark-surface flex-1 flex flex-col">
                         <div class="px-6 py-6 flex flex-col gap-5">
                             
-                            <!-- Badges -->
                             <div class="flex flex-wrap justify-center gap-2">
                                 <span class="bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-brand-100 dark:border-brand-700">طالب مقدمات</span>
                                 <span class="bg-gold-50 dark:bg-gold-900/30 text-gold-700 dark:text-gold-300 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-gold-100 dark:border-gold-700">AI Developer</span>
                             </div>
 
-                            <!-- Info List -->
                             <div class="space-y-3 text-sm text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-dark-border">
                                 <div class="flex items-start gap-3">
                                     <div class="bg-white dark:bg-dark-surface p-1.5 rounded-lg shadow-sm shrink-0 text-brand-600 mt-0.5"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>
@@ -389,7 +384,21 @@
                                 </div>
                             </div>
 
-                            <!-- Contact Actions -->
+                            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-700 p-3 shadow-sm group-hover:shadow-md transition-all duration-300">
+                                <div class="absolute -left-4 -top-4 w-16 h-16 bg-blue-200 dark:bg-blue-900 rounded-full blur-2xl opacity-40"></div>
+                                
+                                <div class="relative flex items-center gap-3">
+                                    <div class="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-blue-50 dark:border-slate-600 text-blue-600 dark:text-blue-400 shrink-0">
+                                        <i data-lucide="clock" class="w-5 h-5 animate-pulse-slow"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <h4 class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">حالة استقبال الطلبات الخاصة:</h4>
+                                        <p class="text-xs font-bold text-blue-700 dark:text-blue-300 leading-tight">
+                                            المجال مفتوح للطلب إن تيسر الوقت
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="grid grid-cols-1 gap-3 mt-auto">
                                 <a href="https://wa.me/97336166806" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-green-500/20 group">
                                     <i data-lucide="message-circle" class="w-4 h-4 group-hover:scale-110 transition-transform"></i> للتواصل واتساب
@@ -407,6 +416,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Main Content Area -->
             <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-8">
