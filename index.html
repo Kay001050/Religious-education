@@ -54,11 +54,13 @@
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'spin-slow': 'spin 8s linear infinite',
+                        'scale-in': 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
                         fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' } , '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        scaleIn: { '0%': { transform: 'scale(0.9)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
                     }
                 }
             }
@@ -271,6 +273,12 @@
         }
         .dark .skeleton { background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%); }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* Detail Modal Enhancements */
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+        }
     </style>
 </head>
 <body class="font-tajawal text-slate-700 antialiased selection:bg-brand-500 selection:text-white">
@@ -542,7 +550,73 @@
         </div>
     </div>
 
-    <!-- 2. ULTIMATE ADMIN DASHBOARD -->
+    <!-- 2. ITEM DETAILS MODAL (NEW FEATURE) -->
+    <div id="detailsModal" class="fixed inset-0 z-[100] hidden items-center justify-center modal-backdrop p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-dark-surface rounded-[2.5rem] w-full max-w-2xl shadow-2xl relative transform scale-95 transition-transform duration-300 border border-slate-100 dark:border-dark-border overflow-hidden animate-scale-in">
+            
+            <!-- Modal Header Image/BG -->
+            <div class="h-48 relative bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
+                <div id="detailPattern" class="absolute inset-0 opacity-10"></div>
+                <i id="detailIconBg" data-lucide="trophy" class="w-32 h-32 absolute -bottom-8 -right-8 text-slate-200 dark:text-slate-800 rotate-12"></i>
+                <div class="absolute top-4 right-4 z-10">
+                    <button onclick="toggleDetailsModal()" class="bg-black/10 hover:bg-black/20 text-white dark:bg-white/10 dark:hover:bg-white/20 p-2 rounded-full transition-colors backdrop-blur-md">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="relative z-10 text-center mt-8">
+                    <span id="detailTypeBadge" class="inline-block px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 shadow-lg text-xs font-black uppercase tracking-wider text-brand-600 mb-2 border border-slate-100 dark:border-slate-700">
+                        نوع
+                    </span>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-8 md:p-10 relative">
+                <!-- Title Section -->
+                <div class="mb-6 text-center">
+                    <h2 id="detailTitle" class="text-3xl font-black font-cairo text-slate-800 dark:text-white mb-2 leading-tight">عنوان النشاط</h2>
+                    <div class="flex justify-center items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+                        <span id="detailDate" class="flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                            <i data-lucide="calendar" class="w-4 h-4"></i> 2026-01-01
+                        </span>
+                        <span id="detailGrade" class="flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                            <i data-lucide="users" class="w-4 h-4"></i> الحلقة الأولى
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Creator Card -->
+                <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 mb-8">
+                    <div class="w-12 h-12 rounded-full bg-gold-100 dark:bg-gold-900/30 text-gold-600 dark:text-gold-400 flex items-center justify-center border-2 border-white dark:border-slate-700 shadow-sm">
+                        <i data-lucide="user-pen" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">صُنع بواسطة</p>
+                        <p id="detailCreator" class="text-sm font-bold text-slate-700 dark:text-slate-200">أ. حسن سديف</p>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-8">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">عن النشاط</h4>
+                    <p id="detailDesc" class="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">وصف تفصيلي للنشاط...</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a id="detailLink" href="#" target="_blank" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 transform active:scale-[0.98] group">
+                        <span>ابدأ النشاط الآن</span>
+                        <i data-lucide="external-link" class="w-4 h-4 group-hover:translate-x-[-2px] transition-transform"></i>
+                    </a>
+                    <button onclick="toggleDetailsModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i> إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ULTIMATE ADMIN DASHBOARD -->
     <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-slate-50/95 dark:bg-[#0f172a]/95 backdrop-blur-xl overflow-y-auto">
         <div class="min-h-screen py-8 px-4 md:px-8">
             <div class="max-w-7xl mx-auto">
@@ -554,7 +628,7 @@
                         </div>
                         <div>
                             <h2 class="text-2xl font-black font-cairo text-slate-800 dark:text-white">نظام إدارة المحتوى المتقدم</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">V 5.0 PRO | ULTIMATE EDITION</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">V 2.6 PRO | ULTIMATE EDITION</p>
                         </div>
                     </div>
                     <div class="flex gap-3 w-full md:w-auto">
@@ -596,33 +670,6 @@
                                 <i data-lucide="layers" class="absolute -left-4 -bottom-4 w-24 h-24 opacity-20 rotate-12 group-hover:scale-110 transition-transform"></i>
                                 <div class="text-3xl font-black mb-1" id="statTotal">0</div>
                                 <div class="text-xs font-bold opacity-80">إجمالي</div>
-                            </div>
-                        </div>
-
-                        <!-- System Health & Storage Widget (New Feature) -->
-                        <div class="bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border mb-8">
-                            <h4 class="font-bold text-lg mb-4 text-slate-800 dark:text-white flex items-center gap-2">
-                                <i data-lucide="activity" class="text-green-500"></i> صحة النظام والمساحة
-                            </h4>
-                            <div class="space-y-4">
-                                <div>
-                                    <div class="flex justify-between text-xs text-slate-500 mb-1">
-                                        <span>مساحة التخزين المستخدمة</span>
-                                        <span>15%</span>
-                                    </div>
-                                    <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div class="h-full bg-blue-500 w-[15%] rounded-full"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs text-slate-500 mb-1">
-                                        <span>أداء السيرفر (محاكاة)</span>
-                                        <span class="text-green-500 font-bold">ممتاز 99ms</span>
-                                    </div>
-                                    <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div class="h-full bg-green-500 w-[95%] rounded-full"></div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -669,6 +716,24 @@
                                         </div>
                                     </div>
 
+                                    <!-- Creator & Date (New Fields) -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">اسم الصانع / المعلم</label>
+                                            <div class="relative">
+                                                <i data-lucide="user-pen" class="absolute right-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                                                <input type="text" id="newCreator" placeholder="الاسم الكامل" class="w-full custom-input rounded-xl pl-4 pr-12 py-3 font-bold text-slate-800 dark:text-white outline-none">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">تاريخ النشر / الإعداد</label>
+                                            <div class="relative">
+                                                <i data-lucide="calendar" class="absolute right-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                                                <input type="date" id="newDate" class="w-full custom-input rounded-xl pl-4 pr-12 py-3 font-bold text-slate-800 dark:text-white outline-none" style="color-scheme: light;">
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div>
                                         <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">الوصف المختصر</label>
                                         <input type="text" id="newDesc" class="w-full custom-input rounded-xl px-4 py-3 text-slate-600 dark:text-slate-300 outline-none" placeholder="نبذة قصيرة عن المحتوى...">
@@ -694,8 +759,8 @@
                                 </form>
                             </div>
 
-                            <!-- Content List -->
-                            <div class="bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border h-fit xl:max-h-[700px] xl:overflow-y-auto">
+                            <!-- Content List (With Sorting) -->
+                            <div class="bg-white dark:bg-dark-surface p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-dark-border h-fit xl:max-h-[800px] xl:overflow-y-auto">
                                 <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-dark-border sticky top-0 bg-white dark:bg-dark-surface z-10">
                                     <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
                                         <i data-lucide="list-end" class="text-slate-400"></i> القائمة
@@ -717,10 +782,10 @@
                             <h4 class="font-bold text-lg mb-4 text-gold-400 flex items-center gap-2"><i data-lucide="lightbulb" class="w-5 h-5"></i> دليل النشر السريع</h4>
                             <ol class="list-decimal list-inside space-y-3 text-sm text-slate-300 leading-relaxed">
                                 <li>قم بإضافة وتعديل العناصر الجديدة.</li>
+                                <li>استخدم أزرار الترتيب لتنظيم الأولويات.</li>
                                 <li>اضغط زر <span class="bg-white/20 px-2 py-0.5 rounded text-white font-bold text-xs">تصدير الكود</span>.</li>
                                 <li>افتح ملف <code class="bg-black/30 px-1 rounded">index.html</code> على GitHub.</li>
                                 <li>ابحث عن متغير <code class="bg-black/30 px-1 rounded">contentData</code> واستبدله.</li>
-                                <li>احفظ التغييرات (Commit).</li>
                             </ol>
                         </div>
 
@@ -772,38 +837,8 @@
         ];
 
         // --- DATA ---
-        // Data Export
+    // Data Export
 let contentData = [
-    {
-        "id": 1770867598775,
-        "title": "نور الحوزة | Gemini",
-        "link": "https://gemini.google.com/gem/104i1VgdD4g9j1FMWH4bIz5WKjDEjYz9_?usp=sharing",
-        "desc": "ذكاء اصطناعي حوزوي",
-        "type": "ai",
-        "grade": "عام",
-        "date": "2026-02-12",
-        "icon": "cpu"
-    },
-    {
-        "id": 1770867550793,
-        "title": "نور الحوزة | ChatGPT",
-        "link": "https://chatgpt.com/g/g-67d5f5a8c32c8191ab7bb16ed6a48bfa-nwr-lhwz",
-        "desc": "ذكاء اصطناعي حوزوي",
-        "type": "ai",
-        "grade": "عام",
-        "date": "2026-02-12",
-        "icon": "cpu"
-    },
-    {
-        "id": 1770808063796,
-        "title": "لعبة بماذا أتوضأ؟",
-        "desc": "لعبة تفاعلية لتمييز الماء الطاهر والمضاف",
-        "link": "What_ablution.html",
-        "type": "game",
-        "grade": "الحلقة الأولى (1-3)",
-        "date": "2026-02-11",
-        "icon": "droplets"
-    },
     {
         "id": 1770808009503,
         "title": "مسابقة النور القرآني",
@@ -812,7 +847,8 @@ let contentData = [
         "grade": "الحلقة الأولى (1-3)",
         "date": "2026-02-11",
         "icon": "trophy",
-        "desc": "مسابقة قرآنية للأطفال"
+        "desc": "مسابقة قرآنية للأطفال",
+        "creator": "أ. حسن سديف"
     },
     {
         "id": 1770807946844,
@@ -822,17 +858,52 @@ let contentData = [
         "type": "quiz",
         "grade": "الحلقة الأولى (1-3)",
         "date": "2026-02-11",
-        "icon": "moon-star"
+        "icon": "moon-star",
+        "creator": "أ. حسن سديف"
     },
- {
+    {
+        "id": 1770808063796,
+        "title": "لعبة بماذا أتوضأ؟",
+        "desc": "لعبة تفاعلية لتمييز الماء الطاهر والمضاف",
+        "link": "What_ablution.html",
+        "type": "game",
+        "grade": "الحلقة الأولى (1-3)",
+        "date": "2026-02-11",
+        "creator": "أ. حسن سديف",
+        "icon": "droplets"
+    },
+    {
+        "id": 1770867598775,
+        "title": "نور الحوزة | Gemini",
+        "link": "https://gemini.google.com/gem/104i1VgdD4g9j1FMWH4bIz5WKjDEjYz9_?usp=sharing",
+        "desc": "ذكاء اصطناعي حوزوي",
+        "type": "ai",
+        "grade": "عام",
+        "date": "2025-12-02",
+        "creator": "ثلة من طلبة الحوزة العلمية",
+        "icon": "cpu"
+    },
+    {
+        "id": 1770867550793,
+        "title": "نور الحوزة | ChatGPT",
+        "link": "https://chatgpt.com/g/g-67d5f5a8c32c8191ab7bb16ed6a48bfa-nwr-lhwz",
+        "desc": "ذكاء اصطناعي حوزوي",
+        "type": "ai",
+        "grade": "عام",
+        "date": "2024-04-01",
+        "creator": "ثلة من طلبة الحوزة العلمية",
+        "icon": "cpu"
+    },
+    {
         "id": 1770821743282,
         "title": "دليل خطباء البحرين",
         "link": "Khateebs.html",
         "desc": "دليل أرقام خطباء المنبر الحسيني في البحرين",
         "type": "other",
         "grade": "عام",
-        "date": "2026-02-11",
-        "icon": "file"
+        "date": "2025-10-01",
+        "icon": "file",
+        "creator": "أ. حسن سديف"
     }
 ];
 
@@ -847,9 +918,16 @@ let contentData = [
             updateStats();
             updateCharts();
             
-            // Check Dark Mode Preference
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            // FORCE LIGHT MODE DEFAULT
+            // Only apply dark if user explicitly set it to dark before. 
+            // If no preference or system preference is dark, we STILL default to light per request.
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
+            } else {
+                // Default to light
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
             }
 
             lucide.createIcons();
@@ -918,7 +996,7 @@ let contentData = [
             }
             
             const filtered = contentData.filter(item => 
-                (item.title.toLowerCase().includes(lowerQ) || item.desc.toLowerCase().includes(lowerQ)) &&
+                (item.title.toLowerCase().includes(lowerQ) || item.desc.toLowerCase().includes(lowerQ) || (item.creator && item.creator.toLowerCase().includes(lowerQ))) &&
                 (currentFilter === 'all' || item.grade === currentFilter)
             );
             renderGrid(filtered);
@@ -1014,8 +1092,11 @@ let contentData = [
                 const iconToUse = item.icon || typeInfo.icon;
                 const isFav = favorites.includes(item.id);
 
+                // Format Date for Card
+                const dateDisplay = item.date ? new Date(item.date).toLocaleDateString('ar-EG') : '';
+
                 const card = `
-                <a href="${item.link}" class="interactive-card bg-white dark:bg-dark-surface rounded-[2rem] p-0 relative overflow-hidden group block border border-slate-100 dark:border-dark-border shadow-sm h-full flex flex-col">
+                <div onclick="openDetailsModal(${item.id})" class="interactive-card bg-white dark:bg-dark-surface rounded-[2rem] p-0 relative overflow-hidden group cursor-pointer border border-slate-100 dark:border-dark-border shadow-sm h-full flex flex-col">
                     <div class="h-32 bg-gradient-to-br ${typeInfo.bg} dark:bg-opacity-10 relative overflow-hidden flex items-center justify-center">
                         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
                         <i data-lucide="${typeInfo.icon}" class="w-16 h-16 ${typeInfo.color} absolute -bottom-4 left-8 drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300"></i>
@@ -1030,27 +1111,83 @@ let contentData = [
                                 <i data-lucide="${gradeInfo.icon}" class="w-3.5 h-3.5 ${gradeInfo.color}"></i>
                                 <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">${item.grade}</span>
                             </div>
-                            <!-- Favorite Heart -->
-                            <button onclick="event.preventDefault(); toggleFavorite(${item.id})" class="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isFav ? 'text-red-500' : 'text-slate-300'}">
+                            <!-- Favorite Heart (Stop propagation to prevent opening modal) -->
+                            <button onclick="event.stopPropagation(); toggleFavorite(${item.id})" class="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isFav ? 'text-red-500' : 'text-slate-300'}">
                                 <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-current' : ''}"></i>
                             </button>
                         </div>
 
                         <h3 class="text-xl font-black font-cairo text-slate-800 dark:text-white mb-2 leading-tight group-hover:text-brand-600 transition-colors line-clamp-2">${item.title}</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-6 flex-1 line-clamp-3">${item.desc}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-1 line-clamp-3">${item.desc}</p>
                         
+                        <!-- Added Date & Creator Micro-info -->
                         <div class="mt-auto pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-400">اضغط للبدء</span>
+                            <div class="flex flex-col gap-1">
+                                ${item.creator ? `<span class="text-[10px] text-slate-400 font-bold flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${item.creator}</span>` : ''}
+                                ${dateDisplay ? `<span class="text-[10px] text-slate-400 font-bold flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${dateDisplay}</span>` : ''}
+                            </div>
                             <div class="w-8 h-8 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
-                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                <i data-lucide="eye" class="w-4 h-4"></i>
                             </div>
                         </div>
                     </div>
-                </a>
+                </div>
                 `;
                 container.innerHTML += card;
             });
             lucide.createIcons();
+        }
+
+        // --- NEW: DETAILS MODAL LOGIC ---
+        function openDetailsModal(id) {
+            const item = contentData.find(i => i.id === id);
+            if(!item) return;
+
+            const typeInfo = typeConfig.find(t => t.id === item.type) || typeConfig[5];
+            const gradeInfo = gradeConfig.find(g => g.id === item.grade) || { icon: 'users', label: 'عام' };
+            
+            // Populate Modal
+            document.getElementById('detailTitle').textContent = item.title;
+            document.getElementById('detailDesc').textContent = item.desc || "لا يوجد وصف متاح.";
+            document.getElementById('detailLink').href = item.link;
+            
+            // Creator & Date
+            document.getElementById('detailCreator').textContent = item.creator || "غير محدد";
+            document.getElementById('detailDate').innerHTML = `<i data-lucide="calendar" class="w-4 h-4"></i> ${item.date ? item.date : 'غير محدد'}`;
+            document.getElementById('detailGrade').innerHTML = `<i data-lucide="${gradeInfo.icon}" class="w-4 h-4"></i> ${gradeInfo.label}`;
+
+            // Type & Icon
+            document.getElementById('detailTypeBadge').textContent = typeInfo.label;
+            document.getElementById('detailTypeBadge').className = `inline-block px-4 py-1.5 rounded-full shadow-lg text-xs font-black uppercase tracking-wider mb-2 border ${typeInfo.bg} ${typeInfo.color} border-white dark:border-slate-700`;
+            
+            // Icon Background
+            const bgIcon = document.getElementById('detailIconBg');
+            bgIcon.setAttribute('data-lucide', typeInfo.icon);
+            bgIcon.className = `w-32 h-32 absolute -bottom-8 -right-8 ${typeInfo.color} opacity-20 rotate-12`;
+
+            lucide.createIcons();
+
+            // Show Modal
+            const modal = document.getElementById('detailsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function toggleDetailsModal() {
+            const modal = document.getElementById('detailsModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
 
         function toggleFavorite(id) {
@@ -1160,7 +1297,18 @@ let contentData = [
                                 <div class="text-[10px] text-slate-500 dark:text-slate-500 truncate">${item.grade}</div>
                             </div>
                         </div>
-                        <div class="flex gap-1">
+                        
+                        <div class="flex items-center gap-1">
+                            <!-- Sorting Buttons (NEW) -->
+                            <button onclick="moveItem(${originalIndex}, -1)" class="p-2 text-slate-300 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 rounded-lg transition-colors" title="تحريك لأعلى">
+                                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="moveItem(${originalIndex}, 1)" class="p-2 text-slate-300 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/30 rounded-lg transition-colors" title="تحريك لأسفل">
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                            </button>
+                            
+                            <div class="w-px h-4 bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
                             <button onclick="duplicateItem(${originalIndex})" class="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
                             <button onclick="editItem(${originalIndex})" class="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
                             <button onclick="deleteItem(${originalIndex})" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
@@ -1171,6 +1319,18 @@ let contentData = [
             lucide.createIcons();
         }
 
+        // NEW: Sorting Logic
+        function moveItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < contentData.length) {
+                // Swap elements
+                [contentData[index], contentData[newIndex]] = [contentData[newIndex], contentData[index]];
+                renderAdminList();
+                renderGrid(contentData); // Update public view immediately to reflect order
+                generateExportCode();
+            }
+        }
+
         function handleSaveItem(e) {
             e.preventDefault();
             const editId = document.getElementById('editItemId').value;
@@ -1179,6 +1339,8 @@ let contentData = [
             const desc = document.getElementById('newDesc').value;
             const type = document.getElementById('newType').value;
             const grade = document.getElementById('newGrade').value;
+            const creator = document.getElementById('newCreator').value;
+            const date = document.getElementById('newDate').value;
             
             const typeInfo = typeConfig.find(t => t.id === type);
             
@@ -1186,15 +1348,14 @@ let contentData = [
                 // Edit Mode
                 const idx = contentData.findIndex(x => x.id == editId);
                 if (idx > -1) {
-                    contentData[idx] = { ...contentData[idx], title, link, desc, type, grade, icon: typeInfo.icon };
+                    contentData[idx] = { ...contentData[idx], title, link, desc, type, grade, creator, date, icon: typeInfo.icon };
                     showToast('تم تعديل المحتوى بنجاح!', 'success');
                 }
             } else {
                 // Add Mode
                 const newItem = {
                     id: Date.now(),
-                    title, link, desc, type, grade,
-                    date: new Date().toISOString().split('T')[0],
+                    title, link, desc, type, grade, creator, date,
                     icon: typeInfo.icon 
                 };
                 contentData.unshift(newItem);
@@ -1217,6 +1378,8 @@ let contentData = [
             document.getElementById('newDesc').value = item.desc;
             document.getElementById('newType').value = item.type;
             document.getElementById('newGrade').value = item.grade;
+            document.getElementById('newCreator').value = item.creator || '';
+            document.getElementById('newDate').value = item.date || '';
 
             // Update Visual Selectors
             document.querySelectorAll(`input[name="typeSelect"][value="${item.type}"]`).forEach(el => el.click());
