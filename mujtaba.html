@@ -1,0 +1,2810 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة الكلمات المتقاطعة - مولد الإمام الحسن المجتبى عليه السلام</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1f2e;
+            --card: #252b3d;
+            --cell: #2d3548;
+            --gold: #ffd43b;
+            --green: #51cf66;
+            --pink: #f783ac;
+            --blue: #4dabf7;
+            --purple: #9775fa;
+            --orange: #ff922b;
+            --cyan: #22d3ee;
+            --red: #ff6b6b;
+            --text: #f8f9fa;
+            --muted: #adb5bd;
+            
+            /* Word colors */
+            --word-1: #ff6b6b;
+            --word-2: #ff922b;
+            --word-3: #ffd43b;
+            --word-4: #51cf66;
+            --word-5: #22d3ee;
+            --word-6: #4dabf7;
+            --word-7: #9775fa;
+            --word-8: #f783ac;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 15% 15%, rgba(255, 212, 59, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 85%, rgba(81, 207, 102, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(151, 117, 250, 0.05) 0%, transparent 60%),
+                linear-gradient(160deg, #1a1f2e 0%, #252b3d 50%, #1a1f2e 100%);
+        }
+
+        /* Floating Stars */
+        .stars {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--t) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.15; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Moon */
+        .moon {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            width: clamp(35px, 9vw, 55px);
+            height: clamp(35px, 9vw, 55px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fffde7 0%, #ffd43b 50%, #fab005 100%);
+            box-shadow: 0 0 25px rgba(255, 212, 59, 0.5);
+            z-index: 5;
+            animation: moonGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes moonGlow {
+            0%, 100% { box-shadow: 0 0 25px rgba(255, 212, 59, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 212, 59, 0.7); }
+        }
+
+        /* Lanterns */
+        .lantern {
+            position: fixed;
+            z-index: 4;
+            pointer-events: none;
+            animation: swing 5s ease-in-out infinite;
+        }
+
+        .lantern-body {
+            width: clamp(16px, 4vw, 26px);
+            aspect-ratio: 0.55;
+            background: linear-gradient(180deg, var(--gold) 0%, var(--orange) 60%, var(--pink) 100%);
+            border-radius: 40% 40% 55% 55%;
+            box-shadow: 0 0 15px rgba(255, 212, 59, 0.5);
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg) translateY(-8px); }
+        }
+
+        /* Sound Button */
+        .sound-btn {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            width: 36px;
+            height: 36px;
+            background: var(--card);
+            border: 2px solid rgba(255, 212, 59, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+
+        .sound-btn:active { transform: scale(0.9); }
+
+        /* Main Container */
+        .main {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 8px;
+            padding-top: 50px;
+            padding-bottom: 60px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 10px 5px;
+            animation: fadeDown 0.6s ease;
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, var(--gold), var(--orange));
+            color: var(--bg);
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: clamp(8px, 2.2vw, 11px);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .title {
+            font-family: 'Amiri', serif;
+            font-size: clamp(16px, 4vw, 28px);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .imam-name {
+            font-family: 'Amiri', serif;
+            font-size: clamp(14px, 3.5vw, 24px);
+            background: linear-gradient(135deg, var(--green), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 3px;
+        }
+
+        .subtitle {
+            font-size: clamp(8px, 2.2vw, 11px);
+            color: var(--muted);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+
+        .stat {
+            background: var(--card);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 5px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 68px;
+        }
+
+        .stat.points { border-color: var(--gold); }
+        .stat.stage { border-color: var(--green); }
+        .stat.streak { border-color: var(--pink); }
+        .stat.hearts { border-color: var(--red); }
+
+        .stat-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .stat.points .stat-icon { background: linear-gradient(135deg, var(--gold), var(--orange)); }
+        .stat.stage .stat-icon { background: linear-gradient(135deg, var(--green), var(--cyan)); }
+        .stat.streak .stat-icon { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+        .stat.hearts .stat-icon { background: linear-gradient(135deg, var(--red), var(--pink)); }
+
+        .stat-label { font-size: 7px; color: var(--muted); }
+        .stat-value { font-size: 12px; font-weight: 700; }
+
+        /* Difficulty */
+        .diff-tag {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .diff-tag span {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .diff-tag span.easy { background: linear-gradient(135deg, var(--green), var(--cyan)); color: var(--bg); }
+        .diff-tag span.medium { background: linear-gradient(135deg, var(--gold), var(--orange)); color: var(--bg); }
+        .diff-tag span.hard { background: linear-gradient(135deg, var(--pink), var(--purple)); color: var(--bg); }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+            padding: 0 2px;
+        }
+
+        .nav-btn {
+            padding: 6px 10px;
+            background: var(--card);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--green), var(--cyan));
+            color: var(--bg);
+        }
+
+        /* Game Card */
+        .game-card {
+            background: var(--card);
+            border: 2px solid rgba(255, 212, 59, 0.25);
+            border-radius: 14px;
+            padding: 10px;
+            margin-bottom: 8px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Game Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .stage-badge {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .timer {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* Help Tools */
+        .help-tools {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            padding: 5px 6px;
+            background: rgba(255, 212, 59, 0.1);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            color: var(--gold);
+            font-size: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-width: 48px;
+        }
+
+        .tool-btn:active:not(:disabled) { transform: scale(0.95); }
+        .tool-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .tool-btn .icon { font-size: 14px; }
+        .tool-btn .count { font-size: 7px; color: var(--muted); }
+
+        /* Crossword Grid - Fixed Layout */
+        .grid-wrap {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 6px 0;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        .crossword {
+            display: grid;
+            gap: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 212, 59, 0.2);
+        }
+
+        .cell {
+            width: clamp(30px, 7.5vw, 40px);
+            height: clamp(30px, 7.5vw, 40px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-radius: 6px;
+            font-family: 'Amiri', serif;
+            font-size: clamp(15px, 3.8vw, 19px);
+            font-weight: 700;
+            transition: all 0.15s;
+        }
+
+        .cell.empty {
+            background: transparent;
+        }
+
+        .cell.letter {
+            background: var(--cell);
+            border: 2px solid;
+            cursor: pointer;
+        }
+
+        .cell.letter:active { transform: scale(0.96); }
+
+        /* Word colors */
+        .cell.word-1 { border-color: var(--word-1); background: rgba(255, 107, 107, 0.15); }
+        .cell.word-2 { border-color: var(--word-2); background: rgba(255, 146, 43, 0.15); }
+        .cell.word-3 { border-color: var(--word-3); background: rgba(255, 212, 59, 0.15); }
+        .cell.word-4 { border-color: var(--word-4); background: rgba(81, 207, 102, 0.15); }
+        .cell.word-5 { border-color: var(--word-5); background: rgba(34, 211, 238, 0.15); }
+        .cell.word-6 { border-color: var(--word-6); background: rgba(77, 171, 247, 0.15); }
+        .cell.word-7 { border-color: var(--word-7); background: rgba(151, 117, 250, 0.15); }
+        .cell.word-8 { border-color: var(--word-8); background: rgba(247, 131, 172, 0.15); }
+
+        .cell.selected {
+            box-shadow: 0 0 12px rgba(81, 207, 102, 0.6);
+            transform: scale(1.08);
+            border-color: var(--green) !important;
+        }
+
+        .cell.highlight {
+            opacity: 0.8;
+        }
+
+        .cell.correct {
+            background: rgba(81, 207, 102, 0.3) !important;
+            border-color: var(--green) !important;
+            animation: pop 0.3s ease;
+        }
+
+        @keyframes pop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .cell.wrong {
+            background: rgba(255, 107, 107, 0.3) !important;
+            border-color: var(--red) !important;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%, 75% { transform: translateX(-3px); }
+            50% { transform: translateX(3px); }
+        }
+
+        .cell-num {
+            position: absolute;
+            top: 0;
+            right: 2px;
+            font-size: 7px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        .cell-text {
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .cell-text.hint { color: var(--gold); }
+
+        /* Clues */
+        .clues {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .clues-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .clue {
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+            padding: 4px 5px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            margin-bottom: 3px;
+            transition: all 0.15s;
+        }
+
+        .clue:active { transform: scale(0.98); }
+
+        .clue.active {
+            background: rgba(81, 207, 102, 0.1);
+            border-color: var(--green);
+        }
+
+        .clue.done { opacity: 0.5; }
+        .clue.done .clue-text { text-decoration: line-through; }
+
+        .clue-num {
+            min-width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .clue-text {
+            font-size: 9px;
+            line-height: 1.35;
+            color: var(--muted);
+        }
+
+        .clue.active .clue-text { color: var(--text); }
+
+        /* Keyboard */
+        .keyboard {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            padding: 6px 4px;
+            margin-bottom: 8px;
+        }
+
+        .keyboard-label {
+            text-align: center;
+            font-size: 8px;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .keyboard-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .keyboard-row {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+        }
+
+        .key {
+            min-width: clamp(20px, 5.5vw, 28px);
+            height: clamp(28px, 7vw, 36px);
+            background: var(--cell);
+            border: 2px solid rgba(77, 171, 247, 0.3);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'Amiri', serif;
+            font-size: clamp(12px, 3.2vw, 16px);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key:active {
+            transform: scale(0.9);
+            background: var(--green);
+            border-color: var(--green);
+            color: var(--bg);
+        }
+
+        .key.wide {
+            min-width: clamp(35px, 9vw, 48px);
+            font-size: clamp(7px, 2.2vw, 9px);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+        }
+
+        .key.del {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: rgba(255, 107, 107, 0.4);
+        }
+
+        .key.enter {
+            background: rgba(81, 207, 102, 0.2);
+            border-color: rgba(81, 207, 102, 0.4);
+        }
+
+        /* Progress */
+        .progress {
+            margin-bottom: 8px;
+        }
+
+        .progress-head {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 9px;
+        }
+
+        .progress-label { color: var(--muted); }
+        .progress-value { color: var(--gold); font-weight: 700; }
+
+        .progress-bar {
+            height: 7px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--cyan), var(--gold));
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border: none;
+        }
+
+        .action-btn:active { transform: scale(0.96); }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--gold), var(--orange));
+            color: var(--bg);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--blue);
+            color: var(--blue);
+        }
+
+        /* Levels Section */
+        .levels-section { display: none; }
+        .levels-section.active { display: block; }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .level-btn {
+            aspect-ratio: 1;
+            background: var(--card);
+            border: 2px solid rgba(255, 212, 59, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            font-size: clamp(11px, 2.8vw, 16px);
+            font-weight: 700;
+        }
+
+        .level-btn:active:not(:disabled) { transform: scale(0.96); }
+
+        .level-btn.current {
+            background: linear-gradient(135deg, var(--green), var(--cyan));
+            border-color: transparent;
+            color: var(--bg);
+        }
+
+        .level-btn.done { border-color: var(--green); }
+
+        .level-btn.done::after {
+            content: '✓';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 10px;
+            height: 10px;
+            background: var(--green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            color: var(--bg);
+        }
+
+        .level-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+        /* Achievements Section */
+        .achievements-section { display: none; }
+        .achievements-section.active { display: block; }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+
+        .achieve {
+            background: var(--card);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 6px 4px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .achieve.unlocked {
+            border-color: var(--gold);
+            background: rgba(255, 212, 59, 0.08);
+        }
+
+        .achieve-icon {
+            font-size: 20px;
+            margin-bottom: 3px;
+            opacity: 0.2;
+            filter: grayscale(1);
+            transition: all 0.2s;
+        }
+
+        .achieve.unlocked .achieve-icon {
+            opacity: 1;
+            filter: none;
+            animation: iconPop 0.4s ease;
+        }
+
+        @keyframes iconPop {
+            0% { transform: scale(0) rotate(-180deg); }
+            60% { transform: scale(1.15) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        .achieve-name {
+            font-size: 7px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .achieve.unlocked .achieve-name { color: var(--gold); }
+
+        .achieve-desc {
+            font-size: 5px;
+            color: var(--muted);
+            opacity: 0.7;
+        }
+
+        /* Rewards Section */
+        .rewards-section { display: none; }
+        .rewards-section.active { display: block; }
+
+        .rewards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .reward {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            border: 2px solid rgba(255, 212, 59, 0.2);
+            border-radius: 8px;
+            padding: 7px;
+        }
+
+        .reward.unlocked { border-color: var(--gold); }
+
+        .reward-icon {
+            font-size: 22px;
+            opacity: 0.3;
+            transition: all 0.2s;
+        }
+
+        .reward.unlocked .reward-icon { opacity: 1; }
+
+        .reward-name { font-size: 10px; font-weight: 700; }
+        .reward-desc { font-size: 8px; color: var(--muted); }
+
+        /* Start Screen */
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            transition: all 0.35s;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.02);
+        }
+
+        .start-content {
+            text-align: center;
+            padding: 15px 10px;
+            max-width: 320px;
+        }
+
+        .start-icon {
+            font-size: 55px;
+            margin-bottom: 8px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .start-title {
+            font-family: 'Amiri', serif;
+            font-size: clamp(18px, 4.5vw, 26px);
+            margin-bottom: 4px;
+        }
+
+        .start-subtitle {
+            font-size: clamp(10px, 2.8vw, 13px);
+            color: var(--green);
+            margin-bottom: 10px;
+        }
+
+        .dev-credit {
+            font-size: 9px;
+            color: var(--gold);
+            margin-bottom: 12px;
+            padding: 4px 10px;
+            background: rgba(255, 212, 59, 0.1);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .diff-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .diff-btn {
+            background: var(--card);
+            border: 2px solid rgba(255, 212, 59, 0.2);
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: right;
+        }
+
+        .diff-btn:active { transform: scale(0.98); }
+
+        .diff-btn.easy { border-color: var(--green); }
+        .diff-btn.medium { border-color: var(--gold); }
+        .diff-btn.hard { border-color: var(--pink); }
+
+        .diff-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+
+        .diff-name {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .diff-badge {
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 7px;
+            font-weight: 600;
+        }
+
+        .diff-btn.easy .diff-badge { background: var(--green); color: var(--bg); }
+        .diff-btn.medium .diff-badge { background: var(--gold); color: var(--bg); }
+        .diff-btn.hard .diff-badge { background: var(--pink); color: var(--bg); }
+
+        .diff-desc { font-size: 8px; color: var(--muted); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s;
+            padding: 10px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: linear-gradient(145deg, var(--card), var(--bg));
+            border: 3px solid var(--gold);
+            border-radius: 14px;
+            padding: 18px 12px;
+            max-width: 280px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9) translateY(10px);
+            transition: transform 0.25s;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            font-size: 45px;
+            margin-bottom: 6px;
+            animation: modalPop 0.5s ease;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0) rotate(-180deg); }
+            60% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        .modal-title {
+            font-family: 'Amiri', serif;
+            font-size: 20px;
+            background: linear-gradient(135deg, var(--gold), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .modal-msg {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .modal-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .modal-stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .modal-stat-label { font-size: 7px; color: var(--muted); }
+
+        .modal-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Audience Help */
+        .audience-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s;
+            padding: 12px;
+        }
+
+        .audience-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .audience-box {
+            background: var(--card);
+            border: 3px solid var(--blue);
+            border-radius: 14px;
+            padding: 15px 12px;
+            max-width: 260px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .audience-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--blue);
+            margin-bottom: 10px;
+        }
+
+        .audience-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .audience-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bar-label {
+            width: 24px;
+            font-size: 14px;
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            border-radius: 8px;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--bg);
+        }
+
+        .audience-close {
+            padding: 6px 16px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: var(--bg);
+            border: none;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Confetti */
+        .confetti-wrap {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3000;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-6px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Toast */
+        .toast-wrap {
+            position: fixed;
+            bottom: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2500;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .toast-item {
+            background: var(--card);
+            border: 2px solid var(--green);
+            border-radius: 8px;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: toastIn 0.2s ease, toastOut 0.2s ease 2s forwards;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-8px); }
+        }
+
+        .toast-icon { font-size: 12px; }
+        .toast-text { font-size: 10px; font-weight: 600; }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 2px solid rgba(255, 212, 59, 0.25);
+            padding: 6px 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            z-index: 50;
+        }
+
+        .footer-text {
+            font-size: 8px;
+            color: var(--muted);
+        }
+
+        .footer-name {
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 330px) {
+            .cell { width: 26px; height: 26px; font-size: 13px; }
+            .key { min-width: 18px; height: 26px; font-size: 11px; }
+            .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 450px) {
+            .game-card { max-width: 400px; margin: 0 auto 8px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-layer"></div>
+
+    <!-- Stars -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Moon -->
+    <div class="moon"></div>
+
+    <!-- Lanterns -->
+    <div class="lantern" style="top: 4%; left: 3%;">
+        <div class="lantern-body"></div>
+    </div>
+    <div class="lantern" style="top: 3%; right: 4%; animation-delay: -2s;">
+        <div class="lantern-body"></div>
+    </div>
+
+    <!-- Sound Button -->
+    <button class="sound-btn" onclick="toggleSound()">
+        <span id="soundIcon">🔊</span>
+    </button>
+
+    <!-- Start Screen -->
+    <div class="start-overlay" id="startScreen">
+        <div class="start-content">
+            <div class="start-icon">🌙</div>
+            <h1 class="start-title">لعبة الكلمات المتقاطعة</h1>
+            <p class="start-subtitle">احتفالاً بمولد الإمام الحسن المجتبى عليه السلام</p>
+            <p class="dev-credit">إعداد: أ. حسن سديف</p>
+            
+            <div class="diff-list">
+                <button class="diff-btn easy" onclick="startGame('easy')">
+                    <div class="diff-head">
+                        <span class="diff-name">المستوى السهل</span>
+                        <span class="diff-badge">مبتدئ</span>
+                    </div>
+                    <p class="diff-desc">10 مراحل - الأسماء والقرابة</p>
+                </button>
+                <button class="diff-btn medium" onclick="startGame('medium')">
+                    <div class="diff-head">
+                        <span class="diff-name">المستوى المتوسط</span>
+                        <span class="diff-badge">متوسط</span>
+                    </div>
+                    <p class="diff-desc">10 مراحل - الألقاب والتواريخ</p>
+                </button>
+                <button class="diff-btn hard" onclick="startGame('hard')">
+                    <div class="diff-head">
+                        <span class="diff-name">المستوى الصعب</span>
+                        <span class="diff-badge">متقدم</span>
+                    </div>
+                    <p class="diff-desc">10 مراحل - التفاصيل الدقيقة</p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Header -->
+        <header class="header">
+            <div class="badge">🌙 مولد الإمام الحسن المجتبى عليه السلام</div>
+            <h1 class="title">لعبة الكلمات المتقاطعة</h1>
+            <p class="imam-name">الإمام الحسن المجتبى عليه السلام</p>
+            <p class="subtitle">اكتشف كلمات من سيرة أهل البيت الطاهرين</p>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat points">
+                <div class="stat-icon">⭐</div>
+                <div>
+                    <div class="stat-label">النقاط</div>
+                    <div class="stat-value" id="points">0</div>
+                </div>
+            </div>
+            <div class="stat stage">
+                <div class="stat-icon">🎯</div>
+                <div>
+                    <div class="stat-label">المرحلة</div>
+                    <div class="stat-value" id="stageNum">1</div>
+                </div>
+            </div>
+            <div class="stat streak">
+                <div class="stat-icon">🔥</div>
+                <div>
+                    <div class="stat-label">التتابع</div>
+                    <div class="stat-value" id="streak">0</div>
+                </div>
+            </div>
+            <div class="stat hearts">
+                <div class="stat-icon">❤️</div>
+                <div>
+                    <div class="stat-label">الحياة</div>
+                    <div class="stat-value" id="hearts">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="diff-tag">
+            <span class="easy" id="diffTag">المستوى السهل</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-btn active" data-tab="game" onclick="showTab('game')">🎮 اللعبة</button>
+            <button class="nav-btn" data-tab="levels" onclick="showTab('levels')">📊 المراحل</button>
+            <button class="nav-btn" data-tab="achievements" onclick="showTab('achievements')">🏆 الإنجازات</button>
+            <button class="nav-btn" data-tab="rewards" onclick="showTab('rewards')">🎁 المكافآت</button>
+        </nav>
+
+        <!-- Game Section -->
+        <section id="gameSection">
+            <div class="game-card">
+                <div class="game-header">
+                    <span class="stage-badge" id="stageBadge">المرحلة 1</span>
+                    <div class="timer">⏱️ <span id="timer">00:00</span></div>
+                </div>
+
+                <!-- Help Tools -->
+                <div class="help-tools">
+                    <button class="tool-btn" id="hintLetterBtn" onclick="useHintLetter()">
+                        <span class="icon">💡</span>
+                        <span>حرف</span>
+                        <span class="count" id="hintLetterCount">x3</span>
+                    </button>
+                    <button class="tool-btn" id="hintWordBtn" onclick="useHintWord()">
+                        <span class="icon">✨</span>
+                        <span>كلمة</span>
+                        <span class="count" id="hintWordCount">x1</span>
+                    </button>
+                    <button class="tool-btn" id="audienceBtn" onclick="useAudience()">
+                        <span class="icon">👥</span>
+                        <span>الجمهور</span>
+                        <span class="count" id="audienceCount">x1</span>
+                    </button>
+                    <button class="tool-btn" id="skipBtn" onclick="useSkip()">
+                        <span class="icon">⏭️</span>
+                        <span>تخطي</span>
+                        <span class="count" id="skipCount">x1</span>
+                    </button>
+                    <button class="tool-btn" id="heartBtn" onclick="useHeart()">
+                        <span class="icon">❤️</span>
+                        <span>حياة</span>
+                        <span class="count" id="heartCount">x1</span>
+                    </button>
+                </div>
+
+                <!-- Grid -->
+                <div class="grid-wrap">
+                    <div class="crossword" id="grid"></div>
+                </div>
+
+                <!-- Clues -->
+                <div class="clues">
+                    <div class="clues-title">📝 التلميحات</div>
+                    <div id="cluesList"></div>
+                </div>
+
+                <!-- Keyboard -->
+                <div class="keyboard">
+                    <div class="keyboard-label">اضغط على الحروف للكتابة</div>
+                    <div class="keyboard-rows" id="keyboard"></div>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress">
+                    <div class="progress-head">
+                        <span class="progress-label">تقدمك</span>
+                        <span class="progress-value" id="progressText">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <button class="action-btn primary" onclick="checkAnswers()">✓ تحقق</button>
+                    <button class="action-btn secondary" onclick="resetStage()">↻ إعادة</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Levels Section -->
+        <section class="levels-section" id="levelsSection">
+            <div class="game-card">
+                <div class="clues-title">📊 اختر المرحلة</div>
+                <div class="levels-grid" id="levelsGrid"></div>
+            </div>
+        </section>
+
+        <!-- Achievements Section -->
+        <section class="achievements-section" id="achievementsSection">
+            <div class="game-card">
+                <div class="clues-title">🏆 الإنجازات</div>
+                <div class="achievements-grid" id="achievementsGrid"></div>
+            </div>
+        </section>
+
+        <!-- Rewards Section -->
+        <section class="rewards-section" id="rewardsSection">
+            <div class="game-card">
+                <div class="clues-title">🎁 المكافآت</div>
+                <div class="rewards-list" id="rewardsList"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <span class="footer-text">لعبة الكلمات المتقاطعة | إعداد:</span>
+        <span class="footer-name">أ. حسن سديف</span>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-box">
+            <div class="modal-icon">🌟</div>
+            <h2 class="modal-title">أحسنت!</h2>
+            <p class="modal-msg" id="successMsg">لقد أكملت المرحلة بنجاح!</p>
+            <div class="modal-stats">
+                <div>
+                    <div class="modal-stat-value" id="modalPoints">0</div>
+                    <div class="modal-stat-label">نقطة</div>
+                </div>
+                <div>
+                    <div class="modal-stat-value" id="modalTime">00:00</div>
+                    <div class="modal-stat-label">الوقت</div>
+                </div>
+                <div>
+                    <div class="modal-stat-value" id="modalStreak">0</div>
+                    <div class="modal-stat-label">تتابع</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" onclick="closeModal('successModal')">إغلاق</button>
+                <button class="action-btn primary" onclick="nextStage()">التالي</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Modal -->
+    <div class="modal-overlay" id="completeModal">
+        <div class="modal-box">
+            <div class="modal-icon">🏆</div>
+            <h2 class="modal-title">مبروك!</h2>
+            <p class="modal-msg" id="completeMsg">لقد أكملت المستوى بنجاح!</p>
+            <div class="modal-stats">
+                <div>
+                    <div class="modal-stat-value" id="finalPoints">0</div>
+                    <div class="modal-stat-label">إجمالي النقاط</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn primary" onclick="restartGame()">العب مجدداً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="modal-box">
+            <div class="modal-icon">💔</div>
+            <h2 class="modal-title">انتهت الحياة!</h2>
+            <p class="modal-msg">لا تقلق، يمكنك المحاولة مرة أخرى</p>
+            <div class="modal-actions">
+                <button class="action-btn secondary" onclick="useHeart()">استخدم حياة</button>
+                <button class="action-btn primary" onclick="resetStage()">حاول مجدداً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audience Modal -->
+    <div class="audience-modal" id="audienceModal">
+        <div class="audience-box">
+            <div class="audience-title">👥 مساعدة الجمهور</div>
+            <div class="audience-bars" id="audienceBars"></div>
+            <button class="audience-close" onclick="closeModal('audienceModal')">حسناً</button>
+        </div>
+    </div>
+
+    <!-- Confetti -->
+    <div class="confetti-wrap" id="confettiWrap"></div>
+
+    <!-- Toast -->
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <script>
+        // ============================================
+        // Arabic Keyboard
+        // ============================================
+        const KEYS = [
+            ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
+            ['ط', 'ك', 'م', 'ن', 'ت', 'ا', 'ل', 'ب', 'ي', 'س', 'ش', 'ظ'],
+            ['ز', 'و', 'ة', 'ى', 'ء', 'ر', 'ؤ', 'ئ', 'ذ', 'إ', 'أ']
+        ];
+
+        const VALID = new Set([
+            'ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د',
+            'ط', 'ك', 'م', 'ن', 'ت', 'ا', 'ل', 'ب', 'ي', 'س', 'ش', 'ظ',
+            'ز', 'و', 'ة', 'ى', 'ء', 'ر', 'ؤ', 'ئ', 'ذ', 'إ', 'أ', 'آ'
+        ]);
+
+        // ============================================
+        // Game Data - All 30 Stages (Same Questions)
+        // ============================================
+        const DATA = {
+            easy: [
+                { words: [
+                    { w: 'حسن', c: 'هو الإمام الثاني من أئمة أهل البيت' },
+                    { w: 'حسين', c: 'اسم أخيه الشقيق وسيد الشهداء' },
+                    { w: 'فاطمة', c: 'اسم أمه سيدة نساء العالمين' },
+                    { w: 'علي', c: 'اسم أبيه أمير المؤمنين' },
+                    { w: 'محمد', c: 'جده هو خاتم الأنبياء والمرسلين' }
+                ]},
+                { words: [
+                    { w: 'ولادته', c: 'المدينة المنورة هي مكان... (ولادته أم وفاته؟)' },
+                    { w: 'حفيده', c: 'صلة قرابته بالنبي محمد (ص)' },
+                    { w: 'أخضر', c: 'لون رايته أو اللون الذي يرمز له' },
+                    { w: 'فاطمة', c: 'أول مولود لـ.... وعلي' },
+                    { w: 'سبط', c: 'كلمة تعني ابن البنت' }
+                ]},
+                { words: [
+                    { w: 'الكساء', c: 'نزل عليه وعلى عائلته حديث...' },
+                    { w: 'الصلح', c: 'عكس كلمة الحرب (اشتهر بصلحه)' },
+                    { w: 'رمضان', c: 'شهر الصيام الذي ولد فيه الإمام' },
+                    { w: 'الجنة', c: 'يلقب بسيد شباب أهل...' },
+                    { w: 'ريحانة', c: 'وصفه النبي بأنه ..... من الدنيا' }
+                ]},
+                { words: [
+                    { w: 'نبي', c: 'المهنة التي كان يمارسها جده' },
+                    { w: 'ركعتان', c: 'عدد ركعات صلاة الصبح' },
+                    { w: 'الكرم', c: 'عكس البخل (صفة اشتهر بها الإمام)' },
+                    { w: 'البقيع', c: 'نذهب لزيارة قبره في مقبرة....' },
+                    { w: 'زينب', c: 'اسم أخته بطلة كربلاء' }
+                ]},
+                { words: [
+                    { w: 'الفقراء', c: 'كان يحب إطعام.... (الناس بدون مال)' },
+                    { w: 'السلام', c: 'الكلمة التي نقولها عند ذكر اسمه' },
+                    { w: 'الحسن', c: 'أول الأئمة هو علي، والثاني هو...' },
+                    { w: 'الخُلق', c: 'كان يشبه جده في الخَلْق و...' },
+                    { w: 'الحرام', c: 'كان يذهب مشياً إلى بيت الله الـ...' }
+                ]},
+                { words: [
+                    { w: 'جعفر', c: 'اسم عمه الذي استشهد في مؤتة (الطيار)' },
+                    { w: 'خديجة', c: 'اسم جدته (زوجة النبي وأول من آمن)' },
+                    { w: 'الكساء', c: 'الإمام الحسن هو رابع أصحاب الـ...' },
+                    { w: 'أحفاد', c: 'كلمة تعني أولاد الابن أو البنت' },
+                    { w: 'الحسنة', c: 'عكس السيئة (كان يقابل الإساءة بـ...)' }
+                ]},
+                { words: [
+                    { w: 'الجمل', c: 'حيوان ركبه الإمام الحسن وهو صغير' },
+                    { w: 'إفطار', c: 'شيء نأكله لكسر الصيام' },
+                    { w: 'القرآن', c: 'كان الإمام يقرأ الـ... الكريم بصوت جميل' },
+                    { w: 'جود', c: 'كلمة تعني الهدية والعطاء' },
+                    { w: 'السبطان', c: 'لقب يطلق على الحسن والحسين' }
+                ]},
+                { words: [
+                    { w: 'الوحي', c: 'المنزل الذي ولد فيه هو منزل....' },
+                    { w: 'يوسف', c: 'نبي الله الذي يشاركه نفس الاسم الأول' },
+                    { w: 'أنيقة', c: 'صفة للملابس التي كان يلبسها' },
+                    { w: 'الفرح', c: 'كلمة تعني السعادة (من معاني اسمه)' },
+                    { w: 'الماء', c: 'كان يتوضأ للصلاة بـ...' }
+                ]},
+                { words: [
+                    { w: 'اثنا عشر', c: 'عدد الأئمة المعصومين (هو الثاني منهم)' },
+                    { w: 'المنورة', c: 'عاصمة جده النبي (المدينة الـ...)' },
+                    { w: 'ود', c: 'كلمة تعني الحب الشديد' },
+                    { w: 'السماء', c: 'عكس الأرض (نزل منها الملك جبرائيل)' },
+                    { w: 'أخضر', c: 'لون العمامة التي يضعها على رأسه' }
+                ]},
+                { words: [
+                    { w: 'الإنسان', c: 'اسم السورة التي تتحدث عنهم (هل أتى)' },
+                    { w: 'البيت', c: 'آية التطهير نزلت في حق أهل الـ...' },
+                    { w: 'عون', c: 'كلمة تعني المساعدة' },
+                    { w: 'فاطمة', c: 'لقب جدته أم الإمام علي' },
+                    { w: 'النور', c: 'عكس الظلام (الإمام هو نور)' }
+                ]}
+            ],
+            medium: [
+                { words: [
+                    { w: 'المجتبى', c: 'أشهر ألقابه ويعني المختار' },
+                    { w: 'كريم', c: 'لقب اشتهر به لكثرة عطائه "... أهل البيت"' },
+                    { w: 'رمضان', c: 'ولد في النصف من شهر...' },
+                    { w: 'الثالث', c: 'العام الهجري الذي ولد فيه' },
+                    { w: 'شباب', c: 'اللقب الذي يجمعه مع أخيه (سيدا...)' }
+                ]},
+                { words: [
+                    { w: 'الحلم', c: 'الصفة التي تعني الصبر والهدوء عند الغضب' },
+                    { w: 'الزكي', c: 'لقب يعني النقي الطاهر' },
+                    { w: 'الخامس عشر', c: 'اليوم الذي ولد فيه من شهر رمضان' },
+                    { w: 'المباهلة', c: 'اسم المباهلة التي خرج فيها مع النبي' },
+                    { w: 'البقيع', c: 'المكان الذي دفن فيه بالمدينة المنورة' }
+                ]},
+                { words: [
+                    { w: 'العابد', c: 'لقب يعني الذي يعبد الله كثيراً' },
+                    { w: 'مرتين', c: 'قاسم الله ماله (كم مرة؟)' },
+                    { w: 'خمس وعشرون', c: 'حج بيت الله ماشياً (كم مرة؟)' },
+                    { w: 'سبع', c: 'المدة التي عاشها مع جده النبي (سنوات)' },
+                    { w: 'أبو طالب', c: 'اسم الجد الثاني للإمام (والد الإمام علي)' }
+                ]},
+                { words: [
+                    { w: 'صفين', c: 'المعركة التي شارك فيها مع أبيه' },
+                    { w: 'الجمل', c: 'المعركة التي تسمى معركة...' },
+                    { w: 'الكوفة', c: 'المدينة التي انتقل إليها مع أبيه' },
+                    { w: 'معاوية', c: 'الرجل الذي تصالح معه الإمام' },
+                    { w: 'إحدى وأربعين', c: 'العام الذي سمي بعام الجماعة' }
+                ]},
+                { words: [
+                    { w: 'الكوثر', c: 'سورة قرآنية فسرها الإمام' },
+                    { w: 'تغير', c: 'كان الإمام إذا توضأ .... لونه' },
+                    { w: 'السيد', c: 'لقب يعني السيد المطاع' },
+                    { w: 'جائعاً', c: 'أطعم الإمام الكلب لأنه كان...' },
+                    { w: 'الحسين', c: 'وصية الإمام الحسن كانت لأخيه...' }
+                ]},
+                { words: [
+                    { w: 'المودة', c: 'آية قرآنية: قل لا أسألكم عليه أجراً إلا...' },
+                    { w: 'القربى', c: 'المودة تعني المحبة لـ...' },
+                    { w: 'لله', c: 'كان نقش خاتم الإمام: العزة...' },
+                    { w: 'أسماء', c: 'المرأة التي سمت الإمام الحسن في المنام' },
+                    { w: 'جبرائيل', c: 'الملك الذي نزل باسم الحسن من السماء' }
+                ]},
+                { words: [
+                    { w: 'البأس', c: 'صفة تعني الشجاعة (ورثها من أبيه)' },
+                    { w: 'الصك', c: 'الشيء الذي مزقه الإمام ووزعه على الفقراء' },
+                    { w: 'تعليم', c: 'كان يجلس في مسجد النبي لـ.... الناس' },
+                    { w: 'الضيف', c: 'كلمة تعني الضيف (كان يكرمه دائماً)' },
+                    { w: 'المولد', c: 'اسم يطلق على ليلة النصف من رمضان' }
+                ]},
+                { words: [
+                    { w: 'طيبة', c: 'الشجرة المباركة التي أصلها ثابت وفرعها في السماء' },
+                    { w: 'الرسول', c: 'كان الإمام الحسن أشبه الناس بـ...' },
+                    { w: 'الناصح', c: 'لقب يعني الناصح الأمين' },
+                    { w: 'الجمعة', c: 'الصلاة التي تقام جماعة يوم الجمعة' },
+                    { w: 'الصبر', c: 'عكس الجزع (صبر الإمام على الأذى)' }
+                ]},
+                { words: [
+                    { w: 'القمر', c: 'من صفاته: كان وجهه كـ...' },
+                    { w: 'جعداً', c: 'كان شعره مجعداً قليلاً ويسمى...' },
+                    { w: 'الواصل', c: 'لقب يعني الذي يصل رحمه' },
+                    { w: 'جعدة', c: 'اسم زوجة الإمام التي خانته' },
+                    { w: 'السم', c: 'المادة التي استشهد بها الإمام' }
+                ]},
+                { words: [
+                    { w: 'السابع', c: 'يوم استشهاده (اليوم من شهر صفر)' },
+                    { w: 'صفر', c: 'الشهر الذي استشهد فيه الإمام' },
+                    { w: 'سبع وأربعين', c: 'العمر الذي استشهد فيه الإمام' },
+                    { w: 'جده', c: 'منعت بنو أمية دفنه بجوار...' },
+                    { w: 'الحسين', c: 'حمل نعش الإمام الحسن أخوه...' }
+                ]}
+            ],
+            hard: [
+                { words: [
+                    { w: 'الحجة', c: 'لقب يعني الحجة والبرهان' },
+                    { w: 'الدرع', c: 'اسم القميص الذي كان يرتديه تحت ثيابه' },
+                    { w: 'محمد', c: 'كنية الإمام الحسن (أبو ....)' },
+                    { w: 'القاسم', c: 'اسم ابن الإمام الحسن الذي استشهد في كربلاء' },
+                    { w: 'عبد الله', c: 'ابن آخر للحسن استشهد في كربلاء' }
+                ]},
+                { words: [
+                    { w: 'جابر', c: 'الصحابي الذي وصف الحسن والحسين بشنفين للعرش' },
+                    { w: 'الفدكية', c: 'اسم خطبة السيدة فاطمة التي حضرها وهو صغير' },
+                    { w: 'الطفولة', c: 'كان يحضر مجلس جده وهو في سن...' },
+                    { w: 'المعاهدة', c: 'العهد الذي كتب بين الحسن ومعاوية يسمى' },
+                    { w: 'السنة', c: 'شرط وضعه الحسن: العمل بكتاب الله و...' }
+                ]},
+                { words: [
+                    { w: 'فاطمة بنت أسد', c: 'اسم جدته لأبيه (زوجة أبي طالب)' },
+                    { w: 'الحسن', c: 'ما معنى اسم شبر بالعربية؟' },
+                    { w: 'علي', c: 'اسم هارون النبي موسى يقابل اسم .... للنبي محمد' },
+                    { w: 'التاسع', c: 'العام الذي سمي عام الوفود' },
+                    { w: 'نجران', c: 'وفد النصارى الذين باهلهم النبي' }
+                ]},
+                { words: [
+                    { w: 'الثقة', c: 'لقب يعني الأمين المؤتمن' },
+                    { w: 'عدواً', c: 'كان الإمام لا يرد سائلاً أبداً، حتى لو كان...' },
+                    { w: 'المنبر', c: 'المكان الذي خطب فيه بعد استشهاد أبيه' },
+                    { w: 'الجراح', c: 'الشخص الذي ضرب الإمام في ساباط' },
+                    { w: 'ساباط', c: 'المنطقة التي تعرض فيها الإمام لمحاولة اغتيال' }
+                ]},
+                { words: [
+                    { w: 'الوسمة', c: 'ما هو الخضاب الذي استعمله الإمام؟' },
+                    { w: 'عائشة', c: 'المرأة التي ركبت البغل لمنع دفن الإمام' },
+                    { w: 'سبعون', c: 'السهام التي رميت على النعش (عدد)' },
+                    { w: 'الرسول', c: 'القائل: لولاك يا علي لما عرف المؤمنون' },
+                    { w: 'النفس', c: 'صفة الحليم تعني القدرة على ضبط...' }
+                ]},
+                { words: [
+                    { w: 'ملك الروم', c: 'اسم حاكم الروم الذي سأل معاوية' },
+                    { w: 'الكعبة', c: 'السؤال عن: شيء لا قبلة له' },
+                    { w: 'عيسى', c: 'السؤال عن: لا أب له' },
+                    { w: 'آدم', c: 'السؤال عن: لا عشيرة له' },
+                    { w: 'أجلك', c: 'من وصاياه: استعد لسفرك قبل...' }
+                ]},
+                { words: [
+                    { w: 'قعدا', c: 'حديث: الحسن والحسين إمامان قاما أو...' },
+                    { w: 'الخامس', c: 'لقب للإمام يعني خامس أصحاب الكساء' },
+                    { w: 'علي', c: 'الخليفة الذي سبقه في الحكم (والده)' },
+                    { w: 'ستة', c: 'مدة خلافة الإمام الحسن (بالأشهر)' },
+                    { w: 'الشامي', c: 'الرجل الذي شتم الإمام فأعطاه الإمام مالاً' }
+                ]},
+                { words: [
+                    { w: 'رملة', c: 'اسم والدة القاسم بن الحسن' },
+                    { w: 'العسل', c: 'وصف القاسم الموت في كربلاء بأنه أحلى من...' },
+                    { w: 'النبوية', c: 'التربية التي نشأ عليها الحسن تسمى...' },
+                    { w: 'مسكيناً', c: 'آية ويطعمون الطعام نزلت فيهم...' },
+                    { w: 'أسيراً', c: 'وتكملة الآية: ويتيماً و...' }
+                ]},
+                { words: [
+                    { w: 'الفرزدق', c: 'الشاعر الذي مدح أهل البيت' },
+                    { w: 'سخاء', c: 'لقب كريم أهل البيت يعني الأكثر...' },
+                    { w: 'اليمنى', c: 'كان يكتب الحناء بيده الـ...' },
+                    { w: 'الأذان', c: 'اسم السورة التي قرأها النبي في أذن الحسن اليمنى' },
+                    { w: 'الإقامة', c: 'وفي أذنه اليسرى قرأ الـ...' }
+                ]},
+                { words: [
+                    { w: 'كبشاً', c: 'العقيقة التي ذبحها النبي عنه كانت...' },
+                    { w: 'فضة', c: 'حلق النبي شعره وتصدق بوزنه...' },
+                    { w: 'أبو بكرة', c: 'الصحابي الذي حمل الحسن على عاتقه' },
+                    { w: 'بيت', c: 'المكان الذي نزل فيه الوحي' },
+                    { w: 'الموت', c: 'آخر كلمة قالها عند الـ...' }
+                ]}
+            ]
+        };
+
+        // Achievements
+        const ACHIEVEMENTS = [
+            { id: 'first_word', name: 'البداية', icon: '🌱', desc: 'أكمل كلمتك الأولى' },
+            { id: 'stage_3', name: 'المثابر', icon: '⭐', desc: 'أكمل 3 مراحل' },
+            { id: 'stage_5', name: 'المجتهد', icon: '🌟', desc: 'أكمل 5 مراحل' },
+            { id: 'stage_10', name: 'الماهر', icon: '💫', desc: 'أكمل 10 مراحل' },
+            { id: 'stage_20', name: 'الخبير', icon: '✨', desc: 'أكمل 20 مرحلة' },
+            { id: 'stage_30', name: 'البطل', icon: '🏆', desc: 'أكمل جميع المراحل' },
+            { id: 'no_hints', name: 'العبقري', icon: '🧠', desc: 'أكمل مرحلة دون مساعدات' },
+            { id: 'fast', name: 'السريع', icon: '⚡', desc: 'أكمل مرحلة في أقل من دقيقة' },
+            { id: 'streak_3', name: 'المتواصل', icon: '🔥', desc: '3 إجابات صحيحة متتالية' },
+            { id: 'streak_7', name: 'المحترف', icon: '💎', desc: '7 إجابات صحيحة متتالية' },
+            { id: 'all_easy', name: 'المتعلم', icon: '📚', desc: 'أكمل المستوى السهل' },
+            { id: 'all_medium', name: 'العالم', icon: '🎓', desc: 'أكمل المستوى المتوسط' },
+            { id: 'all_hard', name: 'المحقق', icon: '🔬', desc: 'أكمل المستوى الصعب' },
+            { id: 'points_500', name: 'النجم', icon: '⭐', desc: 'اجمع 500 نقطة' },
+            { id: 'points_1500', name: 'الذكي', icon: '🎯', desc: 'اجمع 1500 نقطة' },
+            { id: 'points_3000', name: 'العبقري', icon: '👑', desc: 'اجمع 3000 نقطة' }
+        ];
+
+        // Rewards
+        const REWARDS = [
+            { id: 'r1', name: 'نجمة برونزية', icon: '🥉', desc: 'اجمع 300 نقطة', pts: 300 },
+            { id: 'r2', name: 'نجمة فضية', icon: '🥈', desc: 'اجمع 800 نقطة', pts: 800 },
+            { id: 'r3', name: 'نجمة ذهبية', icon: '🥇', desc: 'اجمع 1500 نقطة', pts: 1500 },
+            { id: 'r4', name: 'كأس المثابر', icon: '🏆', desc: 'أكمل 5 مراحل', stages: 5 },
+            { id: 'r5', name: 'ميدالية الشرف', icon: '🎖️', desc: 'أكمل 15 مرحلة', stages: 15 },
+            { id: 'r6', name: 'تاج البطل', icon: '👑', desc: 'أكمل جميع المراحل', stages: 30 },
+            { id: 'r7', name: 'قلب المحبة', icon: '💖', desc: 'اجمع 2500 نقطة', pts: 2500 },
+            { id: 'r8', name: 'وسام المعرفة', icon: '🏅', desc: 'أكمل مستويين', diffs: 2 }
+        ];
+
+        const COMPLETION_MSGS = {
+            easy: 'أحسنت يا بطل! أنت الآن تعرف إمامك الكريم.',
+            medium: 'ممتاز! معلوماتك قوية ومحبتك للإمام ظاهرة.',
+            hard: 'ما شاء الله! أنت باحث صغير وموالٍ حقيقي.'
+        };
+
+        // ============================================
+        // Game State
+        // ============================================
+        let G = {
+            diff: 'easy',
+            stage: 0,
+            points: 0,
+            streak: 0,
+            maxStreak: 0,
+            hintsUsed: 0,
+            hearts: 3,
+            done: { easy: [], medium: [], hard: [] },
+            achievements: [],
+            rewards: [],
+            sel: null,
+            selWord: null,
+            timer: null,
+            sec: 0,
+            tools: { letter: 3, word: 1, audience: 1, skip: 1, heart: 1 },
+            grid: [],
+            solved: [],
+            words: [],
+            sound: true,
+            audio: null
+        };
+
+        // ============================================
+        // Audio
+        // ============================================
+        function initAudio() {
+            try { G.audio = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+
+        function playSnd(type) {
+            if (!G.sound || !G.audio) return;
+            try {
+                if (G.audio.state === 'suspended') G.audio.resume();
+                const now = G.audio.currentTime;
+                
+                if (type === 'tap') {
+                    const o = G.audio.createOscillator(), g = G.audio.createGain();
+                    o.connect(g); g.connect(G.audio.destination);
+                    o.frequency.setValueAtTime(500, now);
+                    o.type = 'sine';
+                    g.gain.setValueAtTime(0.04, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    o.start(now); o.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    const o = G.audio.createOscillator(), g = G.audio.createGain();
+                    o.connect(g); g.connect(G.audio.destination);
+                    o.frequency.setValueAtTime(523, now);
+                    o.frequency.setValueAtTime(659, now + 0.08);
+                    o.type = 'sine';
+                    g.gain.setValueAtTime(0.07, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                    o.start(now); o.stop(now + 0.18);
+                } else if (type === 'wrong') {
+                    const o = G.audio.createOscillator(), g = G.audio.createGain();
+                    o.connect(g); g.connect(G.audio.destination);
+                    o.frequency.setValueAtTime(180, now);
+                    o.frequency.setValueAtTime(140, now + 0.08);
+                    o.type = 'sawtooth';
+                    g.gain.setValueAtTime(0.04, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                    o.start(now); o.stop(now + 0.12);
+                } else if (type === 'win') {
+                    [523, 587, 659, 784, 880, 1047].forEach((f, i) => {
+                        const o = G.audio.createOscillator(), g = G.audio.createGain();
+                        o.connect(g); g.connect(G.audio.destination);
+                        o.frequency.setValueAtTime(f, now + i * 0.08);
+                        o.type = 'sine';
+                        g.gain.setValueAtTime(0.06, now + i * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.1);
+                        o.start(now + i * 0.08); o.stop(now + i * 0.08 + 0.1);
+                    });
+                } else if (type === 'level') {
+                    [523, 659, 784, 1047].forEach((f, i) => {
+                        const o = G.audio.createOscillator(), g = G.audio.createGain();
+                        o.connect(g); g.connect(G.audio.destination);
+                        o.frequency.setValueAtTime(f, now + i * 0.1);
+                        o.type = 'triangle';
+                        g.gain.setValueAtTime(0.07, now + i * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.12);
+                        o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.12);
+                    });
+                } else if (type === 'achieve') {
+                    [784, 988, 1175].forEach((f, i) => {
+                        const o = G.audio.createOscillator(), g = G.audio.createGain();
+                        o.connect(g); g.connect(G.audio.destination);
+                        o.frequency.setValueAtTime(f, now + i * 0.1);
+                        o.type = 'sine';
+                        g.gain.setValueAtTime(0.07, now + i * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.15);
+                        o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.15);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            G.sound = !G.sound;
+            document.getElementById('soundIcon').textContent = G.sound ? '🔊' : '🔇';
+            if (G.sound && !G.audio) initAudio();
+            playSnd('tap');
+        }
+
+        // ============================================
+        // Visual Effects
+        // ============================================
+        function createStars() {
+            const box = document.getElementById('stars');
+            for (let i = 0; i < 35; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                const size = Math.random() * 2 + 1;
+                s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--t:${2+Math.random()*2}s;animation-delay:${Math.random()*2}s;`;
+                box.appendChild(s);
+            }
+        }
+
+        function showConfetti() {
+            const wrap = document.getElementById('confettiWrap');
+            wrap.innerHTML = '';
+            const colors = ['#ffd43b', '#51cf66', '#f783ac', '#4dabf7', '#9775fa', '#ff922b'];
+            for (let i = 0; i < 70; i++) {
+                const p = document.createElement('div');
+                p.className = 'confetti-piece';
+                const size = 3 + Math.random() * 5;
+                p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*0.4}s;border-radius:${Math.random()>0.5?'50%':'0'};`;
+                wrap.appendChild(p);
+                setTimeout(() => p.remove(), 3500);
+            }
+        }
+
+        function toast(msg, icon = '✓') {
+            const wrap = document.getElementById('toastWrap');
+            const t = document.createElement('div');
+            t.className = 'toast-item';
+            t.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${msg}</span>`;
+            wrap.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        // ============================================
+        // Initialization
+        // ============================================
+        function init() {
+            initAudio();
+            createStars();
+            renderKeyboard();
+            renderLevels();
+            renderAchievements();
+            renderRewards();
+        }
+
+        function renderKeyboard() {
+            const box = document.getElementById('keyboard');
+            box.innerHTML = '';
+            KEYS.forEach(row => {
+                const r = document.createElement('div');
+                r.className = 'keyboard-row';
+                row.forEach(k => {
+                    const btn = document.createElement('button');
+                    btn.className = 'key';
+                    btn.textContent = k;
+                    btn.onclick = () => typeKey(k);
+                    r.appendChild(btn);
+                });
+                box.appendChild(r);
+            });
+            const sr = document.createElement('div');
+            sr.className = 'keyboard-row';
+            const del = document.createElement('button');
+            del.className = 'key wide del';
+            del.textContent = '⌫';
+            del.onclick = deleteKey;
+            sr.appendChild(del);
+            const enter = document.createElement('button');
+            enter.className = 'key wide enter';
+            enter.textContent = '✓';
+            enter.onclick = checkAnswers;
+            sr.appendChild(enter);
+            box.appendChild(sr);
+        }
+
+        function renderLevels() {
+            const grid = document.getElementById('levelsGrid');
+            grid.innerHTML = '';
+            const total = DATA[G.diff].length;
+            for (let i = 0; i < total; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                btn.textContent = i + 1;
+                btn.onclick = () => goToStage(i);
+                if (G.done[G.diff].includes(i)) btn.classList.add('done');
+                if (i === G.stage) btn.classList.add('current');
+                if (i > G.stage && G.diff !== 'easy') btn.disabled = true;
+                grid.appendChild(btn);
+            }
+        }
+
+        function renderAchievements() {
+            const grid = document.getElementById('achievementsGrid');
+            grid.innerHTML = '';
+            ACHIEVEMENTS.forEach(a => {
+                const c = document.createElement('div');
+                c.className = 'achieve';
+                c.id = `ach-${a.id}`;
+                c.innerHTML = `<div class="achieve-icon">${a.icon}</div><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div>`;
+                if (G.achievements.includes(a.id)) c.classList.add('unlocked');
+                grid.appendChild(c);
+            });
+        }
+
+        function renderRewards() {
+            const list = document.getElementById('rewardsList');
+            list.innerHTML = '';
+            REWARDS.forEach(r => {
+                const item = document.createElement('div');
+                item.className = 'reward';
+                item.id = `rew-${r.id}`;
+                if (G.rewards.includes(r.id)) item.classList.add('unlocked');
+                item.innerHTML = `<div class="reward-icon">${r.icon}</div><div><div class="reward-name">${r.name}</div><div class="reward-desc">${r.desc}</div></div>`;
+                list.appendChild(item);
+            });
+        }
+
+        // ============================================
+        // Crossword Generation - Proper Intersections
+        // ============================================
+        function makeCrossword(wordList) {
+            const size = 15;
+            const grid = [];
+            for (let r = 0; r < size; r++) {
+                grid[r] = [];
+                for (let c = 0; c < size; c++) grid[r][c] = null;
+            }
+            
+            const placed = [];
+            
+            // Place first word horizontally
+            const first = wordList[0];
+            let row = Math.floor(size / 2);
+            let col = Math.floor((size - first.w.length) / 2);
+            
+            for (let i = 0; i < first.w.length; i++) {
+                grid[row][col + i] = first.w[i];
+            }
+            placed.push({ w: first.w, dir: 'h', sr: row, sc: col, c: first.c, idx: 0 });
+            
+            // Place remaining words with intersections
+            for (let wi = 1; wi < wordList.length; wi++) {
+                const wd = wordList[wi];
+                const word = wd.w;
+                let found = false;
+                
+                // Find intersection with already placed words
+                for (let pi = 0; pi < placed.length && !found; pi++) {
+                    const pw = placed[pi];
+                    
+                    for (let i = 0; i < word.length && !found; i++) {
+                        for (let j = 0; j < pw.w.length && !found; j++) {
+                            if (word[i] === pw.w[j]) {
+                                // Calculate position for intersection
+                                let nr, nc, dir;
+                                
+                                if (pw.dir === 'h') {
+                                    // Place vertically
+                                    dir = 'v';
+                                    nr = pw.sr - i;
+                                    nc = pw.sc + j;
+                                } else {
+                                    // Place horizontally
+                                    dir = 'h';
+                                    nr = pw.sr + j;
+                                    nc = pw.sc - i;
+                                }
+                                
+                                // Check if placement is valid
+                                if (nr >= 0 && nc >= 0 && 
+                                    (dir === 'v' ? nr + word.length <= size : nc + word.length <= size)) {
+                                    
+                                    let valid = true;
+                                    for (let k = 0; k < word.length && valid; k++) {
+                                        const cr = dir === 'v' ? nr + k : nr;
+                                        const cc = dir === 'h' ? nc + k : nc;
+                                        
+                                        if (grid[cr][cc] && grid[cr][cc] !== word[k]) {
+                                            valid = false;
+                                        }
+                                        
+                                        // Check adjacent cells (except intersection)
+                                        if (valid && k !== i) {
+                                            if (dir === 'v') {
+                                                if ((cc > 0 && grid[cr][cc-1]) || (cc < size-1 && grid[cr][cc+1])) {
+                                                    valid = false;
+                                                }
+                                            } else {
+                                                if ((cr > 0 && grid[cr-1][cc]) || (cr < size-1 && grid[cr+1][cc])) {
+                                                    valid = false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (valid) {
+                                        // Place the word
+                                        for (let k = 0; k < word.length; k++) {
+                                            const cr = dir === 'v' ? nr + k : nr;
+                                            const cc = dir === 'h' ? nc + k : nc;
+                                            grid[cr][cc] = word[k];
+                                        }
+                                        placed.push({ w: word, dir, sr: nr, sc: nc, c: wd.c, idx: wi });
+                                        found = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // If no intersection found, place in new row
+                if (!found) {
+                    let newRow = 0;
+                    for (let r = 0; r < size; r++) {
+                        let hasContent = false;
+                        for (let c = 0; c < size; c++) {
+                            if (grid[r][c]) hasContent = true;
+                        }
+                        if (!hasContent) { newRow = r; break; }
+                    }
+                    
+                    if (newRow + 2 < size && word.length <= size) {
+                        const nc = Math.floor((size - word.length) / 2);
+                        for (let k = 0; k < word.length; k++) {
+                            grid[newRow][nc + k] = word[k];
+                        }
+                        placed.push({ w: word, dir: 'h', sr: newRow, sc: nc, c: wd.c, idx: wi });
+                    }
+                }
+            }
+            
+            // Trim grid to content
+            let minR = size, maxR = 0, minC = size, maxC = 0;
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    if (grid[r][c]) {
+                        minR = Math.min(minR, r);
+                        maxR = Math.max(maxR, r);
+                        minC = Math.min(minC, c);
+                        maxC = Math.max(maxC, c);
+                    }
+                }
+            }
+            
+            const trimmed = [];
+            for (let r = minR; r <= maxR; r++) {
+                trimmed[r - minR] = [];
+                for (let c = minC; c <= maxC; c++) {
+                    trimmed[r - minR][c - minC] = grid[r][c];
+                }
+            }
+            
+            // Adjust placed word coordinates
+            placed.forEach(p => {
+                p.sr -= minR;
+                p.sc -= minC;
+            });
+            
+            return { grid: trimmed, words: placed };
+        }
+
+        // ============================================
+        // Game Flow
+        // ============================================
+        function startGame(diff) {
+            G.diff = diff;
+            G.stage = 0;
+            G.hearts = 3;
+            
+            G.tools = {
+                letter: diff === 'easy' ? 5 : diff === 'medium' ? 3 : 2,
+                word: diff === 'easy' ? 2 : diff === 'medium' ? 1 : 0,
+                audience: diff === 'easy' ? 2 : 1,
+                skip: diff === 'easy' ? 2 : 1,
+                heart: diff === 'easy' ? 2 : 1
+            };
+            
+            const tag = document.getElementById('diffTag');
+            tag.className = diff;
+            tag.textContent = diff === 'easy' ? 'المستوى السهل' : diff === 'medium' ? 'المستوى المتوسط' : 'المستوى الصعب';
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            loadStage(0);
+            startTimer();
+            updateTools();
+            playSnd('win');
+        }
+
+        function loadStage(idx) {
+            G.stage = idx;
+            G.solved = [];
+            G.hintsUsed = 0;
+            G.sec = 0;
+            G.sel = null;
+            G.selWord = null;
+            
+            document.getElementById('stageBadge').textContent = `المرحلة ${idx + 1}`;
+            document.getElementById('stageNum').textContent = idx + 1;
+            
+            renderGrid();
+            renderClues();
+            updateProgress();
+            updateTools();
+            renderLevels();
+        }
+
+        function goToStage(idx) {
+            if (idx <= G.stage || G.diff === 'easy') {
+                loadStage(idx);
+                startTimer();
+                showTab('game');
+            }
+        }
+
+        function renderGrid() {
+            const stageData = DATA[G.diff][G.stage];
+            const cw = makeCrossword(stageData.words);
+            
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            gridEl.style.gridTemplateColumns = `repeat(${cw.grid[0].length}, 1fr)`;
+            
+            G.grid = [];
+            G.words = cw.words;
+            
+            // Assign colors to words
+            const wordColors = {};
+            cw.words.forEach((w, i) => {
+                wordColors[`${w.sr}-${w.sc}-${w.dir}`] = (i % 8) + 1;
+            });
+            
+            for (let r = 0; r < cw.grid.length; r++) {
+                G.grid[r] = [];
+                for (let c = 0; c < cw.grid[r].length; c++) {
+                    G.grid[r][c] = { active: false, val: '', input: '', color: 0 };
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    if (cw.grid[r][c]) {
+                        cell.classList.add('letter');
+                        G.grid[r][c] = { active: true, val: cw.grid[r][c], input: '', color: 0 };
+                        
+                        // Find which word(s) this cell belongs to
+                        let wordIdx = -1;
+                        let foundColor = 0;
+                        cw.words.forEach((w, wi) => {
+                            for (let i = 0; i < w.w.length; i++) {
+                                const wr = w.dir === 'h' ? w.sr : w.sr + i;
+                                const wc = w.dir === 'h' ? w.sc + i : w.sc;
+                                if (wr === r && wc === c) {
+                                    if (wordIdx === -1) wordIdx = wi;
+                                    if (foundColor === 0) foundColor = (wi % 8) + 1;
+                                }
+                            }
+                        });
+                        
+                        if (foundColor > 0) {
+                            cell.classList.add(`word-${foundColor}`);
+                            G.grid[r][c].color = foundColor;
+                        }
+                        
+                        // Add number for first cell of word
+                        const isFirst = cw.words.findIndex(w => w.sr === r && w.sc === c);
+                        if (isFirst !== -1) {
+                            const num = document.createElement('span');
+                            num.className = 'cell-num';
+                            num.textContent = isFirst + 1;
+                            num.style.color = `var(--word-${(isFirst % 8) + 1})`;
+                            cell.appendChild(num);
+                        }
+                        
+                        const txt = document.createElement('span');
+                        txt.className = 'cell-text';
+                        cell.appendChild(txt);
+                        
+                        cell.onclick = () => selectCell(r, c);
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function renderClues() {
+            const list = document.getElementById('cluesList');
+            list.innerHTML = '';
+            
+            G.words.forEach((w, i) => {
+                const clue = document.createElement('div');
+                clue.className = 'clue';
+                clue.id = `clue-${i}`;
+                
+                // Add color indicator
+                const colorNum = document.createElement('span');
+                colorNum.className = 'clue-num';
+                colorNum.style.background = `linear-gradient(135deg, var(--word-${(i % 8) + 1}), var(--word-${((i + 1) % 8) + 1}))`;
+                colorNum.textContent = i + 1;
+                
+                const txt = document.createElement('span');
+                txt.className = 'clue-text';
+                txt.textContent = w.c;
+                
+                clue.appendChild(colorNum);
+                clue.appendChild(txt);
+                
+                clue.onclick = () => { selectCell(w.sr, w.sc); playSnd('tap'); };
+                list.appendChild(clue);
+            });
+        }
+
+        function selectCell(r, c) {
+            const cd = G.grid[r] && G.grid[r][c];
+            if (!cd || !cd.active) return;
+            
+            document.querySelectorAll('.cell.selected, .cell.highlight').forEach(el => {
+                el.classList.remove('selected', 'highlight');
+            });
+            
+            const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+            if (cell) {
+                cell.classList.add('selected');
+                G.sel = { r, c };
+                highlightWord(r, c);
+            }
+            playSnd('tap');
+        }
+
+        function highlightWord(r, c) {
+            const word = G.words.find(w => {
+                if (w.dir === 'h') return r === w.sr && c >= w.sc && c < w.sc + w.w.length;
+                return c === w.sc && r >= w.sr && r < w.sr + w.w.length;
+            });
+            
+            if (word) {
+                G.selWord = word;
+                for (let i = 0; i < word.w.length; i++) {
+                    const wr = word.dir === 'h' ? word.sr : word.sr + i;
+                    const wc = word.dir === 'h' ? word.sc + i : word.sc;
+                    const cell = document.querySelector(`.cell[data-r="${wr}"][data-c="${wc}"]`);
+                    if (cell && !cell.classList.contains('selected')) cell.classList.add('highlight');
+                }
+                const idx = G.words.indexOf(word);
+                document.querySelectorAll('.clue').forEach((el, i) => el.classList.toggle('active', i === idx));
+            }
+        }
+
+        function typeKey(k) {
+            if (!G.sel) return;
+            const { r, c } = G.sel;
+            const cd = G.grid[r][c];
+            if (!cd.active) return;
+            
+            cd.input = k;
+            const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+            const txt = cell.querySelector('.cell-text');
+            if (txt) txt.textContent = k;
+            
+            playSnd('tap');
+            moveNext();
+            updateProgress();
+        }
+
+        function deleteKey() {
+            if (!G.sel) return;
+            const { r, c } = G.sel;
+            const cd = G.grid[r][c];
+            
+            if (cd.input) {
+                cd.input = '';
+                const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+                const txt = cell.querySelector('.cell-text');
+                if (txt) { txt.textContent = ''; txt.classList.remove('hint'); }
+                playSnd('tap');
+            } else {
+                movePrev();
+            }
+            updateProgress();
+        }
+
+        function moveNext() {
+            if (!G.sel || !G.selWord) return;
+            const w = G.selWord;
+            const { r, c } = G.sel;
+            
+            if (w.dir === 'h') {
+                const nc = c + 1;
+                if (nc < w.sc + w.w.length) selectCell(r, nc);
+            } else {
+                const nr = r + 1;
+                if (nr < w.sr + w.w.length) selectCell(nr, c);
+            }
+        }
+
+        function movePrev() {
+            if (!G.sel || !G.selWord) return;
+            const w = G.selWord;
+            const { r, c } = G.sel;
+            
+            if (w.dir === 'h') {
+                const pc = c - 1;
+                if (pc >= w.sc) selectCell(r, pc);
+            } else {
+                const pr = r - 1;
+                if (pr >= w.sr) selectCell(pr, c);
+            }
+        }
+
+        function checkAnswers() {
+            let allCorrect = true;
+            let hasError = false;
+            
+            G.words.forEach((w, idx) => {
+                let correct = true;
+                
+                for (let i = 0; i < w.w.length; i++) {
+                    const wr = w.dir === 'h' ? w.sr : w.sr + i;
+                    const wc = w.dir === 'h' ? w.sc + i : w.sc;
+                    const cd = G.grid[wr][wc];
+                    const cell = document.querySelector(`.cell[data-r="${wr}"][data-c="${wc}"]`);
+                    
+                    if (cd.input === cd.val) {
+                        cell.classList.remove('wrong');
+                        cell.classList.add('correct');
+                    } else {
+                        cell.classList.remove('correct');
+                        if (cd.input) { cell.classList.add('wrong'); hasError = true; }
+                        correct = false;
+                        allCorrect = false;
+                    }
+                }
+                
+                if (correct && !G.solved.includes(idx)) {
+                    G.solved.push(idx);
+                    G.streak++;
+                    G.maxStreak = Math.max(G.maxStreak, G.streak);
+                    const pts = w.w.length * 10 * Math.min(G.streak, 5);
+                    G.points += pts;
+                    toast(`+${pts} نقطة`, '⭐');
+                    playSnd('correct');
+                    const clueEl = document.getElementById(`clue-${idx}`);
+                    if (clueEl) clueEl.classList.add('done');
+                }
+            });
+            
+            if (hasError) {
+                G.streak = 0;
+                G.hearts--;
+                updateStats();
+                playSnd('wrong');
+                
+                if (G.hearts <= 0) {
+                    setTimeout(() => openModal('gameOverModal'), 400);
+                    return;
+                }
+                
+                toast(`تبقت ${G.hearts} حياة`, '💔');
+            }
+            
+            updateStats();
+            checkAchievements();
+            checkRewards();
+            
+            if (allCorrect) stageComplete();
+        }
+
+        function stageComplete() {
+            stopTimer();
+            const timeBonus = Math.max(0, 100 - G.sec) * 2;
+            G.points += timeBonus;
+            
+            if (!G.done[G.diff].includes(G.stage)) G.done[G.diff].push(G.stage);
+            
+            updateStats();
+            checkAchievements();
+            checkRewards();
+            renderLevels();
+            
+            playSnd('level');
+            showConfetti();
+            
+            document.getElementById('modalPoints').textContent = G.points;
+            document.getElementById('modalTime').textContent = fmtTime(G.sec);
+            document.getElementById('modalStreak').textContent = G.maxStreak;
+            document.getElementById('successMsg').textContent = `أكملت المرحلة ${G.stage + 1}! مكافأة السرعة: +${timeBonus} نقطة`;
+            
+            openModal('successModal');
+        }
+
+        function nextStage() {
+            closeModal('successModal');
+            const total = DATA[G.diff].length;
+            
+            if (G.stage < total - 1) {
+                G.tools.letter = Math.min(G.tools.letter + 1, 5);
+                G.hearts = Math.min(G.hearts + 1, 3);
+                updateTools();
+                G.stage++;
+                loadStage(G.stage);
+                startTimer();
+            } else {
+                checkDiffComplete();
+            }
+        }
+
+        function checkDiffComplete() {
+            const totalDone = Object.values(G.done).flat().length;
+            if (totalDone === 30) {
+                gameComplete();
+            } else if (G.done[G.diff].length === 10) {
+                document.getElementById('completeMsg').textContent = COMPLETION_MSGS[G.diff];
+                openModal('completeModal');
+                showConfetti();
+                playSnd('win');
+            } else {
+                toast('أكملت هذا المستوى! جرب مستوى آخر', '🎉');
+                showTab('levels');
+            }
+        }
+
+        function gameComplete() {
+            document.getElementById('completeMsg').textContent = 'ما شاء الله! لقد أكملت جميع المراحل الثلاثين! أنت بطل حقيقي وموالٍ للإمام الحسن عليه السلام.';
+            openModal('completeModal');
+            showConfetti();
+            playSnd('win');
+        }
+
+        function resetStage() {
+            closeModal('gameOverModal');
+            G.hearts = 3;
+            G.streak = 0;
+            loadStage(G.stage);
+            startTimer();
+            playSnd('tap');
+        }
+
+        function restartGame() {
+            G = {
+                diff: 'easy', stage: 0, points: 0, streak: 0, maxStreak: 0,
+                hintsUsed: 0, hearts: 3,
+                done: { easy: [], medium: [], hard: [] },
+                achievements: [], rewards: [],
+                sel: null, selWord: null, timer: null, sec: 0,
+                tools: { letter: 3, word: 1, audience: 1, skip: 1, heart: 1 },
+                grid: [], solved: [], words: [],
+                sound: G.sound, audio: G.audio
+            };
+            closeModal('completeModal');
+            renderLevels();
+            renderAchievements();
+            renderRewards();
+            updateStats();
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        // ============================================
+        // Help Tools
+        // ============================================
+        function updateTools() {
+            document.getElementById('hintLetterCount').textContent = `x${G.tools.letter}`;
+            document.getElementById('hintWordCount').textContent = `x${G.tools.word}`;
+            document.getElementById('audienceCount').textContent = `x${G.tools.audience}`;
+            document.getElementById('skipCount').textContent = `x${G.tools.skip}`;
+            document.getElementById('heartCount').textContent = `x${G.tools.heart}`;
+            
+            document.getElementById('hintLetterBtn').disabled = G.tools.letter <= 0;
+            document.getElementById('hintWordBtn').disabled = G.tools.word <= 0 || !G.selWord;
+            document.getElementById('audienceBtn').disabled = G.tools.audience <= 0 || !G.selWord;
+            document.getElementById('skipBtn').disabled = G.tools.skip <= 0;
+            document.getElementById('heartBtn').disabled = G.tools.heart <= 0;
+        }
+
+        function useHintLetter() {
+            if (G.tools.letter <= 0 || !G.sel) { toast('لا توجد مساعدات', '💡'); return; }
+            
+            const { r, c } = G.sel;
+            const cd = G.grid[r][c];
+            
+            if (cd.active && cd.input !== cd.val) {
+                cd.input = cd.val;
+                const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+                const txt = cell.querySelector('.cell-text');
+                if (txt) { txt.textContent = cd.val; txt.classList.add('hint'); }
+                
+                G.tools.letter--;
+                G.hintsUsed++;
+                updateTools();
+                updateProgress();
+                playSnd('correct');
+                toast('تم كشف الحرف!', '✨');
+            }
+        }
+
+        function useHintWord() {
+            if (G.tools.word <= 0 || !G.selWord) { toast('لا توجد مساعدات', '💡'); return; }
+            
+            const w = G.selWord;
+            for (let i = 0; i < w.w.length; i++) {
+                const wr = w.dir === 'h' ? w.sr : w.sr + i;
+                const wc = w.dir === 'h' ? w.sc + i : w.sc;
+                const cd = G.grid[wr][wc];
+                cd.input = cd.val;
+                const cell = document.querySelector(`.cell[data-r="${wr}"][data-c="${wc}"]`);
+                const txt = cell.querySelector('.cell-text');
+                if (txt) { txt.textContent = cd.val; txt.classList.add('hint'); }
+            }
+            
+            G.tools.word--;
+            G.hintsUsed++;
+            updateTools();
+            updateProgress();
+            playSnd('correct');
+            toast('تم كشف الكلمة!', '✨');
+        }
+
+        function useAudience() {
+            if (G.tools.audience <= 0 || !G.selWord) { toast('لا توجد مساعدات', '💡'); return; }
+            
+            const w = G.selWord;
+            const bars = document.getElementById('audienceBars');
+            bars.innerHTML = '';
+            
+            // Generate audience votes
+            const letters = [];
+            let remaining = 100;
+            const correctIdx = Math.floor(Math.random() * w.w.length);
+            
+            for (let i = 0; i < w.w.length; i++) {
+                const isCorrect = i === correctIdx;
+                const pct = isCorrect ? 35 + Math.floor(Math.random() * 25) : Math.floor(Math.random() * 15);
+                letters.push({ letter: w.w[i], pct: isCorrect ? pct : Math.min(pct, remaining / 2) });
+                remaining -= letters[letters.length - 1].pct;
+            }
+            
+            letters.sort((a, b) => b.pct - a.pct);
+            
+            letters.forEach(l => {
+                const bar = document.createElement('div');
+                bar.className = 'audience-bar';
+                bar.innerHTML = `<span class="bar-label">${l.letter}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(l.pct, 5)}%">${Math.max(l.pct, 5)}%</div></div>`;
+                bars.appendChild(bar);
+            });
+            
+            G.tools.audience--;
+            updateTools();
+            playSnd('tap');
+            openModal('audienceModal');
+        }
+
+        function useSkip() {
+            if (G.tools.skip <= 0) { toast('لا توجد مساعدات', '💡'); return; }
+            
+            G.tools.skip--;
+            updateTools();
+            nextStage();
+            toast('تم تخطي المرحلة!', '⏭️');
+            playSnd('tap');
+        }
+
+        function useHeart() {
+            if (G.tools.heart <= 0) { toast('لا توجد مساعدات', '💡'); return; }
+            
+            G.tools.heart--;
+            G.hearts = 3;
+            updateTools();
+            updateStats();
+            closeModal('gameOverModal');
+            toast('تم استعادة الحياة!', '❤️');
+            playSnd('correct');
+        }
+
+        // ============================================
+        // Timer
+        // ============================================
+        function startTimer() {
+            stopTimer();
+            G.sec = 0;
+            updateTimer();
+            G.timer = setInterval(() => { G.sec++; updateTimer(); }, 1000);
+        }
+
+        function stopTimer() {
+            if (G.timer) { clearInterval(G.timer); G.timer = null; }
+        }
+
+        function updateTimer() {
+            document.getElementById('timer').textContent = fmtTime(G.sec);
+        }
+
+        function fmtTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        // ============================================
+        // UI Updates
+        // ============================================
+        function updateStats() {
+            document.getElementById('points').textContent = G.points;
+            document.getElementById('streak').textContent = G.streak;
+            document.getElementById('hearts').textContent = G.hearts;
+        }
+
+        function updateProgress() {
+            let filled = 0, total = 0;
+            
+            for (let r = 0; r < G.grid.length; r++) {
+                for (let c = 0; c < G.grid[r].length; c++) {
+                    if (G.grid[r][c].active) {
+                        total++;
+                        if (G.grid[r][c].input) filled++;
+                    }
+                }
+            }
+            
+            const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+            document.getElementById('progressBar').style.width = `${pct}%`;
+            document.getElementById('progressText').textContent = `${pct}%`;
+        }
+
+        // ============================================
+        // Tabs
+        // ============================================
+        function showTab(tab) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            document.getElementById('gameSection').style.display = tab === 'game' ? 'block' : 'none';
+            document.getElementById('levelsSection').classList.toggle('active', tab === 'levels');
+            document.getElementById('achievementsSection').classList.toggle('active', tab === 'achievements');
+            document.getElementById('rewardsSection').classList.toggle('active', tab === 'rewards');
+            playSnd('tap');
+        }
+
+        // ============================================
+        // Achievements & Rewards
+        // ============================================
+        function checkAchievements() {
+            const newA = [];
+            
+            if (G.solved.length > 0 && !G.achievements.includes('first_word')) newA.push('first_word');
+            
+            const totalDone = Object.values(G.done).flat().length;
+            if (totalDone >= 3 && !G.achievements.includes('stage_3')) newA.push('stage_3');
+            if (totalDone >= 5 && !G.achievements.includes('stage_5')) newA.push('stage_5');
+            if (totalDone >= 10 && !G.achievements.includes('stage_10')) newA.push('stage_10');
+            if (totalDone >= 20 && !G.achievements.includes('stage_20')) newA.push('stage_20');
+            if (totalDone >= 30 && !G.achievements.includes('stage_30')) newA.push('stage_30');
+            
+            if (G.solved.length === G.words.length && G.hintsUsed === 0 && !G.achievements.includes('no_hints')) newA.push('no_hints');
+            if (G.sec < 60 && G.solved.length === G.words.length && !G.achievements.includes('fast')) newA.push('fast');
+            
+            if (G.maxStreak >= 3 && !G.achievements.includes('streak_3')) newA.push('streak_3');
+            if (G.maxStreak >= 7 && !G.achievements.includes('streak_7')) newA.push('streak_7');
+            
+            if (G.done.easy.length === 10 && !G.achievements.includes('all_easy')) newA.push('all_easy');
+            if (G.done.medium.length === 10 && !G.achievements.includes('all_medium')) newA.push('all_medium');
+            if (G.done.hard.length === 10 && !G.achievements.includes('all_hard')) newA.push('all_hard');
+            
+            if (G.points >= 500 && !G.achievements.includes('points_500')) newA.push('points_500');
+            if (G.points >= 1500 && !G.achievements.includes('points_1500')) newA.push('points_1500');
+            if (G.points >= 3000 && !G.achievements.includes('points_3000')) newA.push('points_3000');
+            
+            newA.forEach(id => {
+                G.achievements.push(id);
+                const el = document.getElementById(`ach-${id}`);
+                if (el) el.classList.add('unlocked');
+                const a = ACHIEVEMENTS.find(x => x.id === id);
+                if (a) {
+                    toast(`إنجاز: ${a.name}`, a.icon);
+                    G.points += 100;
+                    playSnd('achieve');
+                }
+            });
+            
+            if (newA.length > 0) updateStats();
+        }
+
+        function checkRewards() {
+            REWARDS.forEach(r => {
+                if (G.rewards.includes(r.id)) return;
+                
+                let unlock = false;
+                if (r.pts && G.points >= r.pts) unlock = true;
+                if (r.stages) {
+                    const totalDone = Object.values(G.done).flat().length;
+                    if (totalDone >= r.stages) unlock = true;
+                }
+                if (r.diffs) {
+                    const completed = [G.done.easy.length === 10, G.done.medium.length === 10, G.done.hard.length === 10].filter(Boolean).length;
+                    if (completed >= r.diffs) unlock = true;
+                }
+                
+                if (unlock) {
+                    G.rewards.push(r.id);
+                    const el = document.getElementById(`rew-${r.id}`);
+                    if (el) el.classList.add('unlocked');
+                    toast(`مكافأة: ${r.name}`, r.icon);
+                    G.points += 200;
+                    playSnd('achieve');
+                    updateStats();
+                }
+            });
+        }
+
+        // ============================================
+        // Modals
+        // ============================================
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ============================================
+        // Keyboard Support
+        // ============================================
+        document.addEventListener('keydown', e => {
+            if (!document.getElementById('startScreen').classList.contains('hidden')) return;
+            if (VALID.has(e.key)) typeKey(e.key);
+            else if (e.key === 'Backspace') { e.preventDefault(); deleteKey(); }
+            else if (e.key === 'Enter') { e.preventDefault(); checkAnswers(); }
+        });
+
+        document.addEventListener('touchstart', () => {
+            if (G.audio && G.audio.state === 'suspended') G.audio.resume();
+        }, { once: true });
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
