@@ -3,33 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الكلمات المتقاطعة - مولد الإمام الحسن المجتبى عليه السلام</title>
+    <title>كنز الكلمات - مولد الإمام الحسن المجتبى عليه السلام</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #1a1f2e;
-            --card: #252b3d;
-            --cell: #2d3548;
-            --gold: #ffd43b;
-            --green: #51cf66;
-            --pink: #f783ac;
-            --blue: #4dabf7;
-            --purple: #9775fa;
-            --orange: #ff922b;
-            --cyan: #22d3ee;
-            --red: #ff6b6b;
-            --text: #f8f9fa;
-            --muted: #adb5bd;
-            
-            /* Word colors */
-            --word-1: #ff6b6b;
-            --word-2: #ff922b;
-            --word-3: #ffd43b;
-            --word-4: #51cf66;
-            --word-5: #22d3ee;
-            --word-6: #4dabf7;
-            --word-7: #9775fa;
-            --word-8: #f783ac;
+            --bg: #0f1419;
+            --card: #1c2631;
+            --cell: #263340;
+            --gold: #ffc107;
+            --silver: #b0bec5;
+            --gem: #e91e63;
+            --emerald: #00e676;
+            --ruby: #ff1744;
+            --sapphire: #2979ff;
+            --diamond: #00bcd4;
+            --green: #00c853;
+            --orange: #ff9100;
+            --purple: #aa00ff;
+            --pink: #f50057;
+            --text: #eceff1;
+            --muted: #78909c;
         }
 
         * {
@@ -49,35 +42,34 @@
         }
 
         /* Background */
-        .bg-layer {
+        .bg {
             position: fixed;
             inset: 0;
             z-index: 0;
             background: 
-                radial-gradient(ellipse at 15% 15%, rgba(255, 212, 59, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 85% 85%, rgba(81, 207, 102, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(151, 117, 250, 0.05) 0%, transparent 60%),
-                linear-gradient(160deg, #1a1f2e 0%, #252b3d 50%, #1a1f2e 100%);
+                radial-gradient(ellipse at 10% 10%, rgba(255, 193, 7, 0.06) 0%, transparent 40%),
+                radial-gradient(ellipse at 90% 90%, rgba(0, 230, 118, 0.06) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(170, 0, 255, 0.04) 0%, transparent 50%),
+                linear-gradient(160deg, #0f1419 0%, #1c2631 50%, #0f1419 100%);
         }
 
-        /* Floating Stars */
-        .stars {
+        /* Particles */
+        .particles {
             position: fixed;
             inset: 0;
             z-index: 1;
             pointer-events: none;
         }
 
-        .star {
+        .particle {
             position: absolute;
-            background: #fff;
             border-radius: 50%;
-            animation: twinkle var(--t) ease-in-out infinite;
+            animation: float 8s ease-in-out infinite;
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.15; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1.2); }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
         }
 
         /* Moon */
@@ -85,61 +77,72 @@
             position: fixed;
             top: 8px;
             left: 8px;
-            width: clamp(35px, 9vw, 55px);
-            height: clamp(35px, 9vw, 55px);
+            width: clamp(32px, 8vw, 50px);
+            height: clamp(32px, 8vw, 50px);
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fffde7 0%, #ffd43b 50%, #fab005 100%);
-            box-shadow: 0 0 25px rgba(255, 212, 59, 0.5);
-            z-index: 5;
-            animation: moonGlow 4s ease-in-out infinite;
+            background: radial-gradient(circle at 30% 30%, #fffde7, #ffc107 60%, #ff8f00);
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
 
-        @keyframes moonGlow {
-            0%, 100% { box-shadow: 0 0 25px rgba(255, 212, 59, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(255, 212, 59, 0.7); }
-        }
+        .moon:hover { transform: scale(1.1); }
+        .moon:active { transform: scale(0.95); }
 
-        /* Lanterns */
-        .lantern {
+        /* Top Bar */
+        .top-bar {
             position: fixed;
-            z-index: 4;
-            pointer-events: none;
-            animation: swing 5s ease-in-out infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(180deg, var(--card), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px 0 50px;
+            z-index: 90;
         }
 
-        .lantern-body {
-            width: clamp(16px, 4vw, 26px);
-            aspect-ratio: 0.55;
-            background: linear-gradient(180deg, var(--gold) 0%, var(--orange) 60%, var(--pink) 100%);
-            border-radius: 40% 40% 55% 55%;
-            box-shadow: 0 0 15px rgba(255, 212, 59, 0.5);
-        }
-
-        @keyframes swing {
-            0%, 100% { transform: rotate(-8deg); }
-            50% { transform: rotate(8deg) translateY(-8px); }
-        }
-
-        /* Sound Button */
-        .sound-btn {
-            position: fixed;
-            top: 8px;
-            right: 8px;
+        .home-btn {
             width: 36px;
             height: 36px;
             background: var(--card);
-            border: 2px solid rgba(255, 212, 59, 0.4);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .home-btn:active { transform: scale(0.9); }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
-            cursor: pointer;
-            z-index: 100;
-            transition: transform 0.2s;
         }
 
-        .sound-btn:active { transform: scale(0.9); }
+        .player-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+        }
 
         /* Main Container */
         .main {
@@ -147,16 +150,14 @@
             z-index: 10;
             min-height: 100vh;
             min-height: 100dvh;
-            padding: 8px;
-            padding-top: 50px;
-            padding-bottom: 60px;
+            padding: 55px 8px 70px;
         }
 
         /* Header */
         .header {
             text-align: center;
-            padding: 10px 5px;
-            animation: fadeDown 0.6s ease;
+            padding: 8px 4px;
+            animation: fadeDown 0.5s ease;
         }
 
         @keyframes fadeDown {
@@ -167,138 +168,166 @@
         .badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             background: linear-gradient(135deg, var(--gold), var(--orange));
             color: var(--bg);
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 50px;
-            font-size: clamp(8px, 2.2vw, 11px);
+            font-size: clamp(8px, 2vw, 10px);
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .title {
             font-family: 'Amiri', serif;
-            font-size: clamp(16px, 4vw, 28px);
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-size: clamp(16px, 4vw, 26px);
+            margin-bottom: 3px;
         }
 
         .imam-name {
             font-family: 'Amiri', serif;
-            font-size: clamp(14px, 3.5vw, 24px);
-            background: linear-gradient(135deg, var(--green), var(--cyan));
+            font-size: clamp(13px, 3.2vw, 22px);
+            background: linear-gradient(135deg, var(--green), var(--diamond));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .subtitle {
-            font-size: clamp(8px, 2.2vw, 11px);
+            font-size: clamp(7px, 2vw, 10px);
             color: var(--muted);
         }
 
-        /* Stats */
-        .stats {
+        /* Treasure Bar */
+        .treasure-bar {
             display: flex;
             justify-content: center;
-            gap: 5px;
-            flex-wrap: wrap;
-            margin: 8px 0;
-        }
-
-        .stat {
-            background: var(--card);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 5px 8px;
-            display: flex;
-            align-items: center;
             gap: 4px;
-            min-width: 68px;
+            flex-wrap: wrap;
+            margin: 6px 0;
         }
 
-        .stat.points { border-color: var(--gold); }
-        .stat.stage { border-color: var(--green); }
-        .stat.streak { border-color: var(--pink); }
-        .stat.hearts { border-color: var(--red); }
-
-        .stat-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
+        .treasure-item {
+            background: var(--card);
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 3px 6px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 12px;
+            gap: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 55px;
         }
 
-        .stat.points .stat-icon { background: linear-gradient(135deg, var(--gold), var(--orange)); }
-        .stat.stage .stat-icon { background: linear-gradient(135deg, var(--green), var(--cyan)); }
-        .stat.streak .stat-icon { background: linear-gradient(135deg, var(--pink), var(--purple)); }
-        .stat.hearts .stat-icon { background: linear-gradient(135deg, var(--red), var(--pink)); }
+        .treasure-item.gold { border-color: var(--gold); color: var(--gold); }
+        .treasure-item.silver { border-color: var(--silver); color: var(--silver); }
+        .treasure-item.gem { border-color: var(--gem); color: var(--gem); }
+        .treasure-item.diamond { border-color: var(--diamond); color: var(--diamond); }
 
-        .stat-label { font-size: 7px; color: var(--muted); }
-        .stat-value { font-size: 12px; font-weight: 700; }
+        .treasure-icon { font-size: 12px; }
 
-        /* Difficulty */
-        .diff-tag {
-            text-align: center;
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            flex-wrap: wrap;
             margin-bottom: 6px;
         }
 
-        .diff-tag span {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 15px;
+        .stat-box {
+            background: var(--card);
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 3px 6px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            min-width: 60px;
+        }
+
+        .stat-box.stage { border-color: var(--green); }
+        .stat-box.streak { border-color: var(--orange); }
+        .stat-box.hearts { border-color: var(--ruby); }
+
+        .stat-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 10px;
+        }
+
+        .stat-box.stage .stat-icon { background: var(--green); }
+        .stat-box.streak .stat-icon { background: var(--orange); }
+        .stat-box.hearts .stat-icon { background: var(--ruby); }
+
+        .stat-label { font-size: 7px; color: var(--muted); }
+        .stat-value { font-size: 11px; font-weight: 700; }
+
+        /* Difficulty */
+        .diff-badge {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .diff-badge span {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
             font-weight: 700;
         }
 
-        .diff-tag span.easy { background: linear-gradient(135deg, var(--green), var(--cyan)); color: var(--bg); }
-        .diff-tag span.medium { background: linear-gradient(135deg, var(--gold), var(--orange)); color: var(--bg); }
-        .diff-tag span.hard { background: linear-gradient(135deg, var(--pink), var(--purple)); color: var(--bg); }
+        .diff-badge span.easy { background: var(--green); color: var(--bg); }
+        .diff-badge span.medium { background: var(--gold); color: var(--bg); }
+        .diff-badge span.hard { background: var(--ruby); color: white; }
 
         /* Navigation */
         .nav {
             display: flex;
             justify-content: center;
-            gap: 4px;
-            margin-bottom: 8px;
+            gap: 3px;
+            margin-bottom: 6px;
             overflow-x: auto;
             padding: 0 2px;
         }
 
         .nav-btn {
-            padding: 6px 10px;
+            padding: 5px 8px;
             background: var(--card);
             border: 2px solid transparent;
             border-radius: 8px;
             color: var(--muted);
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
             white-space: nowrap;
         }
 
         .nav-btn.active {
-            background: linear-gradient(135deg, var(--green), var(--cyan));
+            background: linear-gradient(135deg, var(--green), var(--diamond));
             color: var(--bg);
         }
+
+        .nav-btn:not(.active):active { transform: scale(0.96); }
 
         /* Game Card */
         .game-card {
             background: var(--card);
-            border: 2px solid rgba(255, 212, 59, 0.25);
-            border-radius: 14px;
-            padding: 10px;
-            margin-bottom: 8px;
-            animation: slideUp 0.5s ease;
+            border: 2px solid rgba(255, 193, 7, 0.2);
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 6px;
+            animation: slideUp 0.4s ease;
         }
 
         @keyframes slideUp {
@@ -311,38 +340,68 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-            gap: 5px;
+            margin-bottom: 6px;
         }
 
         .stage-badge {
             background: linear-gradient(135deg, var(--purple), var(--pink));
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 9px;
             font-weight: 700;
         }
 
         .timer {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
             background: rgba(0, 0, 0, 0.3);
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 3px 6px;
+            border-radius: 10px;
             font-family: monospace;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* Stage Navigation */
+        .stage-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .stage-nav-btn {
+            width: 28px;
+            height: 28px;
+            background: var(--cell);
+            border: 2px solid var(--muted);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stage-nav-btn:active { transform: scale(0.9); }
+        .stage-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .stage-indicator {
+            font-size: 11px;
             font-weight: 700;
             color: var(--gold);
         }
 
         /* Help Tools */
-        .help-tools {
+        .tools {
             display: flex;
             justify-content: center;
-            gap: 4px;
-            margin-bottom: 8px;
+            gap: 3px;
+            margin-bottom: 6px;
             flex-wrap: wrap;
         }
 
@@ -351,60 +410,56 @@
             flex-direction: column;
             align-items: center;
             gap: 1px;
-            padding: 5px 6px;
-            background: rgba(255, 212, 59, 0.1);
+            padding: 4px 5px;
+            background: rgba(255, 193, 7, 0.1);
             border: 2px solid var(--gold);
-            border-radius: 8px;
+            border-radius: 6px;
             color: var(--gold);
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s;
-            min-width: 48px;
+            min-width: 40px;
         }
 
         .tool-btn:active:not(:disabled) { transform: scale(0.95); }
         .tool-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .tool-btn .icon { font-size: 12px; }
+        .tool-btn .count { font-size: 6px; color: var(--muted); }
 
-        .tool-btn .icon { font-size: 14px; }
-        .tool-btn .count { font-size: 7px; color: var(--muted); }
-
-        /* Crossword Grid - Fixed Layout */
+        /* Grid */
         .grid-wrap {
             display: flex;
             justify-content: center;
             overflow-x: auto;
-            padding: 6px 0;
-            margin-bottom: 8px;
-            width: 100%;
+            padding: 4px 0;
+            margin-bottom: 6px;
         }
 
         .crossword {
             display: grid;
             gap: 2px;
             background: rgba(0, 0, 0, 0.3);
-            padding: 6px;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 212, 59, 0.2);
+            padding: 5px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 193, 7, 0.15);
         }
 
         .cell {
-            width: clamp(30px, 7.5vw, 40px);
-            height: clamp(30px, 7.5vw, 40px);
+            width: clamp(28px, 7vw, 36px);
+            height: clamp(28px, 7vw, 36px);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            border-radius: 6px;
+            border-radius: 5px;
             font-family: 'Amiri', serif;
-            font-size: clamp(15px, 3.8vw, 19px);
+            font-size: clamp(14px, 3.5vw, 17px);
             font-weight: 700;
             transition: all 0.15s;
         }
 
-        .cell.empty {
-            background: transparent;
-        }
+        .cell.empty { background: transparent; }
 
         .cell.letter {
             background: var(--cell);
@@ -412,42 +467,37 @@
             cursor: pointer;
         }
 
-        .cell.letter:active { transform: scale(0.96); }
-
-        /* Word colors */
-        .cell.word-1 { border-color: var(--word-1); background: rgba(255, 107, 107, 0.15); }
-        .cell.word-2 { border-color: var(--word-2); background: rgba(255, 146, 43, 0.15); }
-        .cell.word-3 { border-color: var(--word-3); background: rgba(255, 212, 59, 0.15); }
-        .cell.word-4 { border-color: var(--word-4); background: rgba(81, 207, 102, 0.15); }
-        .cell.word-5 { border-color: var(--word-5); background: rgba(34, 211, 238, 0.15); }
-        .cell.word-6 { border-color: var(--word-6); background: rgba(77, 171, 247, 0.15); }
-        .cell.word-7 { border-color: var(--word-7); background: rgba(151, 117, 250, 0.15); }
-        .cell.word-8 { border-color: var(--word-8); background: rgba(247, 131, 172, 0.15); }
+        .cell.w1 { border-color: #ff6b6b; background: rgba(255, 107, 107, 0.12); }
+        .cell.w2 { border-color: #ffa726; background: rgba(255, 167, 38, 0.12); }
+        .cell.w3 { border-color: #ffee58; background: rgba(255, 238, 88, 0.12); }
+        .cell.w4 { border-color: #66bb6a; background: rgba(102, 187, 106, 0.12); }
+        .cell.w5 { border-color: #26c6da; background: rgba(38, 198, 218, 0.12); }
+        .cell.w6 { border-color: #42a5f5; background: rgba(66, 165, 245, 0.12); }
+        .cell.w7 { border-color: #ab47bc; background: rgba(171, 71, 188, 0.12); }
+        .cell.w8 { border-color: #ec407a; background: rgba(236, 64, 122, 0.12); }
 
         .cell.selected {
-            box-shadow: 0 0 12px rgba(81, 207, 102, 0.6);
-            transform: scale(1.08);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+            transform: scale(1.06);
             border-color: var(--green) !important;
         }
 
-        .cell.highlight {
-            opacity: 0.8;
-        }
+        .cell.highlight { opacity: 0.75; }
 
         .cell.correct {
-            background: rgba(81, 207, 102, 0.3) !important;
+            background: rgba(0, 230, 118, 0.25) !important;
             border-color: var(--green) !important;
             animation: pop 0.3s ease;
         }
 
         @keyframes pop {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.08); }
         }
 
         .cell.wrong {
-            background: rgba(255, 107, 107, 0.3) !important;
-            border-color: var(--red) !important;
+            background: rgba(255, 23, 68, 0.25) !important;
+            border-color: var(--ruby) !important;
             animation: shake 0.3s ease;
         }
 
@@ -460,14 +510,14 @@
         .cell-num {
             position: absolute;
             top: 0;
-            right: 2px;
-            font-size: 7px;
+            right: 1px;
+            font-size: 6px;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            pointer-events: none;
             background: rgba(0, 0, 0, 0.6);
-            padding: 1px 3px;
-            border-radius: 3px;
+            padding: 1px 2px;
+            border-radius: 2px;
+            pointer-events: none;
         }
 
         .cell-text {
@@ -480,18 +530,18 @@
         /* Clues */
         .clues {
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 6px;
-            margin-bottom: 8px;
-            max-height: 120px;
+            border-radius: 6px;
+            padding: 5px;
+            margin-bottom: 6px;
+            max-height: 100px;
             overflow-y: auto;
         }
 
         .clues-title {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: var(--gold);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 3px;
@@ -500,20 +550,20 @@
         .clue {
             display: flex;
             align-items: flex-start;
-            gap: 5px;
-            padding: 4px 5px;
+            gap: 4px;
+            padding: 3px 4px;
             background: rgba(255, 255, 255, 0.02);
-            border-radius: 6px;
+            border-radius: 5px;
             border: 2px solid transparent;
             cursor: pointer;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             transition: all 0.15s;
         }
 
         .clue:active { transform: scale(0.98); }
 
         .clue.active {
-            background: rgba(81, 207, 102, 0.1);
+            background: rgba(0, 230, 118, 0.1);
             border-color: var(--green);
         }
 
@@ -521,21 +571,20 @@
         .clue.done .clue-text { text-decoration: line-through; }
 
         .clue-num {
-            min-width: 16px;
-            height: 16px;
-            background: linear-gradient(135deg, var(--blue), var(--purple));
-            border-radius: 4px;
+            min-width: 14px;
+            height: 14px;
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 700;
             flex-shrink: 0;
         }
 
         .clue-text {
-            font-size: 9px;
-            line-height: 1.35;
+            font-size: 8px;
+            line-height: 1.3;
             color: var(--muted);
         }
 
@@ -544,22 +593,22 @@
         /* Keyboard */
         .keyboard {
             background: rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: 6px 4px;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 5px 3px;
+            margin-bottom: 6px;
         }
 
         .keyboard-label {
             text-align: center;
-            font-size: 8px;
+            font-size: 7px;
             color: var(--muted);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .keyboard-rows {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
             align-items: center;
         }
 
@@ -570,14 +619,14 @@
         }
 
         .key {
-            min-width: clamp(20px, 5.5vw, 28px);
-            height: clamp(28px, 7vw, 36px);
+            min-width: clamp(18px, 5vw, 26px);
+            height: clamp(26px, 6.5vw, 34px);
             background: var(--cell);
-            border: 2px solid rgba(77, 171, 247, 0.3);
-            border-radius: 6px;
+            border: 2px solid rgba(41, 121, 255, 0.3);
+            border-radius: 5px;
             color: var(--text);
             font-family: 'Amiri', serif;
-            font-size: clamp(12px, 3.2vw, 16px);
+            font-size: clamp(12px, 3vw, 15px);
             font-weight: 700;
             cursor: pointer;
             transition: all 0.1s;
@@ -594,70 +643,69 @@
         }
 
         .key.wide {
-            min-width: clamp(35px, 9vw, 48px);
-            font-size: clamp(7px, 2.2vw, 9px);
+            min-width: clamp(32px, 8vw, 44px);
+            font-size: clamp(7px, 2vw, 9px);
             font-family: 'Cairo', sans-serif;
             font-weight: 600;
         }
 
         .key.del {
-            background: rgba(255, 107, 107, 0.2);
-            border-color: rgba(255, 107, 107, 0.4);
+            background: rgba(255, 23, 68, 0.2);
+            border-color: rgba(255, 23, 68, 0.4);
         }
 
         .key.enter {
-            background: rgba(81, 207, 102, 0.2);
-            border-color: rgba(81, 207, 102, 0.4);
+            background: rgba(0, 230, 118, 0.2);
+            border-color: rgba(0, 230, 118, 0.4);
         }
 
         /* Progress */
         .progress {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .progress-head {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3px;
-            font-size: 9px;
+            margin-bottom: 2px;
+            font-size: 8px;
         }
 
         .progress-label { color: var(--muted); }
         .progress-value { color: var(--gold); font-weight: 700; }
 
         .progress-bar {
-            height: 7px;
+            height: 6px;
             background: rgba(0, 0, 0, 0.35);
-            border-radius: 5px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--green), var(--cyan), var(--gold));
-            border-radius: 5px;
+            background: linear-gradient(90deg, var(--green), var(--diamond), var(--gold));
+            border-radius: 4px;
             transition: width 0.3s;
         }
 
         /* Actions */
         .actions {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
         .action-btn {
-            padding: 7px 14px;
+            padding: 6px 12px;
             border-radius: 8px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             border: none;
         }
 
@@ -670,14 +718,15 @@
 
         .action-btn.secondary {
             background: transparent;
-            border: 2px solid var(--blue);
-            color: var(--blue);
+            border: 2px solid var(--diamond);
+            color: var(--diamond);
         }
 
-        /* Levels Section */
-        .levels-section { display: none; }
-        .levels-section.active { display: block; }
+        /* Sections */
+        .section { display: none; }
+        .section.active { display: block; }
 
+        /* Levels Grid */
         .levels-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -686,8 +735,8 @@
 
         .level-btn {
             aspect-ratio: 1;
-            background: var(--card);
-            border: 2px solid rgba(255, 212, 59, 0.2);
+            background: var(--cell);
+            border: 2px solid rgba(255, 193, 7, 0.2);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -695,14 +744,14 @@
             cursor: pointer;
             transition: all 0.15s;
             position: relative;
-            font-size: clamp(11px, 2.8vw, 16px);
+            font-size: clamp(10px, 2.5vw, 14px);
             font-weight: 700;
         }
 
         .level-btn:active:not(:disabled) { transform: scale(0.96); }
 
         .level-btn.current {
-            background: linear-gradient(135deg, var(--green), var(--cyan));
+            background: linear-gradient(135deg, var(--green), var(--diamond));
             border-color: transparent;
             color: var(--bg);
         }
@@ -714,46 +763,45 @@
             position: absolute;
             top: 1px;
             left: 1px;
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             background: var(--green);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 7px;
+            font-size: 6px;
             color: var(--bg);
         }
 
         .level-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-        /* Achievements Section */
-        .achievements-section { display: none; }
-        .achievements-section.active { display: block; }
-
+        /* Achievements Grid */
         .achievements-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            max-height: 350px;
+            overflow-y: auto;
         }
 
         .achieve {
-            background: var(--card);
-            border: 2px solid rgba(255, 255, 255, 0.06);
-            border-radius: 8px;
-            padding: 6px 4px;
+            background: var(--cell);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 4px 2px;
             text-align: center;
             transition: all 0.2s;
         }
 
         .achieve.unlocked {
             border-color: var(--gold);
-            background: rgba(255, 212, 59, 0.08);
+            background: rgba(255, 193, 7, 0.08);
         }
 
         .achieve-icon {
-            font-size: 20px;
-            margin-bottom: 3px;
+            font-size: 16px;
+            margin-bottom: 2px;
             opacity: 0.2;
             filter: grayscale(1);
             transition: all 0.2s;
@@ -772,51 +820,180 @@
         }
 
         .achieve-name {
-            font-size: 7px;
+            font-size: 6px;
             font-weight: 600;
             color: var(--muted);
+            line-height: 1.2;
         }
 
         .achieve.unlocked .achieve-name { color: var(--gold); }
 
-        .achieve-desc {
-            font-size: 5px;
+        /* Treasure Section */
+        .treasure-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .treasure-card {
+            background: var(--cell);
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .treasure-card.gold { border-color: var(--gold); }
+        .treasure-card.silver { border-color: var(--silver); }
+        .treasure-card.gem { border-color: var(--gem); }
+        .treasure-card.diamond { border-color: var(--diamond); }
+
+        .treasure-card-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        .treasure-card-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .treasure-card.gold .treasure-card-value { color: var(--gold); }
+        .treasure-card.silver .treasure-card-value { color: var(--silver); }
+        .treasure-card.gem .treasure-card-value { color: var(--gem); }
+        .treasure-card.diamond .treasure-card-value { color: var(--diamond); }
+
+        .treasure-card-label {
+            font-size: 8px;
             color: var(--muted);
-            opacity: 0.7;
         }
 
-        /* Rewards Section */
-        .rewards-section { display: none; }
-        .rewards-section.active { display: block; }
+        /* Chest */
+        .chest-container {
+            background: linear-gradient(135deg, #2a1f1a, #1a1410);
+            border: 3px solid var(--gold);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
 
-        .rewards-list {
+        .chest-icon {
+            font-size: 50px;
+            margin-bottom: 6px;
+            animation: chestGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes chestGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.8)); }
+        }
+
+        .chest-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 3px;
+        }
+
+        .chest-items {
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .reward {
+        .chest-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: var(--card);
-            border: 2px solid rgba(255, 212, 59, 0.2);
-            border-radius: 8px;
-            padding: 7px;
+            gap: 3px;
+            font-size: 10px;
+            font-weight: 700;
         }
 
-        .reward.unlocked { border-color: var(--gold); }
-
-        .reward-icon {
-            font-size: 22px;
-            opacity: 0.3;
-            transition: all 0.2s;
+        /* Profile Section */
+        .profile-card {
+            background: var(--cell);
+            border: 2px solid var(--purple);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
         }
 
-        .reward.unlocked .reward-icon { opacity: 1; }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
 
-        .reward-name { font-size: 10px; font-weight: 700; }
-        .reward-desc { font-size: 8px; color: var(--muted); }
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .profile-info { flex: 1; }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .profile-title {
+            font-size: 9px;
+            color: var(--muted);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .profile-stat {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 6px;
+        }
+
+        .profile-stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .profile-stat-label {
+            font-size: 7px;
+            color: var(--muted);
+        }
+
+        /* Records */
+        .records-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--cell);
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 9px;
+        }
+
+        .record-label { color: var(--muted); }
+        .record-value { font-weight: 700; color: var(--gold); }
 
         /* Start Screen */
         .start-overlay {
@@ -827,7 +1004,7 @@
             align-items: center;
             justify-content: center;
             background: var(--bg);
-            transition: all 0.35s;
+            transition: all 0.3s;
         }
 
         .start-overlay.hidden {
@@ -838,13 +1015,13 @@
 
         .start-content {
             text-align: center;
-            padding: 15px 10px;
-            max-width: 320px;
+            padding: 12px 8px;
+            max-width: 300px;
         }
 
         .start-icon {
-            font-size: 55px;
-            margin-bottom: 8px;
+            font-size: 50px;
+            margin-bottom: 6px;
             animation: float 3s ease-in-out infinite;
         }
 
@@ -855,74 +1032,90 @@
 
         .start-title {
             font-family: 'Amiri', serif;
-            font-size: clamp(18px, 4.5vw, 26px);
-            margin-bottom: 4px;
+            font-size: clamp(16px, 4vw, 24px);
+            margin-bottom: 3px;
         }
 
         .start-subtitle {
-            font-size: clamp(10px, 2.8vw, 13px);
+            font-size: clamp(9px, 2.5vw, 12px);
             color: var(--green);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .dev-credit {
-            font-size: 9px;
+            font-size: 8px;
             color: var(--gold);
-            margin-bottom: 12px;
-            padding: 4px 10px;
-            background: rgba(255, 212, 59, 0.1);
-            border-radius: 12px;
+            margin-bottom: 10px;
+            padding: 3px 8px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 10px;
             display: inline-block;
         }
+
+        /* Name Input */
+        .name-input-section {
+            margin-bottom: 10px;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--card);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Cairo', sans-serif;
+            font-size: 12px;
+            text-align: center;
+            outline: none;
+        }
+
+        .name-input::placeholder { color: var(--muted); }
 
         .diff-list {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
         .diff-btn {
             background: var(--card);
-            border: 2px solid rgba(255, 212, 59, 0.2);
-            border-radius: 10px;
-            padding: 8px 10px;
+            border: 2px solid rgba(255, 193, 7, 0.2);
+            border-radius: 8px;
+            padding: 6px 8px;
             cursor: pointer;
             transition: all 0.15s;
             text-align: right;
         }
 
         .diff-btn:active { transform: scale(0.98); }
-
         .diff-btn.easy { border-color: var(--green); }
         .diff-btn.medium { border-color: var(--gold); }
-        .diff-btn.hard { border-color: var(--pink); }
+        .diff-btn.hard { border-color: var(--ruby); }
 
         .diff-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
-        .diff-name {
-            font-size: 11px;
-            font-weight: 700;
-        }
+        .diff-name { font-size: 10px; font-weight: 700; }
 
         .diff-badge {
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 7px;
+            padding: 1px 5px;
+            border-radius: 10px;
+            font-size: 6px;
             font-weight: 600;
         }
 
         .diff-btn.easy .diff-badge { background: var(--green); color: var(--bg); }
         .diff-btn.medium .diff-badge { background: var(--gold); color: var(--bg); }
-        .diff-btn.hard .diff-badge { background: var(--pink); color: var(--bg); }
+        .diff-btn.hard .diff-badge { background: var(--ruby); color: white; }
 
-        .diff-desc { font-size: 8px; color: var(--muted); }
+        .diff-desc { font-size: 7px; color: var(--muted); }
 
-        /* Modal */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -934,7 +1127,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.25s;
-            padding: 10px;
+            padding: 8px;
         }
 
         .modal-overlay.active {
@@ -945,12 +1138,12 @@
         .modal-box {
             background: linear-gradient(145deg, var(--card), var(--bg));
             border: 3px solid var(--gold);
-            border-radius: 14px;
-            padding: 18px 12px;
-            max-width: 280px;
+            border-radius: 12px;
+            padding: 15px 10px;
+            max-width: 260px;
             width: 100%;
             text-align: center;
-            transform: scale(0.9) translateY(10px);
+            transform: scale(0.9) translateY(8px);
             transition: transform 0.25s;
         }
 
@@ -959,8 +1152,8 @@
         }
 
         .modal-icon {
-            font-size: 45px;
-            margin-bottom: 6px;
+            font-size: 40px;
+            margin-bottom: 5px;
             animation: modalPop 0.5s ease;
         }
 
@@ -972,44 +1165,43 @@
 
         .modal-title {
             font-family: 'Amiri', serif;
-            font-size: 20px;
+            font-size: 18px;
             background: linear-gradient(135deg, var(--gold), var(--orange));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .modal-msg {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
             line-height: 1.5;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .modal-stats {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 8px;
         }
 
         .modal-stat-value {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--green);
         }
 
-        .modal-stat-label { font-size: 7px; color: var(--muted); }
+        .modal-stat-label { font-size: 6px; color: var(--muted); }
 
         .modal-actions {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
-        /* Audience Help */
+        /* Audience Modal */
         .audience-modal {
             position: fixed;
             inset: 0;
@@ -1021,7 +1213,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.25s;
-            padding: 12px;
+            padding: 10px;
         }
 
         .audience-modal.active {
@@ -1031,69 +1223,69 @@
 
         .audience-box {
             background: var(--card);
-            border: 3px solid var(--blue);
-            border-radius: 14px;
-            padding: 15px 12px;
-            max-width: 260px;
+            border: 3px solid var(--sapphire);
+            border-radius: 12px;
+            padding: 12px 10px;
+            max-width: 240px;
             width: 100%;
             text-align: center;
         }
 
         .audience-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--blue);
-            margin-bottom: 10px;
+            color: var(--sapphire);
+            margin-bottom: 8px;
         }
 
         .audience-bars {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 10px;
+            gap: 5px;
+            margin-bottom: 8px;
         }
 
         .audience-bar {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .bar-label {
-            width: 24px;
-            font-size: 14px;
+            width: 22px;
+            font-size: 13px;
             font-family: 'Amiri', serif;
             font-weight: 700;
         }
 
         .bar-track {
             flex: 1;
-            height: 16px;
+            height: 14px;
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--blue), var(--cyan));
-            border-radius: 8px;
+            background: linear-gradient(90deg, var(--sapphire), var(--diamond));
+            border-radius: 6px;
             transition: width 0.5s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 700;
             color: var(--bg);
         }
 
         .audience-close {
-            padding: 6px 16px;
-            background: linear-gradient(135deg, var(--blue), var(--purple));
-            color: var(--bg);
+            padding: 5px 14px;
+            background: linear-gradient(135deg, var(--sapphire), var(--purple));
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 10px;
+            border-radius: 6px;
+            font-size: 9px;
             font-weight: 700;
             cursor: pointer;
         }
@@ -1113,46 +1305,46 @@
         }
 
         @keyframes confettiFall {
-            0% { transform: translateY(-6px) rotate(0deg); opacity: 1; }
+            0% { transform: translateY(-5px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
         /* Toast */
         .toast-wrap {
             position: fixed;
-            bottom: 65px;
+            bottom: 60px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 2500;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
             pointer-events: none;
         }
 
         .toast-item {
             background: var(--card);
             border: 2px solid var(--green);
-            border-radius: 8px;
-            padding: 5px 10px;
+            border-radius: 6px;
+            padding: 4px 8px;
             display: flex;
             align-items: center;
-            gap: 4px;
-            animation: toastIn 0.2s ease, toastOut 0.2s ease 2s forwards;
+            gap: 3px;
+            animation: toastIn 0.2s ease, toastOut 0.2s ease 1.8s forwards;
         }
 
         @keyframes toastIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes toastOut {
             from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 0; transform: translateY(-6px); }
         }
 
-        .toast-icon { font-size: 12px; }
-        .toast-text { font-size: 10px; font-weight: 600; }
+        .toast-icon { font-size: 10px; }
+        .toast-text { font-size: 9px; font-weight: 600; }
 
         /* Footer */
         .footer {
@@ -1160,35 +1352,27 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--card);
-            border-top: 2px solid rgba(255, 212, 59, 0.25);
-            padding: 6px 10px;
+            background: linear-gradient(0deg, var(--card), transparent);
+            padding: 8px 10px 5px;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             z-index: 50;
         }
 
-        .footer-text {
-            font-size: 8px;
-            color: var(--muted);
-        }
-
-        .footer-name {
-            color: var(--gold);
-            font-weight: 700;
-        }
+        .footer-text { font-size: 7px; color: var(--muted); }
+        .footer-name { color: var(--gold); font-weight: 700; }
 
         /* Responsive */
-        @media (max-width: 330px) {
-            .cell { width: 26px; height: 26px; font-size: 13px; }
-            .key { min-width: 18px; height: 26px; font-size: 11px; }
-            .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 320px) {
+            .cell { width: 24px; height: 24px; font-size: 12px; }
+            .key { min-width: 16px; height: 24px; font-size: 10px; }
+            .achievements-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
-        @media (min-width: 450px) {
-            .game-card { max-width: 400px; margin: 0 auto 8px; }
+        @media (min-width: 400px) {
+            .game-card { max-width: 380px; margin: 0 auto 6px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1202,34 +1386,35 @@
 </head>
 <body>
     <!-- Background -->
-    <div class="bg-layer"></div>
+    <div class="bg"></div>
 
-    <!-- Stars -->
-    <div class="stars" id="stars"></div>
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
 
-    <!-- Moon -->
-    <div class="moon"></div>
+    <!-- Moon (Home Button) -->
+    <div class="moon" onclick="goHome()" title="الصفحة الرئيسية"></div>
 
-    <!-- Lanterns -->
-    <div class="lantern" style="top: 4%; left: 3%;">
-        <div class="lantern-body"></div>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="home-btn" onclick="goHome()">🏠</button>
+        <div class="player-info">
+            <div class="player-avatar">👤</div>
+            <span class="player-name" id="playerNameBar">اللاعب</span>
+        </div>
+        <button class="home-btn" onclick="toggleSound()">🔊</button>
     </div>
-    <div class="lantern" style="top: 3%; right: 4%; animation-delay: -2s;">
-        <div class="lantern-body"></div>
-    </div>
-
-    <!-- Sound Button -->
-    <button class="sound-btn" onclick="toggleSound()">
-        <span id="soundIcon">🔊</span>
-    </button>
 
     <!-- Start Screen -->
     <div class="start-overlay" id="startScreen">
         <div class="start-content">
             <div class="start-icon">🌙</div>
-            <h1 class="start-title">لعبة الكلمات المتقاطعة</h1>
+            <h1 class="start-title">كنز الكلمات المتقاطعة</h1>
             <p class="start-subtitle">احتفالاً بمولد الإمام الحسن المجتبى عليه السلام</p>
             <p class="dev-credit">إعداد: أ. حسن سديف</p>
+            
+            <div class="name-input-section">
+                <input type="text" class="name-input" id="playerNameInput" placeholder="اكتب اسمك هنا..." maxlength="15">
+            </div>
             
             <div class="diff-list">
                 <button class="diff-btn easy" onclick="startGame('easy')">
@@ -1257,95 +1442,83 @@
         </div>
     </div>
 
-    <!-- Main -->
+    <!-- Main Container -->
     <div class="main">
         <!-- Header -->
         <header class="header">
             <div class="badge">🌙 مولد الإمام الحسن المجتبى عليه السلام</div>
-            <h1 class="title">لعبة الكلمات المتقاطعة</h1>
+            <h1 class="title">كنز الكلمات المتقاطعة</h1>
             <p class="imam-name">الإمام الحسن المجتبى عليه السلام</p>
-            <p class="subtitle">اكتشف كلمات من سيرة أهل البيت الطاهرين</p>
+            <p class="subtitle">اجمع الكنز واكتشف سيرة أهل البيت</p>
         </header>
 
+        <!-- Treasure Bar -->
+        <div class="treasure-bar">
+            <div class="treasure-item gold"><span class="treasure-icon">🪙</span><span id="goldCount">0</span></div>
+            <div class="treasure-item silver"><span class="treasure-icon">🥈</span><span id="silverCount">0</span></div>
+            <div class="treasure-item gem"><span class="treasure-icon">💎</span><span id="gemCount">0</span></div>
+            <div class="treasure-item diamond"><span class="treasure-icon">💠</span><span id="diamondCount">0</span></div>
+        </div>
+
         <!-- Stats -->
-        <div class="stats">
-            <div class="stat points">
-                <div class="stat-icon">⭐</div>
-                <div>
-                    <div class="stat-label">النقاط</div>
-                    <div class="stat-value" id="points">0</div>
-                </div>
-            </div>
-            <div class="stat stage">
+        <div class="stats-row">
+            <div class="stat-box stage">
                 <div class="stat-icon">🎯</div>
-                <div>
-                    <div class="stat-label">المرحلة</div>
-                    <div class="stat-value" id="stageNum">1</div>
-                </div>
+                <div><div class="stat-label">المرحلة</div><div class="stat-value" id="stageNum">1</div></div>
             </div>
-            <div class="stat streak">
+            <div class="stat-box streak">
                 <div class="stat-icon">🔥</div>
-                <div>
-                    <div class="stat-label">التتابع</div>
-                    <div class="stat-value" id="streak">0</div>
-                </div>
+                <div><div class="stat-label">التتابع</div><div class="stat-value" id="streak">0</div></div>
             </div>
-            <div class="stat hearts">
+            <div class="stat-box hearts">
                 <div class="stat-icon">❤️</div>
-                <div>
-                    <div class="stat-label">الحياة</div>
-                    <div class="stat-value" id="hearts">3</div>
-                </div>
+                <div><div class="stat-label">الحياة</div><div class="stat-value" id="hearts">3</div></div>
             </div>
         </div>
 
         <!-- Difficulty -->
-        <div class="diff-tag">
-            <span class="easy" id="diffTag">المستوى السهل</span>
-        </div>
+        <div class="diff-badge"><span class="easy" id="diffTag">المستوى السهل</span></div>
 
         <!-- Navigation -->
         <nav class="nav">
             <button class="nav-btn active" data-tab="game" onclick="showTab('game')">🎮 اللعبة</button>
             <button class="nav-btn" data-tab="levels" onclick="showTab('levels')">📊 المراحل</button>
             <button class="nav-btn" data-tab="achievements" onclick="showTab('achievements')">🏆 الإنجازات</button>
-            <button class="nav-btn" data-tab="rewards" onclick="showTab('rewards')">🎁 المكافآت</button>
+            <button class="nav-btn" data-tab="treasure" onclick="showTab('treasure')">💰 الكنز</button>
+            <button class="nav-btn" data-tab="profile" onclick="showTab('profile')">👤 الملف</button>
         </nav>
 
         <!-- Game Section -->
-        <section id="gameSection">
+        <section class="section active" id="gameSection">
             <div class="game-card">
                 <div class="game-header">
                     <span class="stage-badge" id="stageBadge">المرحلة 1</span>
                     <div class="timer">⏱️ <span id="timer">00:00</span></div>
                 </div>
 
-                <!-- Help Tools -->
-                <div class="help-tools">
+                <!-- Stage Navigation -->
+                <div class="stage-nav">
+                    <button class="stage-nav-btn" onclick="prevStage()" id="prevBtn">◀</button>
+                    <span class="stage-indicator"><span id="currentStage">1</span> / <span id="totalStages">10</span></span>
+                    <button class="stage-nav-btn" onclick="nextStageNav()" id="nextBtn">▶</button>
+                </div>
+
+                <!-- Tools -->
+                <div class="tools">
                     <button class="tool-btn" id="hintLetterBtn" onclick="useHintLetter()">
-                        <span class="icon">💡</span>
-                        <span>حرف</span>
-                        <span class="count" id="hintLetterCount">x3</span>
+                        <span class="icon">💡</span><span>حرف</span><span class="count" id="hintLetterCount">x3</span>
                     </button>
                     <button class="tool-btn" id="hintWordBtn" onclick="useHintWord()">
-                        <span class="icon">✨</span>
-                        <span>كلمة</span>
-                        <span class="count" id="hintWordCount">x1</span>
+                        <span class="icon">✨</span><span>كلمة</span><span class="count" id="hintWordCount">x1</span>
                     </button>
                     <button class="tool-btn" id="audienceBtn" onclick="useAudience()">
-                        <span class="icon">👥</span>
-                        <span>الجمهور</span>
-                        <span class="count" id="audienceCount">x1</span>
+                        <span class="icon">👥</span><span>الجمهور</span><span class="count" id="audienceCount">x1</span>
                     </button>
                     <button class="tool-btn" id="skipBtn" onclick="useSkip()">
-                        <span class="icon">⏭️</span>
-                        <span>تخطي</span>
-                        <span class="count" id="skipCount">x1</span>
+                        <span class="icon">⏭️</span><span>تخطي</span><span class="count" id="skipCount">x1</span>
                     </button>
                     <button class="tool-btn" id="heartBtn" onclick="useHeart()">
-                        <span class="icon">❤️</span>
-                        <span>حياة</span>
-                        <span class="count" id="heartCount">x1</span>
+                        <span class="icon">❤️</span><span>حياة</span><span class="count" id="heartCount">x1</span>
                     </button>
                 </div>
 
@@ -1362,7 +1535,7 @@
 
                 <!-- Keyboard -->
                 <div class="keyboard">
-                    <div class="keyboard-label">اضغط على الحروف للكتابة</div>
+                    <div class="keyboard-label">اضغط على الحروف</div>
                     <div class="keyboard-rows" id="keyboard"></div>
                 </div>
 
@@ -1386,7 +1559,7 @@
         </section>
 
         <!-- Levels Section -->
-        <section class="levels-section" id="levelsSection">
+        <section class="section" id="levelsSection">
             <div class="game-card">
                 <div class="clues-title">📊 اختر المرحلة</div>
                 <div class="levels-grid" id="levelsGrid"></div>
@@ -1394,25 +1567,110 @@
         </section>
 
         <!-- Achievements Section -->
-        <section class="achievements-section" id="achievementsSection">
+        <section class="section" id="achievementsSection">
             <div class="game-card">
-                <div class="clues-title">🏆 الإنجازات</div>
+                <div class="clues-title">🏆 الإنجازات (<span id="achCount">0</span>/100)</div>
                 <div class="achievements-grid" id="achievementsGrid"></div>
             </div>
         </section>
 
-        <!-- Rewards Section -->
-        <section class="rewards-section" id="rewardsSection">
+        <!-- Treasure Section -->
+        <section class="section" id="treasureSection">
             <div class="game-card">
-                <div class="clues-title">🎁 المكافآت</div>
-                <div class="rewards-list" id="rewardsList"></div>
+                <!-- Chest -->
+                <div class="chest-container">
+                    <div class="chest-icon">📦</div>
+                    <div class="chest-title">صندوق الكنز</div>
+                    <div class="chest-items">
+                        <div class="chest-item" style="color: var(--gold);"><span>🪙</span><span id="chestGold">0</span></div>
+                        <div class="chest-item" style="color: var(--silver);"><span>🥈</span><span id="chestSilver">0</span></div>
+                        <div class="chest-item" style="color: var(--gem);"><span>💎</span><span id="chestGem">0</span></div>
+                        <div class="chest-item" style="color: var(--diamond);"><span>💠</span><span id="chestDiamond">0</span></div>
+                    </div>
+                </div>
+                
+                <div class="treasure-grid">
+                    <div class="treasure-card gold">
+                        <div class="treasure-card-icon">🪙</div>
+                        <div class="treasure-card-value" id="displayGold">0</div>
+                        <div class="treasure-card-label">ذهب</div>
+                    </div>
+                    <div class="treasure-card silver">
+                        <div class="treasure-card-icon">🥈</div>
+                        <div class="treasure-card-value" id="displaySilver">0</div>
+                        <div class="treasure-card-label">فضة</div>
+                    </div>
+                    <div class="treasure-card gem">
+                        <div class="treasure-card-icon">💎</div>
+                        <div class="treasure-card-value" id="displayGem">0</div>
+                        <div class="treasure-card-label">جواهر</div>
+                    </div>
+                    <div class="treasure-card diamond">
+                        <div class="treasure-card-icon">💠</div>
+                        <div class="treasure-card-value" id="displayDiamond">0</div>
+                        <div class="treasure-card-label">ماس</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section class="section" id="profileSection">
+            <div class="game-card">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-info">
+                            <div class="profile-name" id="profileName">اللاعب</div>
+                            <div class="profile-title">بطل الكلمات</div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" id="profileStages">0</div>
+                            <div class="profile-stat-label">مراحل</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" id="profileWords">0</div>
+                            <div class="profile-stat-label">كلمات</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" id="profileAch">0</div>
+                            <div class="profile-stat-label">إنجازات</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clues-title">📊 السجل</div>
+                <div class="records-list">
+                    <div class="record-item">
+                        <span class="record-label">إجمالي المراحل المكتملة</span>
+                        <span class="record-value" id="recordStages">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">أطول تتابع</span>
+                        <span class="record-value" id="recordStreak">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">أسرع مرحلة</span>
+                        <span class="record-value" id="recordFastest">--</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">إجمالي الكلمات</span>
+                        <span class="record-value" id="recordWords">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-label">المستويات المكتملة</span>
+                        <span class="record-value" id="recordDiffs">0/3</span>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <span class="footer-text">لعبة الكلمات المتقاطعة | إعداد:</span>
+        <span class="footer-text">كنز الكلمات | إعداد:</span>
         <span class="footer-name">أ. حسن سديف</span>
     </footer>
 
@@ -1421,20 +1679,10 @@
         <div class="modal-box">
             <div class="modal-icon">🌟</div>
             <h2 class="modal-title">أحسنت!</h2>
-            <p class="modal-msg" id="successMsg">لقد أكملت المرحلة بنجاح!</p>
+            <p class="modal-msg" id="successMsg">أكملت المرحلة!</p>
             <div class="modal-stats">
-                <div>
-                    <div class="modal-stat-value" id="modalPoints">0</div>
-                    <div class="modal-stat-label">نقطة</div>
-                </div>
-                <div>
-                    <div class="modal-stat-value" id="modalTime">00:00</div>
-                    <div class="modal-stat-label">الوقت</div>
-                </div>
-                <div>
-                    <div class="modal-stat-value" id="modalStreak">0</div>
-                    <div class="modal-stat-label">تتابع</div>
-                </div>
+                <div><div class="modal-stat-value" id="modalPoints">0</div><div class="modal-stat-label">كنز</div></div>
+                <div><div class="modal-stat-value" id="modalTime">00:00</div><div class="modal-stat-label">الوقت</div></div>
             </div>
             <div class="modal-actions">
                 <button class="action-btn secondary" onclick="closeModal('successModal')">إغلاق</button>
@@ -1448,15 +1696,9 @@
         <div class="modal-box">
             <div class="modal-icon">🏆</div>
             <h2 class="modal-title">مبروك!</h2>
-            <p class="modal-msg" id="completeMsg">لقد أكملت المستوى بنجاح!</p>
-            <div class="modal-stats">
-                <div>
-                    <div class="modal-stat-value" id="finalPoints">0</div>
-                    <div class="modal-stat-label">إجمالي النقاط</div>
-                </div>
-            </div>
+            <p class="modal-msg" id="completeMsg">أكملت المستوى!</p>
             <div class="modal-actions">
-                <button class="action-btn primary" onclick="restartGame()">العب مجدداً</button>
+                <button class="action-btn primary" onclick="closeModal('completeModal')">متابعة</button>
             </div>
         </div>
     </div>
@@ -1466,7 +1708,7 @@
         <div class="modal-box">
             <div class="modal-icon">💔</div>
             <h2 class="modal-title">انتهت الحياة!</h2>
-            <p class="modal-msg">لا تقلق، يمكنك المحاولة مرة أخرى</p>
+            <p class="modal-msg">حاول مرة أخرى</p>
             <div class="modal-actions">
                 <button class="action-btn secondary" onclick="useHeart()">استخدم حياة</button>
                 <button class="action-btn primary" onclick="resetStage()">حاول مجدداً</button>
@@ -1491,302 +1733,212 @@
 
     <script>
         // ============================================
-        // Arabic Keyboard
+        // Constants
         // ============================================
         const KEYS = [
-            ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
-            ['ط', 'ك', 'م', 'ن', 'ت', 'ا', 'ل', 'ب', 'ي', 'س', 'ش', 'ظ'],
-            ['ز', 'و', 'ة', 'ى', 'ء', 'ر', 'ؤ', 'ئ', 'ذ', 'إ', 'أ']
+            ['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج','د'],
+            ['ط','ك','م','ن','ت','ا','ل','ب','ي','س','ش','ظ'],
+            ['ز','و','ة','ى','ء','ر','ؤ','ئ','ذ','إ','أ']
         ];
 
-        const VALID = new Set([
-            'ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د',
-            'ط', 'ك', 'م', 'ن', 'ت', 'ا', 'ل', 'ب', 'ي', 'س', 'ش', 'ظ',
-            'ز', 'و', 'ة', 'ى', 'ء', 'ر', 'ؤ', 'ئ', 'ذ', 'إ', 'أ', 'آ'
-        ]);
+        const VALID = new Set(['ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج','د','ط','ك','م','ن','ت','ا','ل','ب','ي','س','ش','ظ','ز','و','ة','ى','ء','ر','ؤ','ئ','ذ','إ','أ','آ']);
 
         // ============================================
-        // Game Data - All 30 Stages (Same Questions)
+        // Game Data (Same Questions)
         // ============================================
         const DATA = {
             easy: [
-                { words: [
-                    { w: 'حسن', c: 'هو الإمام الثاني من أئمة أهل البيت' },
-                    { w: 'حسين', c: 'اسم أخيه الشقيق وسيد الشهداء' },
-                    { w: 'فاطمة', c: 'اسم أمه سيدة نساء العالمين' },
-                    { w: 'علي', c: 'اسم أبيه أمير المؤمنين' },
-                    { w: 'محمد', c: 'جده هو خاتم الأنبياء والمرسلين' }
-                ]},
-                { words: [
-                    { w: 'ولادته', c: 'المدينة المنورة هي مكان... (ولادته أم وفاته؟)' },
-                    { w: 'حفيده', c: 'صلة قرابته بالنبي محمد (ص)' },
-                    { w: 'أخضر', c: 'لون رايته أو اللون الذي يرمز له' },
-                    { w: 'فاطمة', c: 'أول مولود لـ.... وعلي' },
-                    { w: 'سبط', c: 'كلمة تعني ابن البنت' }
-                ]},
-                { words: [
-                    { w: 'الكساء', c: 'نزل عليه وعلى عائلته حديث...' },
-                    { w: 'الصلح', c: 'عكس كلمة الحرب (اشتهر بصلحه)' },
-                    { w: 'رمضان', c: 'شهر الصيام الذي ولد فيه الإمام' },
-                    { w: 'الجنة', c: 'يلقب بسيد شباب أهل...' },
-                    { w: 'ريحانة', c: 'وصفه النبي بأنه ..... من الدنيا' }
-                ]},
-                { words: [
-                    { w: 'نبي', c: 'المهنة التي كان يمارسها جده' },
-                    { w: 'ركعتان', c: 'عدد ركعات صلاة الصبح' },
-                    { w: 'الكرم', c: 'عكس البخل (صفة اشتهر بها الإمام)' },
-                    { w: 'البقيع', c: 'نذهب لزيارة قبره في مقبرة....' },
-                    { w: 'زينب', c: 'اسم أخته بطلة كربلاء' }
-                ]},
-                { words: [
-                    { w: 'الفقراء', c: 'كان يحب إطعام.... (الناس بدون مال)' },
-                    { w: 'السلام', c: 'الكلمة التي نقولها عند ذكر اسمه' },
-                    { w: 'الحسن', c: 'أول الأئمة هو علي، والثاني هو...' },
-                    { w: 'الخُلق', c: 'كان يشبه جده في الخَلْق و...' },
-                    { w: 'الحرام', c: 'كان يذهب مشياً إلى بيت الله الـ...' }
-                ]},
-                { words: [
-                    { w: 'جعفر', c: 'اسم عمه الذي استشهد في مؤتة (الطيار)' },
-                    { w: 'خديجة', c: 'اسم جدته (زوجة النبي وأول من آمن)' },
-                    { w: 'الكساء', c: 'الإمام الحسن هو رابع أصحاب الـ...' },
-                    { w: 'أحفاد', c: 'كلمة تعني أولاد الابن أو البنت' },
-                    { w: 'الحسنة', c: 'عكس السيئة (كان يقابل الإساءة بـ...)' }
-                ]},
-                { words: [
-                    { w: 'الجمل', c: 'حيوان ركبه الإمام الحسن وهو صغير' },
-                    { w: 'إفطار', c: 'شيء نأكله لكسر الصيام' },
-                    { w: 'القرآن', c: 'كان الإمام يقرأ الـ... الكريم بصوت جميل' },
-                    { w: 'جود', c: 'كلمة تعني الهدية والعطاء' },
-                    { w: 'السبطان', c: 'لقب يطلق على الحسن والحسين' }
-                ]},
-                { words: [
-                    { w: 'الوحي', c: 'المنزل الذي ولد فيه هو منزل....' },
-                    { w: 'يوسف', c: 'نبي الله الذي يشاركه نفس الاسم الأول' },
-                    { w: 'أنيقة', c: 'صفة للملابس التي كان يلبسها' },
-                    { w: 'الفرح', c: 'كلمة تعني السعادة (من معاني اسمه)' },
-                    { w: 'الماء', c: 'كان يتوضأ للصلاة بـ...' }
-                ]},
-                { words: [
-                    { w: 'اثنا عشر', c: 'عدد الأئمة المعصومين (هو الثاني منهم)' },
-                    { w: 'المنورة', c: 'عاصمة جده النبي (المدينة الـ...)' },
-                    { w: 'ود', c: 'كلمة تعني الحب الشديد' },
-                    { w: 'السماء', c: 'عكس الأرض (نزل منها الملك جبرائيل)' },
-                    { w: 'أخضر', c: 'لون العمامة التي يضعها على رأسه' }
-                ]},
-                { words: [
-                    { w: 'الإنسان', c: 'اسم السورة التي تتحدث عنهم (هل أتى)' },
-                    { w: 'البيت', c: 'آية التطهير نزلت في حق أهل الـ...' },
-                    { w: 'عون', c: 'كلمة تعني المساعدة' },
-                    { w: 'فاطمة', c: 'لقب جدته أم الإمام علي' },
-                    { w: 'النور', c: 'عكس الظلام (الإمام هو نور)' }
-                ]}
+                { words: [{w:'حسن',c:'هو الإمام الثاني من أئمة أهل البيت'},{w:'حسين',c:'اسم أخيه الشقيق وسيد الشهداء'},{w:'فاطمة',c:'اسم أمه سيدة نساء العالمين'},{w:'علي',c:'اسم أبيه أمير المؤمنين'},{w:'محمد',c:'جده هو خاتم الأنبياء والمرسلين'}]},
+                { words: [{w:'ولادته',c:'المدينة المنورة هي مكان... (ولادته أم وفاته؟)'},{w:'حفيده',c:'صلة قرابته بالنبي محمد (ص)'},{w:'أخضر',c:'لون رايته أو اللون الذي يرمز له'},{w:'فاطمة',c:'أول مولود لـ.... وعلي'},{w:'سبط',c:'كلمة تعني ابن البنت'}]},
+                { words: [{w:'الكساء',c:'نزل عليه وعلى عائلته حديث...'},{w:'الصلح',c:'عكس كلمة الحرب (اشتهر بصلحه)'},{w:'رمضان',c:'شهر الصيام الذي ولد فيه الإمام'},{w:'الجنة',c:'يلقب بسيد شباب أهل...'},{w:'ريحانة',c:'وصفه النبي بأنه ..... من الدنيا'}]},
+                { words: [{w:'نبي',c:'المهنة التي كان يمارسها جده'},{w:'ركعتان',c:'عدد ركعات صلاة الصبح'},{w:'الكرم',c:'عكس البخل (صفة اشتهر بها الإمام)'},{w:'البقيع',c:'نذهب لزيارة قبره في مقبرة....'},{w:'زينب',c:'اسم أخته بطلة كربلاء'}]},
+                { words: [{w:'الفقراء',c:'كان يحب إطعام.... (الناس بدون مال)'},{w:'السلام',c:'الكلمة التي نقولها عند ذكر اسمه'},{w:'الحسن',c:'أول الأئمة هو علي، والثاني هو...'},{w:'الخُلق',c:'كان يشبه جده في الخَلْق و...'},{w:'الحرام',c:'كان يذهب مشياً إلى بيت الله الـ...'}]},
+                { words: [{w:'جعفر',c:'اسم عمه الذي استشهد في مؤتة (الطيار)'},{w:'خديجة',c:'اسم جدته (زوجة النبي وأول من آمن)'},{w:'الكساء',c:'الإمام الحسن هو رابع أصحاب الـ...'},{w:'أحفاد',c:'كلمة تعني أولاد الابن أو البنت'},{w:'الحسنة',c:'عكس السيئة (كان يقابل الإساءة بـ...)'}]},
+                { words: [{w:'الجمل',c:'حيوان ركبه الإمام الحسن وهو صغير'},{w:'إفطار',c:'شيء نأكله لكسر الصيام'},{w:'القرآن',c:'كان الإمام يقرأ الـ... الكريم بصوت جميل'},{w:'جود',c:'كلمة تعني الهدية والعطاء'},{w:'السبطان',c:'لقب يطلق على الحسن والحسين'}]},
+                { words: [{w:'الوحي',c:'المنزل الذي ولد فيه هو منزل....'},{w:'يوسف',c:'نبي الله الذي يشاركه نفس الاسم الأول'},{w:'أنيقة',c:'صفة للملابس التي كان يلبسها'},{w:'الفرح',c:'كلمة تعني السعادة (من معاني اسمه)'},{w:'الماء',c:'كان يتوضأ للصلاة بـ...'}]},
+                { words: [{w:'اثنا عشر',c:'عدد الأئمة المعصومين (هو الثاني منهم)'},{w:'المنورة',c:'عاصمة جده النبي (المدينة الـ...)'},{w:'ود',c:'كلمة تعني الحب الشديد'},{w:'السماء',c:'عكس الأرض (نزل منها الملك جبرائيل)'},{w:'أخضر',c:'لون العمامة التي يضعها على رأسه'}]},
+                { words: [{w:'الإنسان',c:'اسم السورة التي تتحدث عنهم (هل أتى)'},{w:'البيت',c:'آية التطهير نزلت في حق أهل الـ...'},{w:'عون',c:'كلمة تعني المساعدة'},{w:'فاطمة',c:'لقب جدته أم الإمام علي'},{w:'النور',c:'عكس الظلام (الإمام هو نور)'}]}
             ],
             medium: [
-                { words: [
-                    { w: 'المجتبى', c: 'أشهر ألقابه ويعني المختار' },
-                    { w: 'كريم', c: 'لقب اشتهر به لكثرة عطائه "... أهل البيت"' },
-                    { w: 'رمضان', c: 'ولد في النصف من شهر...' },
-                    { w: 'الثالث', c: 'العام الهجري الذي ولد فيه' },
-                    { w: 'شباب', c: 'اللقب الذي يجمعه مع أخيه (سيدا...)' }
-                ]},
-                { words: [
-                    { w: 'الحلم', c: 'الصفة التي تعني الصبر والهدوء عند الغضب' },
-                    { w: 'الزكي', c: 'لقب يعني النقي الطاهر' },
-                    { w: 'الخامس عشر', c: 'اليوم الذي ولد فيه من شهر رمضان' },
-                    { w: 'المباهلة', c: 'اسم المباهلة التي خرج فيها مع النبي' },
-                    { w: 'البقيع', c: 'المكان الذي دفن فيه بالمدينة المنورة' }
-                ]},
-                { words: [
-                    { w: 'العابد', c: 'لقب يعني الذي يعبد الله كثيراً' },
-                    { w: 'مرتين', c: 'قاسم الله ماله (كم مرة؟)' },
-                    { w: 'خمس وعشرون', c: 'حج بيت الله ماشياً (كم مرة؟)' },
-                    { w: 'سبع', c: 'المدة التي عاشها مع جده النبي (سنوات)' },
-                    { w: 'أبو طالب', c: 'اسم الجد الثاني للإمام (والد الإمام علي)' }
-                ]},
-                { words: [
-                    { w: 'صفين', c: 'المعركة التي شارك فيها مع أبيه' },
-                    { w: 'الجمل', c: 'المعركة التي تسمى معركة...' },
-                    { w: 'الكوفة', c: 'المدينة التي انتقل إليها مع أبيه' },
-                    { w: 'معاوية', c: 'الرجل الذي تصالح معه الإمام' },
-                    { w: 'إحدى وأربعين', c: 'العام الذي سمي بعام الجماعة' }
-                ]},
-                { words: [
-                    { w: 'الكوثر', c: 'سورة قرآنية فسرها الإمام' },
-                    { w: 'تغير', c: 'كان الإمام إذا توضأ .... لونه' },
-                    { w: 'السيد', c: 'لقب يعني السيد المطاع' },
-                    { w: 'جائعاً', c: 'أطعم الإمام الكلب لأنه كان...' },
-                    { w: 'الحسين', c: 'وصية الإمام الحسن كانت لأخيه...' }
-                ]},
-                { words: [
-                    { w: 'المودة', c: 'آية قرآنية: قل لا أسألكم عليه أجراً إلا...' },
-                    { w: 'القربى', c: 'المودة تعني المحبة لـ...' },
-                    { w: 'لله', c: 'كان نقش خاتم الإمام: العزة...' },
-                    { w: 'أسماء', c: 'المرأة التي سمت الإمام الحسن في المنام' },
-                    { w: 'جبرائيل', c: 'الملك الذي نزل باسم الحسن من السماء' }
-                ]},
-                { words: [
-                    { w: 'البأس', c: 'صفة تعني الشجاعة (ورثها من أبيه)' },
-                    { w: 'الصك', c: 'الشيء الذي مزقه الإمام ووزعه على الفقراء' },
-                    { w: 'تعليم', c: 'كان يجلس في مسجد النبي لـ.... الناس' },
-                    { w: 'الضيف', c: 'كلمة تعني الضيف (كان يكرمه دائماً)' },
-                    { w: 'المولد', c: 'اسم يطلق على ليلة النصف من رمضان' }
-                ]},
-                { words: [
-                    { w: 'طيبة', c: 'الشجرة المباركة التي أصلها ثابت وفرعها في السماء' },
-                    { w: 'الرسول', c: 'كان الإمام الحسن أشبه الناس بـ...' },
-                    { w: 'الناصح', c: 'لقب يعني الناصح الأمين' },
-                    { w: 'الجمعة', c: 'الصلاة التي تقام جماعة يوم الجمعة' },
-                    { w: 'الصبر', c: 'عكس الجزع (صبر الإمام على الأذى)' }
-                ]},
-                { words: [
-                    { w: 'القمر', c: 'من صفاته: كان وجهه كـ...' },
-                    { w: 'جعداً', c: 'كان شعره مجعداً قليلاً ويسمى...' },
-                    { w: 'الواصل', c: 'لقب يعني الذي يصل رحمه' },
-                    { w: 'جعدة', c: 'اسم زوجة الإمام التي خانته' },
-                    { w: 'السم', c: 'المادة التي استشهد بها الإمام' }
-                ]},
-                { words: [
-                    { w: 'السابع', c: 'يوم استشهاده (اليوم من شهر صفر)' },
-                    { w: 'صفر', c: 'الشهر الذي استشهد فيه الإمام' },
-                    { w: 'سبع وأربعين', c: 'العمر الذي استشهد فيه الإمام' },
-                    { w: 'جده', c: 'منعت بنو أمية دفنه بجوار...' },
-                    { w: 'الحسين', c: 'حمل نعش الإمام الحسن أخوه...' }
-                ]}
+                { words: [{w:'المجتبى',c:'أشهر ألقابه ويعني المختار'},{w:'كريم',c:'لقب اشتهر به لكثرة عطائه "... أهل البيت"'},{w:'رمضان',c:'ولد في النصف من شهر...'},{w:'الثالث',c:'العام الهجري الذي ولد فيه'},{w:'شباب',c:'اللقب الذي يجمعه مع أخيه (سيدا...)'}]},
+                { words: [{w:'الحلم',c:'الصفة التي تعني الصبر والهدوء عند الغضب'},{w:'الزكي',c:'لقب يعني النقي الطاهر'},{w:'الخامس عشر',c:'اليوم الذي ولد فيه من شهر رمضان'},{w:'المباهلة',c:'اسم المباهلة التي خرج فيها مع النبي'},{w:'البقيع',c:'المكان الذي دفن فيه بالمدينة المنورة'}]},
+                { words: [{w:'العابد',c:'لقب يعني الذي يعبد الله كثيراً'},{w:'مرتين',c:'قاسم الله ماله (كم مرة؟)'},{w:'خمس وعشرون',c:'حج بيت الله ماشياً (كم مرة؟)'},{w:'سبع',c:'المدة التي عاشها مع جده النبي (سنوات)'},{w:'أبو طالب',c:'اسم الجد الثاني للإمام (والد الإمام علي)'}]},
+                { words: [{w:'صفين',c:'المعركة التي شارك فيها مع أبيه'},{w:'الجمل',c:'المعركة التي تسمى معركة...'},{w:'الكوفة',c:'المدينة التي انتقل إليها مع أبيه'},{w:'معاوية',c:'الرجل الذي تصالح معه الإمام'},{w:'إحدى وأربعين',c:'العام الذي سمي بعام الجماعة'}]},
+                { words: [{w:'الكوثر',c:'سورة قرآنية فسرها الإمام'},{w:'تغير',c:'كان الإمام إذا توضأ .... لونه'},{w:'السيد',c:'لقب يعني السيد المطاع'},{w:'جائعاً',c:'أطعم الإمام الكلب لأنه كان...'},{w:'الحسين',c:'وصية الإمام الحسن كانت لأخيه...'}]},
+                { words: [{w:'المودة',c:'آية قرآنية: قل لا أسألكم عليه أجراً إلا...'},{w:'القربى',c:'المودة تعني المحبة لـ...'},{w:'لله',c:'كان نقش خاتم الإمام: العزة...'},{w:'أسماء',c:'المرأة التي سمت الإمام الحسن في المنام'},{w:'جبرائيل',c:'الملك الذي نزل باسم الحسن من السماء'}]},
+                { words: [{w:'البأس',c:'صفة تعني الشجاعة (ورثها من أبيه)'},{w:'الصك',c:'الشيء الذي مزقه الإمام ووزعه على الفقراء'},{w:'تعليم',c:'كان يجلس في مسجد النبي لـ.... الناس'},{w:'الضيف',c:'كلمة تعني الضيف (كان يكرمه دائماً)'},{w:'المولد',c:'اسم يطلق على ليلة النصف من رمضان'}]},
+                { words: [{w:'طيبة',c:'الشجرة المباركة التي أصلها ثابت وفرعها في السماء'},{w:'الرسول',c:'كان الإمام الحسن أشبه الناس بـ...'},{w:'الناصح',c:'لقب يعني الناصح الأمين'},{w:'الجمعة',c:'الصلاة التي تقام جماعة يوم الجمعة'},{w:'الصبر',c:'عكس الجزع (صبر الإمام على الأذى)'}]},
+                { words: [{w:'القمر',c:'من صفاته: كان وجهه كـ...'},{w:'جعداً',c:'كان شعره مجعداً قليلاً ويسمى...'},{w:'الواصل',c:'لقب يعني الذي يصل رحمه'},{w:'جعدة',c:'اسم زوجة الإمام التي خانته'},{w:'السم',c:'المادة التي استشهد بها الإمام'}]},
+                { words: [{w:'السابع',c:'يوم استشهاده (اليوم من شهر صفر)'},{w:'صفر',c:'الشهر الذي استشهد فيه الإمام'},{w:'سبع وأربعين',c:'العمر الذي استشهد فيه الإمام'},{w:'جده',c:'منعت بنو أمية دفنه بجوار...'},{w:'الحسين',c:'حمل نعش الإمام الحسن أخوه...'}]}
             ],
             hard: [
-                { words: [
-                    { w: 'الحجة', c: 'لقب يعني الحجة والبرهان' },
-                    { w: 'الدرع', c: 'اسم القميص الذي كان يرتديه تحت ثيابه' },
-                    { w: 'محمد', c: 'كنية الإمام الحسن (أبو ....)' },
-                    { w: 'القاسم', c: 'اسم ابن الإمام الحسن الذي استشهد في كربلاء' },
-                    { w: 'عبد الله', c: 'ابن آخر للحسن استشهد في كربلاء' }
-                ]},
-                { words: [
-                    { w: 'جابر', c: 'الصحابي الذي وصف الحسن والحسين بشنفين للعرش' },
-                    { w: 'الفدكية', c: 'اسم خطبة السيدة فاطمة التي حضرها وهو صغير' },
-                    { w: 'الطفولة', c: 'كان يحضر مجلس جده وهو في سن...' },
-                    { w: 'المعاهدة', c: 'العهد الذي كتب بين الحسن ومعاوية يسمى' },
-                    { w: 'السنة', c: 'شرط وضعه الحسن: العمل بكتاب الله و...' }
-                ]},
-                { words: [
-                    { w: 'فاطمة بنت أسد', c: 'اسم جدته لأبيه (زوجة أبي طالب)' },
-                    { w: 'الحسن', c: 'ما معنى اسم شبر بالعربية؟' },
-                    { w: 'علي', c: 'اسم هارون النبي موسى يقابل اسم .... للنبي محمد' },
-                    { w: 'التاسع', c: 'العام الذي سمي عام الوفود' },
-                    { w: 'نجران', c: 'وفد النصارى الذين باهلهم النبي' }
-                ]},
-                { words: [
-                    { w: 'الثقة', c: 'لقب يعني الأمين المؤتمن' },
-                    { w: 'عدواً', c: 'كان الإمام لا يرد سائلاً أبداً، حتى لو كان...' },
-                    { w: 'المنبر', c: 'المكان الذي خطب فيه بعد استشهاد أبيه' },
-                    { w: 'الجراح', c: 'الشخص الذي ضرب الإمام في ساباط' },
-                    { w: 'ساباط', c: 'المنطقة التي تعرض فيها الإمام لمحاولة اغتيال' }
-                ]},
-                { words: [
-                    { w: 'الوسمة', c: 'ما هو الخضاب الذي استعمله الإمام؟' },
-                    { w: 'عائشة', c: 'المرأة التي ركبت البغل لمنع دفن الإمام' },
-                    { w: 'سبعون', c: 'السهام التي رميت على النعش (عدد)' },
-                    { w: 'الرسول', c: 'القائل: لولاك يا علي لما عرف المؤمنون' },
-                    { w: 'النفس', c: 'صفة الحليم تعني القدرة على ضبط...' }
-                ]},
-                { words: [
-                    { w: 'ملك الروم', c: 'اسم حاكم الروم الذي سأل معاوية' },
-                    { w: 'الكعبة', c: 'السؤال عن: شيء لا قبلة له' },
-                    { w: 'عيسى', c: 'السؤال عن: لا أب له' },
-                    { w: 'آدم', c: 'السؤال عن: لا عشيرة له' },
-                    { w: 'أجلك', c: 'من وصاياه: استعد لسفرك قبل...' }
-                ]},
-                { words: [
-                    { w: 'قعدا', c: 'حديث: الحسن والحسين إمامان قاما أو...' },
-                    { w: 'الخامس', c: 'لقب للإمام يعني خامس أصحاب الكساء' },
-                    { w: 'علي', c: 'الخليفة الذي سبقه في الحكم (والده)' },
-                    { w: 'ستة', c: 'مدة خلافة الإمام الحسن (بالأشهر)' },
-                    { w: 'الشامي', c: 'الرجل الذي شتم الإمام فأعطاه الإمام مالاً' }
-                ]},
-                { words: [
-                    { w: 'رملة', c: 'اسم والدة القاسم بن الحسن' },
-                    { w: 'العسل', c: 'وصف القاسم الموت في كربلاء بأنه أحلى من...' },
-                    { w: 'النبوية', c: 'التربية التي نشأ عليها الحسن تسمى...' },
-                    { w: 'مسكيناً', c: 'آية ويطعمون الطعام نزلت فيهم...' },
-                    { w: 'أسيراً', c: 'وتكملة الآية: ويتيماً و...' }
-                ]},
-                { words: [
-                    { w: 'الفرزدق', c: 'الشاعر الذي مدح أهل البيت' },
-                    { w: 'سخاء', c: 'لقب كريم أهل البيت يعني الأكثر...' },
-                    { w: 'اليمنى', c: 'كان يكتب الحناء بيده الـ...' },
-                    { w: 'الأذان', c: 'اسم السورة التي قرأها النبي في أذن الحسن اليمنى' },
-                    { w: 'الإقامة', c: 'وفي أذنه اليسرى قرأ الـ...' }
-                ]},
-                { words: [
-                    { w: 'كبشاً', c: 'العقيقة التي ذبحها النبي عنه كانت...' },
-                    { w: 'فضة', c: 'حلق النبي شعره وتصدق بوزنه...' },
-                    { w: 'أبو بكرة', c: 'الصحابي الذي حمل الحسن على عاتقه' },
-                    { w: 'بيت', c: 'المكان الذي نزل فيه الوحي' },
-                    { w: 'الموت', c: 'آخر كلمة قالها عند الـ...' }
-                ]}
+                { words: [{w:'الحجة',c:'لقب يعني الحجة والبرهان'},{w:'الدرع',c:'اسم القميص الذي كان يرتديه تحت ثيابه'},{w:'محمد',c:'كنية الإمام الحسن (أبو ....)'},{w:'القاسم',c:'اسم ابن الإمام الحسن الذي استشهد في كربلاء'},{w:'عبد الله',c:'ابن آخر للحسن استشهد في كربلاء'}]},
+                { words: [{w:'جابر',c:'الصحابي الذي وصف الحسن والحسين بشنفين للعرش'},{w:'الفدكية',c:'اسم خطبة السيدة فاطمة التي حضرها وهو صغير'},{w:'الطفولة',c:'كان يحضر مجلس جده وهو في سن...'},{w:'المعاهدة',c:'العهد الذي كتب بين الحسن ومعاوية يسمى'},{w:'السنة',c:'شرط وضعه الحسن: العمل بكتاب الله و...'}]},
+                { words: [{w:'فاطمة بنت أسد',c:'اسم جدته لأبيه (زوجة أبي طالب)'},{w:'الحسن',c:'ما معنى اسم شبر بالعربية؟'},{w:'علي',c:'اسم هارون النبي موسى يقابل اسم .... للنبي محمد'},{w:'التاسع',c:'العام الذي سمي عام الوفود'},{w:'نجران',c:'وفد النصارى الذين باهلهم النبي'}]},
+                { words: [{w:'الثقة',c:'لقب يعني الأمين المؤتمن'},{w:'عدواً',c:'كان الإمام لا يرد سائلاً أبداً، حتى لو كان...'},{w:'المنبر',c:'المكان الذي خطب فيه بعد استشهاد أبيه'},{w:'الجراح',c:'الشخص الذي ضرب الإمام في ساباط'},{w:'ساباط',c:'المنطقة التي تعرض فيها الإمام لمحاولة اغتيال'}]},
+                { words: [{w:'الوسمة',c:'ما هو الخضاب الذي استعمله الإمام؟'},{w:'عائشة',c:'المرأة التي ركبت البغل لمنع دفن الإمام'},{w:'سبعون',c:'السهام التي رميت على النعش (عدد)'},{w:'الرسول',c:'القائل: لولاك يا علي لما عرف المؤمنون'},{w:'النفس',c:'صفة الحليم تعني القدرة على ضبط...'}]},
+                { words: [{w:'ملك الروم',c:'اسم حاكم الروم الذي سأل معاوية'},{w:'الكعبة',c:'السؤال عن: شيء لا قبلة له'},{w:'عيسى',c:'السؤال عن: لا أب له'},{w:'آدم',c:'السؤال عن: لا عشيرة له'},{w:'أجلك',c:'من وصاياه: استعد لسفرك قبل...'}]},
+                { words: [{w:'قعدا',c:'حديث: الحسن والحسين إمامان قاما أو...'},{w:'الخامس',c:'لقب للإمام يعني خامس أصحاب الكساء'},{w:'علي',c:'الخليفة الذي سبقه في الحكم (والده)'},{w:'ستة',c:'مدة خلافة الإمام الحسن (بالأشهر)'},{w:'الشامي',c:'الرجل الذي شتم الإمام فأعطاه الإمام مالاً'}]},
+                { words: [{w:'رملة',c:'اسم والدة القاسم بن الحسن'},{w:'العسل',c:'وصف القاسم الموت في كربلاء بأنه أحلى من...'},{w:'النبوية',c:'التربية التي نشأ عليها الحسن تسمى...'},{w:'مسكيناً',c:'آية ويطعمون الطعام نزلت فيهم...'},{w:'أسيراً',c:'وتكملة الآية: ويتيماً و...'}]},
+                { words: [{w:'الفرزدق',c:'الشاعر الذي مدح أهل البيت'},{w:'سخاء',c:'لقب كريم أهل البيت يعني الأكثر...'},{w:'اليمنى',c:'كان يكتب الحناء بيده الـ...'},{w:'الأذان',c:'اسم السورة التي قرأها النبي في أذن الحسن اليمنى'},{w:'الإقامة',c:'وفي أذنه اليسرى قرأ الـ...'}]},
+                { words: [{w:'كبشاً',c:'العقيقة التي ذبحها النبي عنه كانت...'},{w:'فضة',c:'حلق النبي شعره وتصدق بوزنه...'},{w:'أبو بكرة',c:'الصحابي الذي حمل الحسن على عاتقه'},{w:'بيت',c:'المكان الذي نزل فيه الوحي'},{w:'الموت',c:'آخر كلمة قالها عند الـ...'}]}
             ]
         };
 
-        // Achievements
+        // 100 Achievements
         const ACHIEVEMENTS = [
-            { id: 'first_word', name: 'البداية', icon: '🌱', desc: 'أكمل كلمتك الأولى' },
-            { id: 'stage_3', name: 'المثابر', icon: '⭐', desc: 'أكمل 3 مراحل' },
-            { id: 'stage_5', name: 'المجتهد', icon: '🌟', desc: 'أكمل 5 مراحل' },
-            { id: 'stage_10', name: 'الماهر', icon: '💫', desc: 'أكمل 10 مراحل' },
-            { id: 'stage_20', name: 'الخبير', icon: '✨', desc: 'أكمل 20 مرحلة' },
-            { id: 'stage_30', name: 'البطل', icon: '🏆', desc: 'أكمل جميع المراحل' },
-            { id: 'no_hints', name: 'العبقري', icon: '🧠', desc: 'أكمل مرحلة دون مساعدات' },
-            { id: 'fast', name: 'السريع', icon: '⚡', desc: 'أكمل مرحلة في أقل من دقيقة' },
-            { id: 'streak_3', name: 'المتواصل', icon: '🔥', desc: '3 إجابات صحيحة متتالية' },
-            { id: 'streak_7', name: 'المحترف', icon: '💎', desc: '7 إجابات صحيحة متتالية' },
-            { id: 'all_easy', name: 'المتعلم', icon: '📚', desc: 'أكمل المستوى السهل' },
-            { id: 'all_medium', name: 'العالم', icon: '🎓', desc: 'أكمل المستوى المتوسط' },
-            { id: 'all_hard', name: 'المحقق', icon: '🔬', desc: 'أكمل المستوى الصعب' },
-            { id: 'points_500', name: 'النجم', icon: '⭐', desc: 'اجمع 500 نقطة' },
-            { id: 'points_1500', name: 'الذكي', icon: '🎯', desc: 'اجمع 1500 نقطة' },
-            { id: 'points_3000', name: 'العبقري', icon: '👑', desc: 'اجمع 3000 نقطة' }
+            // Starter (1-10)
+            {id:'first_word',name:'البداية',icon:'🌱',desc:'أكمل كلمتك الأولى',cat:'starter'},
+            {id:'first_stage',name:'الخطوة الأولى',icon:'👣',desc:'أكمل مرحلتك الأولى',cat:'starter'},
+            {id:'stage_3',name:'المثابر',icon:'⭐',desc:'أكمل 3 مراحل',cat:'starter'},
+            {id:'stage_5',name:'المجتهد',icon:'🌟',desc:'أكمل 5 مراحل',cat:'starter'},
+            {id:'stage_10',name:'الماهر',icon:'💫',desc:'أكمل 10 مراحل',cat:'starter'},
+            {id:'stage_15',name:'الخبير',icon:'✨',desc:'أكمل 15 مرحلة',cat:'starter'},
+            {id:'stage_20',name:'المحترف',icon:'🎯',desc:'أكمل 20 مرحلة',cat:'starter'},
+            {id:'stage_25',name:'الأسطورة',icon:'🔥',desc:'أكمل 25 مرحلة',cat:'starter'},
+            {id:'stage_30',name:'البطل',icon:'🏆',desc:'أكمل 30 مرحلة',cat:'starter'},
+            {id:'play_5min',name:'المستكشف',icon:'🔍',desc:'العب لمدة 5 دقائق',cat:'starter'},
+            
+            // Streak (11-20)
+            {id:'streak_3',name:'المتواصل',icon:'🔥',desc:'3 إجابات صحيحة متتالية',cat:'streak'},
+            {id:'streak_5',name:'المحترف',icon:'💎',desc:'5 إجابات صحيحة متتالية',cat:'streak'},
+            {id:'streak_7',name:'البارع',icon:'👑',desc:'7 إجابات صحيحة متتالية',cat:'streak'},
+            {id:'streak_10',name:'العبقري',icon:'🧠',desc:'10 إجابات صحيحة متتالية',cat:'streak'},
+            {id:'streak_15',name:'النجم',icon:'⭐',desc:'15 إجابة صحيحة متتالية',cat:'streak'},
+            {id:'streak_20',name:'الساحر',icon:'🔮',desc:'20 إجابة صحيحة متتالية',cat:'streak'},
+            {id:'streak_25',name:'المعجزة',icon:'🌈',desc:'25 إجابة صحيحة متتالية',cat:'streak'},
+            {id:'streak_30',name:'الخارق',icon:'⚡',desc:'30 إجابة صحيحة متتالية',cat:'streak'},
+            {id:'streak_40',name:'الأسطوري',icon:'🌟',desc:'40 إجابة صحيحة متتالية',cat:'streak'},
+            {id:'streak_50',name:'الإلهي',icon:'✨',desc:'50 إجابة صحيحة متتالية',cat:'streak'},
+            
+            // Speed (21-30)
+            {id:'fast_60',name:'السريع',icon:'⚡',desc:'أكمل مرحلة في أقل من دقيقة',cat:'speed'},
+            {id:'fast_45',name:'البرق',icon:'💨',desc:'أكمل مرحلة في أقل من 45 ثانية',cat:'speed'},
+            {id:'fast_30',name:'الصاروخ',icon:'🚀',desc:'أكمل مرحلة في أقل من 30 ثانية',cat:'speed'},
+            {id:'fast_20',name:'النور',icon:'💫',desc:'أكمل مرحلة في أقل من 20 ثانية',cat:'speed'},
+            {id:'fast_5stages',name:'الزمن',icon:'⏱️',desc:'أكمل 5 مراحل سريعة',cat:'speed'},
+            {id:'fast_10stages',name:'الفاني',icon:'🌀',desc:'أكمل 10 مراحل سريعة',cat:'speed'},
+            {id:'speed_demon',name:'شيطان السرعة',icon:'😈',desc:'3 مراحل سريعة متتالية',cat:'speed'},
+            {id:'flash',name:'البرق المتكرر',icon:'⚡',desc:'5 مراحل سريعة متتالية',cat:'speed'},
+            {id:'time_master',name:'سيد الوقت',icon:'⌛',desc:'15 مرحلة سريعة',cat:'speed'},
+            {id:'speed_king',name:'ملك السرعة',icon:'👑',desc:'25 مرحلة سريعة',cat:'speed'},
+            
+            // No Hints (31-40)
+            {id:'no_hint_1',name:'الذكي',icon:'🧠',desc:'أكمل مرحلة بدون مساعدة',cat:'hints'},
+            {id:'no_hint_3',name:'المفكر',icon:'💭',desc:'3 مراحل بدون مساعدة',cat:'hints'},
+            {id:'no_hint_5',name:'العبقري',icon:'🎓',desc:'5 مراحل بدون مساعدة',cat:'hints'},
+            {id:'no_hint_10',name:'الحكيم',icon:'📚',desc:'10 مراحل بدون مساعدة',cat:'hints'},
+            {id:'no_hint_15',name:'العالم',icon:'🔬',desc:'15 مرحلة بدون مساعدة',cat:'hints'},
+            {id:'no_hint_20',name:'المرشد',icon:'🎯',desc:'20 مرحلة بدون مساعدة',cat:'hints'},
+            {id:'no_hint_25',name:'المعلم',icon:'📖',desc:'25 مرحلة بدون مساعدة',cat:'hints'},
+            {id:'no_hint_30',name:'الإمام',icon:'🌙',desc:'30 مرحلة بدون مساعدة',cat:'hints'},
+            {id:'no_hint_streak3',name:'النقي',icon:'💎',desc:'3 مراحل بدون مساعدة متتالية',cat:'hints'},
+            {id:'no_hint_streak5',name:'الطاهر',icon:'✨',desc:'5 مراحل بدون مساعدة متتالية',cat:'hints'},
+            
+            // Difficulty (41-50)
+            {id:'easy_done',name:'المتعلم',icon:'📚',desc:'أكمل المستوى السهل',cat:'difficulty'},
+            {id:'medium_done',name:'العالم',icon:'🎓',desc:'أكمل المستوى المتوسط',cat:'difficulty'},
+            {id:'hard_done',name:'المحقق',icon:'🔬',desc:'أكمل المستوى الصعب',cat:'difficulty'},
+            {id:'two_diffs',name:'المتميز',icon:'🌟',desc:'أكمل مستويين',cat:'difficulty'},
+            {id:'all_diffs',name:'الشامل',icon:'🏆',desc:'أكمل جميع المستويات',cat:'difficulty'},
+            {id:'easy_5streak',name:'السهل المتواصل',icon:'⭐',desc:'5 مراحل سهلة متتالية',cat:'difficulty'},
+            {id:'medium_5streak',name:'المتوسط المتواصل',icon:'🌟',desc:'5 مراحل متوسطة متتالية',cat:'difficulty'},
+            {id:'hard_5streak',name:'الصعب المتواصل',icon:'💫',desc:'5 مراحل صعبة متتالية',cat:'difficulty'},
+            {id:'easy_perfect',name:'السهل المثالي',icon:'✨',desc:'أكمل السهل بدون أخطاء',cat:'difficulty'},
+            {id:'hard_perfect',name:'الصعب المثالي',icon:'👑',desc:'أكمل الصعب بدون أخطاء',cat:'difficulty'},
+            
+            // Treasure (51-65)
+            {id:'gold_10',name:'جامع الذهب',icon:'🪙',desc:'اجمع 10 ذهب',cat:'treasure'},
+            {id:'gold_50',name:'تاجر الذهب',icon:'💰',desc:'اجمع 50 ذهب',cat:'treasure'},
+            {id:'gold_100',name:'كنز الذهب',icon:'🏆',desc:'اجمع 100 ذهب',cat:'treasure'},
+            {id:'gold_250',name:'سيد الذهب',icon:'👑',desc:'اجمع 250 ذهب',cat:'treasure'},
+            {id:'gold_500',name:'إمبراطور الذهب',icon:'🌟',desc:'اجمع 500 ذهب',cat:'treasure'},
+            {id:'silver_20',name:'جامع الفضة',icon:'🥈',desc:'اجمع 20 فضة',cat:'treasure'},
+            {id:'silver_100',name:'تاجر الفضة',icon:'💎',desc:'اجمع 100 فضة',cat:'treasure'},
+            {id:'silver_250',name:'سيد الفضة',icon:'✨',desc:'اجمع 250 فضة',cat:'treasure'},
+            {id:'gem_5',name:'جامع الجواهر',icon:'💎',desc:'اجمع 5 جواهر',cat:'treasure'},
+            {id:'gem_25',name:'تاجر الجواهر',icon:'💠',desc:'اجمع 25 جوهرة',cat:'treasure'},
+            {id:'gem_50',name:'سيد الجواهر',icon:'👑',desc:'اجمع 50 جوهرة',cat:'treasure'},
+            {id:'diamond_3',name:'جامع الماس',icon:'💠',desc:'اجمع 3 ماس',cat:'treasure'},
+            {id:'diamond_10',name:'تاجر الماس',icon:'💎',desc:'اجمع 10 ماس',cat:'treasure'},
+            {id:'diamond_25',name:'سيد الماس',icon:'👑',desc:'اجمع 25 ماس',cat:'treasure'},
+            {id:'all_treasures',name:'ملك الكنوز',icon:'🏆',desc:'اجمع من كل نوع',cat:'treasure'},
+            
+            // Words (66-75)
+            {id:'words_10',name:'الكاتب',icon:'✍️',desc:'أكمل 10 كلمات',cat:'words'},
+            {id:'words_25',name:'الأديب',icon:'📚',desc:'أكمل 25 كلمة',cat:'words'},
+            {id:'words_50',name:'الشاعر',icon:'🎭',desc:'أكمل 50 كلمة',cat:'words'},
+            {id:'words_100',name:'المؤلف',icon:'📖',desc:'أكمل 100 كلمة',cat:'words'},
+            {id:'words_150',name:'الروائي',icon:'✒️',desc:'أكمل 150 كلمة',cat:'words'},
+            {id:'words_200',name:'الكاتب الكبير',icon:'📝',desc:'أكمل 200 كلمة',cat:'words'},
+            {id:'words_300',name:'أمير الكلمات',icon:'👑',desc:'أكمل 300 كلمة',cat:'words'},
+            {id:'words_400',name:'سلطان الحروف',icon:'🌟',desc:'أكمل 400 كلمة',cat:'words'},
+            {id:'words_500',name:'خادم الكلمة',icon:'💫',desc:'أكمل 500 كلمة',cat:'words'},
+            {id:'word_master',name:'سيد الكلمات',icon:'🏆',desc:'أكمل 600 كلمة',cat:'words'},
+            
+            // Special (76-90)
+            {id:'night_owl',name:'بومة الليل',icon:'🦉',desc:'العب ليلاً',cat:'special'},
+            {id:'early_bird',name:'عصفور الصباح',icon:'🐦',desc:'العب صباحاً',cat:'special'},
+            {id:'weekend_warrior',name:'محارب نهاية الأسبوع',icon:'⚔️',desc:'العب في عطلة نهاية الأسبوع',cat:'special'},
+            {id:'persistent',name:'المصر',icon:'💪',desc:'حاول 5 مراحل متكررة',cat:'special'},
+            {id:'comeback',name:'العودة',icon:'🔄',desc:'ارجع للعب بعد خسارة',cat:'special'},
+            {id:'explorer',name:'المستكشف',icon:'🧭',desc:'جرب جميع المستويات',cat:'special'},
+            {id:'socialite',name:'الاجتماعي',icon:'👥',desc:'استخدم مساعدة الجمهور',cat:'special'},
+            {id:'hint_master',name:'سيد التلميحات',icon:'💡',desc:'استخدم 10 تلميحات',cat:'special'},
+            {id:'skipper',name:'المتجاوز',icon:'⏭️',desc:'استخدم التخطي',cat:'special'},
+            {id:'survivor',name:'الناجي',icon:'❤️',desc:'استخدم حياة إضافية',cat:'special'},
+            {id:'perfect_run',name:'الجري المثالي',icon:'✨',desc:'5 مراحل بدون أخطاء',cat:'special'},
+            {id:'collector',name:'الجامع',icon:'📦',desc:'افتح 25 إنجاز',cat:'special'},
+            {id:'hunter',name:'الصياد',icon:'🎯',desc:'افتح 50 إنجاز',cat:'special'},
+            {id:'legend',name:'الأسطورة',icon:'🌟',desc:'افتح 75 إنجاز',cat:'special'},
+            {id:'master',name:'السيد',icon:'👑',desc:'افتح 100 إنجاز',cat:'special'},
+            
+            // Dedication (91-100)
+            {id:'dedicated_1',name:'المخلص',icon:'💖',desc:'العب 10 جلسات',cat:'dedication'},
+            {id:'dedicated_2',name:'المحب',icon:'💕',desc:'العب 20 جلسة',cat:'dedication'},
+            {id:'dedicated_3',name:'الواله',icon:'💗',desc:'العب 30 جلسة',cat:'dedication'},
+            {id:'dedicated_4',name:'العاشق',icon:'💝',desc:'العب 50 جلسة',cat:'dedication'},
+            {id:'hour_1',name:'ساعة لعب',icon:'⏰',desc:'العب ساعة كاملة',cat:'dedication'},
+            {id:'hour_3',name:'3 ساعات لعب',icon:'⌛',desc:'العب 3 ساعات',cat:'dedication'},
+            {id:'hour_5',name:'5 ساعات لعب',icon:'⏱️',desc:'العب 5 ساعات',cat:'dedication'},
+            {id:'hour_10',name:'10 ساعات لعب',icon:'🕐',desc:'العب 10 ساعات',cat:'dedication'},
+            {id:'daily_3',name:'يومي 3 أيام',icon:'📅',desc:'العب 3 أيام متتالية',cat:'dedication'},
+            {id:'daily_7',name:'يومي أسبوع',icon:'📆',desc:'العب 7 أيام متتالية',cat:'dedication'}
         ];
-
-        // Rewards
-        const REWARDS = [
-            { id: 'r1', name: 'نجمة برونزية', icon: '🥉', desc: 'اجمع 300 نقطة', pts: 300 },
-            { id: 'r2', name: 'نجمة فضية', icon: '🥈', desc: 'اجمع 800 نقطة', pts: 800 },
-            { id: 'r3', name: 'نجمة ذهبية', icon: '🥇', desc: 'اجمع 1500 نقطة', pts: 1500 },
-            { id: 'r4', name: 'كأس المثابر', icon: '🏆', desc: 'أكمل 5 مراحل', stages: 5 },
-            { id: 'r5', name: 'ميدالية الشرف', icon: '🎖️', desc: 'أكمل 15 مرحلة', stages: 15 },
-            { id: 'r6', name: 'تاج البطل', icon: '👑', desc: 'أكمل جميع المراحل', stages: 30 },
-            { id: 'r7', name: 'قلب المحبة', icon: '💖', desc: 'اجمع 2500 نقطة', pts: 2500 },
-            { id: 'r8', name: 'وسام المعرفة', icon: '🏅', desc: 'أكمل مستويين', diffs: 2 }
-        ];
-
-        const COMPLETION_MSGS = {
-            easy: 'أحسنت يا بطل! أنت الآن تعرف إمامك الكريم.',
-            medium: 'ممتاز! معلوماتك قوية ومحبتك للإمام ظاهرة.',
-            hard: 'ما شاء الله! أنت باحث صغير وموالٍ حقيقي.'
-        };
 
         // ============================================
         // Game State
         // ============================================
         let G = {
+            player: 'اللاعب',
             diff: 'easy',
             stage: 0,
-            points: 0,
             streak: 0,
             maxStreak: 0,
-            hintsUsed: 0,
             hearts: 3,
             done: { easy: [], medium: [], hard: [] },
             achievements: [],
-            rewards: [],
+            treasure: { gold: 0, silver: 0, gem: 0, diamond: 0 },
+            totalWords: 0,
+            totalStages: 0,
+            fastStages: 0,
+            noHintStages: 0,
+            noHintStreak: 0,
+            fastStreak: 0,
+            hints: { letter: 3, word: 1, audience: 1, skip: 1, heart: 1 },
             sel: null,
             selWord: null,
+            grid: [],
+            words: [],
+            solved: [],
             timer: null,
             sec: 0,
-            tools: { letter: 3, word: 1, audience: 1, skip: 1, heart: 1 },
-            grid: [],
-            solved: [],
-            words: [],
+            fastTime: null,
+            sessions: 0,
+            playTime: 0,
+            dailyStreak: 0,
+            lastPlay: null,
+            errors: 0,
             sound: true,
             audio: null
         };
@@ -1798,67 +1950,56 @@
             try { G.audio = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
         }
 
-        function playSnd(type) {
+        function playSnd(t) {
             if (!G.sound || !G.audio) return;
             try {
                 if (G.audio.state === 'suspended') G.audio.resume();
                 const now = G.audio.currentTime;
                 
-                if (type === 'tap') {
+                if (t === 'tap') {
                     const o = G.audio.createOscillator(), g = G.audio.createGain();
                     o.connect(g); g.connect(G.audio.destination);
                     o.frequency.setValueAtTime(500, now);
                     o.type = 'sine';
-                    g.gain.setValueAtTime(0.04, now);
-                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-                    o.start(now); o.stop(now + 0.05);
-                } else if (type === 'correct') {
+                    g.gain.setValueAtTime(0.03, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    o.start(now); o.stop(now + 0.04);
+                } else if (t === 'correct') {
                     const o = G.audio.createOscillator(), g = G.audio.createGain();
                     o.connect(g); g.connect(G.audio.destination);
                     o.frequency.setValueAtTime(523, now);
-                    o.frequency.setValueAtTime(659, now + 0.08);
+                    o.frequency.setValueAtTime(659, now + 0.06);
                     o.type = 'sine';
-                    g.gain.setValueAtTime(0.07, now);
-                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-                    o.start(now); o.stop(now + 0.18);
-                } else if (type === 'wrong') {
+                    g.gain.setValueAtTime(0.06, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                    o.start(now); o.stop(now + 0.15);
+                } else if (t === 'wrong') {
                     const o = G.audio.createOscillator(), g = G.audio.createGain();
                     o.connect(g); g.connect(G.audio.destination);
                     o.frequency.setValueAtTime(180, now);
-                    o.frequency.setValueAtTime(140, now + 0.08);
                     o.type = 'sawtooth';
-                    g.gain.setValueAtTime(0.04, now);
-                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-                    o.start(now); o.stop(now + 0.12);
-                } else if (type === 'win') {
-                    [523, 587, 659, 784, 880, 1047].forEach((f, i) => {
-                        const o = G.audio.createOscillator(), g = G.audio.createGain();
-                        o.connect(g); g.connect(G.audio.destination);
-                        o.frequency.setValueAtTime(f, now + i * 0.08);
-                        o.type = 'sine';
-                        g.gain.setValueAtTime(0.06, now + i * 0.08);
-                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.1);
-                        o.start(now + i * 0.08); o.stop(now + i * 0.08 + 0.1);
-                    });
-                } else if (type === 'level') {
+                    g.gain.setValueAtTime(0.03, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    o.start(now); o.stop(now + 0.1);
+                } else if (t === 'win' || t === 'level') {
                     [523, 659, 784, 1047].forEach((f, i) => {
                         const o = G.audio.createOscillator(), g = G.audio.createGain();
                         o.connect(g); g.connect(G.audio.destination);
                         o.frequency.setValueAtTime(f, now + i * 0.1);
                         o.type = 'triangle';
-                        g.gain.setValueAtTime(0.07, now + i * 0.1);
-                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.12);
-                        o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.12);
+                        g.gain.setValueAtTime(0.05, now + i * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.1);
+                        o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.1);
                     });
-                } else if (type === 'achieve') {
+                } else if (t === 'achieve') {
                     [784, 988, 1175].forEach((f, i) => {
                         const o = G.audio.createOscillator(), g = G.audio.createGain();
                         o.connect(g); g.connect(G.audio.destination);
-                        o.frequency.setValueAtTime(f, now + i * 0.1);
+                        o.frequency.setValueAtTime(f, now + i * 0.08);
                         o.type = 'sine';
-                        g.gain.setValueAtTime(0.07, now + i * 0.1);
-                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.15);
-                        o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.15);
+                        g.gain.setValueAtTime(0.05, now + i * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.12);
+                        o.start(now + i * 0.08); o.stop(now + i * 0.08 + 0.12);
                     });
                 }
             } catch(e) {}
@@ -1866,34 +2007,33 @@
 
         function toggleSound() {
             G.sound = !G.sound;
-            document.getElementById('soundIcon').textContent = G.sound ? '🔊' : '🔇';
-            if (G.sound && !G.audio) initAudio();
             playSnd('tap');
         }
 
         // ============================================
         // Visual Effects
         // ============================================
-        function createStars() {
-            const box = document.getElementById('stars');
-            for (let i = 0; i < 35; i++) {
-                const s = document.createElement('div');
-                s.className = 'star';
-                const size = Math.random() * 2 + 1;
-                s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--t:${2+Math.random()*2}s;animation-delay:${Math.random()*2}s;`;
-                box.appendChild(s);
+        function createParticles() {
+            const box = document.getElementById('particles');
+            const colors = ['var(--gold)', 'var(--green)', 'var(--purple)', 'var(--pink)', 'var(--diamond)'];
+            for (let i = 0; i < 25; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*5}s;animation-duration:${6+Math.random()*4}s;`;
+                box.appendChild(p);
             }
         }
 
         function showConfetti() {
             const wrap = document.getElementById('confettiWrap');
             wrap.innerHTML = '';
-            const colors = ['#ffd43b', '#51cf66', '#f783ac', '#4dabf7', '#9775fa', '#ff922b'];
-            for (let i = 0; i < 70; i++) {
+            const colors = ['#ffc107','#00e676','#e91e63','#2979ff','#aa00ff','#00bcd4'];
+            for (let i = 0; i < 60; i++) {
                 const p = document.createElement('div');
                 p.className = 'confetti-piece';
-                const size = 3 + Math.random() * 5;
-                p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*0.4}s;border-radius:${Math.random()>0.5?'50%':'0'};`;
+                const size = 3 + Math.random() * 4;
+                p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*0.3}s;border-radius:${Math.random()>0.5?'50%':'0'};`;
                 wrap.appendChild(p);
                 setTimeout(() => p.remove(), 3500);
             }
@@ -1905,7 +2045,7 @@
             t.className = 'toast-item';
             t.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${msg}</span>`;
             wrap.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
+            setTimeout(() => t.remove(), 2200);
         }
 
         // ============================================
@@ -1913,11 +2053,13 @@
         // ============================================
         function init() {
             initAudio();
-            createStars();
+            createParticles();
+            loadProgress();
             renderKeyboard();
             renderLevels();
             renderAchievements();
-            renderRewards();
+            updateTreasureDisplay();
+            updateProfile();
         }
 
         function renderKeyboard() {
@@ -1964,6 +2106,7 @@
                 if (i > G.stage && G.diff !== 'easy') btn.disabled = true;
                 grid.appendChild(btn);
             }
+            document.getElementById('totalStages').textContent = total;
         }
 
         function renderAchievements() {
@@ -1973,27 +2116,15 @@
                 const c = document.createElement('div');
                 c.className = 'achieve';
                 c.id = `ach-${a.id}`;
-                c.innerHTML = `<div class="achieve-icon">${a.icon}</div><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div>`;
+                c.innerHTML = `<div class="achieve-icon">${a.icon}</div><div class="achieve-name">${a.name}</div>`;
                 if (G.achievements.includes(a.id)) c.classList.add('unlocked');
                 grid.appendChild(c);
             });
-        }
-
-        function renderRewards() {
-            const list = document.getElementById('rewardsList');
-            list.innerHTML = '';
-            REWARDS.forEach(r => {
-                const item = document.createElement('div');
-                item.className = 'reward';
-                item.id = `rew-${r.id}`;
-                if (G.rewards.includes(r.id)) item.classList.add('unlocked');
-                item.innerHTML = `<div class="reward-icon">${r.icon}</div><div><div class="reward-name">${r.name}</div><div class="reward-desc">${r.desc}</div></div>`;
-                list.appendChild(item);
-            });
+            document.getElementById('achCount').textContent = G.achievements.length;
         }
 
         // ============================================
-        // Crossword Generation - Proper Intersections
+        // Crossword Generation
         // ============================================
         function makeCrossword(wordList) {
             const size = 15;
@@ -2004,74 +2135,35 @@
             }
             
             const placed = [];
-            
-            // Place first word horizontally
             const first = wordList[0];
             let row = Math.floor(size / 2);
             let col = Math.floor((size - first.w.length) / 2);
             
-            for (let i = 0; i < first.w.length; i++) {
-                grid[row][col + i] = first.w[i];
-            }
+            for (let i = 0; i < first.w.length; i++) grid[row][col + i] = first.w[i];
             placed.push({ w: first.w, dir: 'h', sr: row, sc: col, c: first.c, idx: 0 });
             
-            // Place remaining words with intersections
             for (let wi = 1; wi < wordList.length; wi++) {
                 const wd = wordList[wi];
                 const word = wd.w;
                 let found = false;
                 
-                // Find intersection with already placed words
                 for (let pi = 0; pi < placed.length && !found; pi++) {
                     const pw = placed[pi];
-                    
                     for (let i = 0; i < word.length && !found; i++) {
                         for (let j = 0; j < pw.w.length && !found; j++) {
                             if (word[i] === pw.w[j]) {
-                                // Calculate position for intersection
                                 let nr, nc, dir;
+                                if (pw.dir === 'h') { dir = 'v'; nr = pw.sr - i; nc = pw.sc + j; }
+                                else { dir = 'h'; nr = pw.sr + j; nc = pw.sc - i; }
                                 
-                                if (pw.dir === 'h') {
-                                    // Place vertically
-                                    dir = 'v';
-                                    nr = pw.sr - i;
-                                    nc = pw.sc + j;
-                                } else {
-                                    // Place horizontally
-                                    dir = 'h';
-                                    nr = pw.sr + j;
-                                    nc = pw.sc - i;
-                                }
-                                
-                                // Check if placement is valid
-                                if (nr >= 0 && nc >= 0 && 
-                                    (dir === 'v' ? nr + word.length <= size : nc + word.length <= size)) {
-                                    
+                                if (nr >= 0 && nc >= 0 && (dir === 'v' ? nr + word.length <= size : nc + word.length <= size)) {
                                     let valid = true;
                                     for (let k = 0; k < word.length && valid; k++) {
                                         const cr = dir === 'v' ? nr + k : nr;
                                         const cc = dir === 'h' ? nc + k : nc;
-                                        
-                                        if (grid[cr][cc] && grid[cr][cc] !== word[k]) {
-                                            valid = false;
-                                        }
-                                        
-                                        // Check adjacent cells (except intersection)
-                                        if (valid && k !== i) {
-                                            if (dir === 'v') {
-                                                if ((cc > 0 && grid[cr][cc-1]) || (cc < size-1 && grid[cr][cc+1])) {
-                                                    valid = false;
-                                                }
-                                            } else {
-                                                if ((cr > 0 && grid[cr-1][cc]) || (cr < size-1 && grid[cr+1][cc])) {
-                                                    valid = false;
-                                                }
-                                            }
-                                        }
+                                        if (grid[cr][cc] && grid[cr][cc] !== word[k]) valid = false;
                                     }
-                                    
                                     if (valid) {
-                                        // Place the word
                                         for (let k = 0; k < word.length; k++) {
                                             const cr = dir === 'v' ? nr + k : nr;
                                             const cc = dir === 'h' ? nc + k : nc;
@@ -2086,28 +2178,21 @@
                     }
                 }
                 
-                // If no intersection found, place in new row
                 if (!found) {
                     let newRow = 0;
                     for (let r = 0; r < size; r++) {
-                        let hasContent = false;
-                        for (let c = 0; c < size; c++) {
-                            if (grid[r][c]) hasContent = true;
-                        }
-                        if (!hasContent) { newRow = r; break; }
+                        let has = false;
+                        for (let c = 0; c < size; c++) if (grid[r][c]) has = true;
+                        if (!has) { newRow = r; break; }
                     }
-                    
                     if (newRow + 2 < size && word.length <= size) {
                         const nc = Math.floor((size - word.length) / 2);
-                        for (let k = 0; k < word.length; k++) {
-                            grid[newRow][nc + k] = word[k];
-                        }
+                        for (let k = 0; k < word.length; k++) grid[newRow][nc + k] = word[k];
                         placed.push({ w: word, dir: 'h', sr: newRow, sc: nc, c: wd.c, idx: wi });
                     }
                 }
             }
             
-            // Trim grid to content
             let minR = size, maxR = 0, minC = size, maxC = 0;
             for (let r = 0; r < size; r++) {
                 for (let c = 0; c < size; c++) {
@@ -2123,39 +2208,43 @@
             const trimmed = [];
             for (let r = minR; r <= maxR; r++) {
                 trimmed[r - minR] = [];
-                for (let c = minC; c <= maxC; c++) {
-                    trimmed[r - minR][c - minC] = grid[r][c];
-                }
+                for (let c = minC; c <= maxC; c++) trimmed[r - minR][c - minC] = grid[r][c];
             }
             
-            // Adjust placed word coordinates
-            placed.forEach(p => {
-                p.sr -= minR;
-                p.sc -= minC;
-            });
-            
+            placed.forEach(p => { p.sr -= minR; p.sc -= minC; });
             return { grid: trimmed, words: placed };
         }
 
         // ============================================
         // Game Flow
         // ============================================
+        function goHome() {
+            saveProgress();
+            document.getElementById('startScreen').classList.remove('hidden');
+            playSnd('tap');
+        }
+
         function startGame(diff) {
+            const nameInput = document.getElementById('playerNameInput');
+            G.player = nameInput.value.trim() || 'اللاعب';
+            
             G.diff = diff;
             G.stage = 0;
             G.hearts = 3;
+            G.streak = 0;
             
-            G.tools = {
-                letter: diff === 'easy' ? 5 : diff === 'medium' ? 3 : 2,
-                word: diff === 'easy' ? 2 : diff === 'medium' ? 1 : 0,
-                audience: diff === 'easy' ? 2 : 1,
-                skip: diff === 'easy' ? 2 : 1,
-                heart: diff === 'easy' ? 2 : 1
-            };
+            const h = diff === 'easy' ? 5 : diff === 'medium' ? 3 : 2;
+            const w = diff === 'easy' ? 2 : diff === 'medium' ? 1 : 0;
+            G.hints = { letter: h, word: w, audience: diff === 'easy' ? 2 : 1, skip: diff === 'easy' ? 2 : 1, heart: diff === 'easy' ? 2 : 1 };
+            
+            G.sessions++;
             
             const tag = document.getElementById('diffTag');
             tag.className = diff;
             tag.textContent = diff === 'easy' ? 'المستوى السهل' : diff === 'medium' ? 'المستوى المتوسط' : 'المستوى الصعب';
+            
+            document.getElementById('playerNameBar').textContent = G.player;
+            document.getElementById('profileName').textContent = G.player;
             
             document.getElementById('startScreen').classList.add('hidden');
             loadStage(0);
@@ -2167,19 +2256,20 @@
         function loadStage(idx) {
             G.stage = idx;
             G.solved = [];
-            G.hintsUsed = 0;
             G.sec = 0;
             G.sel = null;
             G.selWord = null;
             
             document.getElementById('stageBadge').textContent = `المرحلة ${idx + 1}`;
             document.getElementById('stageNum').textContent = idx + 1;
+            document.getElementById('currentStage').textContent = idx + 1;
             
             renderGrid();
             renderClues();
             updateProgress();
             updateTools();
             renderLevels();
+            updateNavButtons();
         }
 
         function goToStage(idx) {
@@ -2188,6 +2278,27 @@
                 startTimer();
                 showTab('game');
             }
+        }
+
+        function prevStage() {
+            if (G.stage > 0) {
+                loadStage(G.stage - 1);
+                startTimer();
+            }
+        }
+
+        function nextStageNav() {
+            const total = DATA[G.diff].length;
+            if (G.stage < total - 1 && (G.done[G.diff].includes(G.stage) || G.diff === 'easy')) {
+                loadStage(G.stage + 1);
+                startTimer();
+            }
+        }
+
+        function updateNavButtons() {
+            const total = DATA[G.diff].length;
+            document.getElementById('prevBtn').disabled = G.stage <= 0;
+            document.getElementById('nextBtn').disabled = G.stage >= total - 1 && !G.done[G.diff].includes(G.stage);
         }
 
         function renderGrid() {
@@ -2201,16 +2312,10 @@
             G.grid = [];
             G.words = cw.words;
             
-            // Assign colors to words
-            const wordColors = {};
-            cw.words.forEach((w, i) => {
-                wordColors[`${w.sr}-${w.sc}-${w.dir}`] = (i % 8) + 1;
-            });
-            
             for (let r = 0; r < cw.grid.length; r++) {
                 G.grid[r] = [];
                 for (let c = 0; c < cw.grid[r].length; c++) {
-                    G.grid[r][c] = { active: false, val: '', input: '', color: 0 };
+                    G.grid[r][c] = { active: false, val: '', input: '' };
                     
                     const cell = document.createElement('div');
                     cell.className = 'cell';
@@ -2219,41 +2324,32 @@
                     
                     if (cw.grid[r][c]) {
                         cell.classList.add('letter');
-                        G.grid[r][c] = { active: true, val: cw.grid[r][c], input: '', color: 0 };
+                        G.grid[r][c] = { active: true, val: cw.grid[r][c], input: '' };
                         
-                        // Find which word(s) this cell belongs to
+                        // Find word color
                         let wordIdx = -1;
-                        let foundColor = 0;
                         cw.words.forEach((w, wi) => {
                             for (let i = 0; i < w.w.length; i++) {
                                 const wr = w.dir === 'h' ? w.sr : w.sr + i;
                                 const wc = w.dir === 'h' ? w.sc + i : w.sc;
-                                if (wr === r && wc === c) {
-                                    if (wordIdx === -1) wordIdx = wi;
-                                    if (foundColor === 0) foundColor = (wi % 8) + 1;
-                                }
+                                if (wr === r && wc === c && wordIdx === -1) wordIdx = wi;
                             }
                         });
                         
-                        if (foundColor > 0) {
-                            cell.classList.add(`word-${foundColor}`);
-                            G.grid[r][c].color = foundColor;
-                        }
+                        if (wordIdx !== -1) cell.classList.add(`w${(wordIdx % 8) + 1}`);
                         
-                        // Add number for first cell of word
                         const isFirst = cw.words.findIndex(w => w.sr === r && w.sc === c);
                         if (isFirst !== -1) {
                             const num = document.createElement('span');
                             num.className = 'cell-num';
                             num.textContent = isFirst + 1;
-                            num.style.color = `var(--word-${(isFirst % 8) + 1})`;
+                            num.style.color = `var(--${['gold','silver','green','sapphire','purple','pink','orange','diamond'][isFirst % 8]})`;
                             cell.appendChild(num);
                         }
                         
                         const txt = document.createElement('span');
                         txt.className = 'cell-text';
                         cell.appendChild(txt);
-                        
                         cell.onclick = () => selectCell(r, c);
                     } else {
                         cell.classList.add('empty');
@@ -2273,19 +2369,17 @@
                 clue.className = 'clue';
                 clue.id = `clue-${i}`;
                 
-                // Add color indicator
-                const colorNum = document.createElement('span');
-                colorNum.className = 'clue-num';
-                colorNum.style.background = `linear-gradient(135deg, var(--word-${(i % 8) + 1}), var(--word-${((i + 1) % 8) + 1}))`;
-                colorNum.textContent = i + 1;
+                const num = document.createElement('span');
+                num.className = 'clue-num';
+                num.style.background = `linear-gradient(135deg, var(--${['gold','silver','green','sapphire','purple','pink','orange','diamond'][i % 8]}), var(--${['gold','silver','green','sapphire','purple','pink','orange','diamond'][(i + 1) % 8]}))`;
+                num.textContent = i + 1;
                 
                 const txt = document.createElement('span');
                 txt.className = 'clue-text';
                 txt.textContent = w.c;
                 
-                clue.appendChild(colorNum);
+                clue.appendChild(num);
                 clue.appendChild(txt);
-                
                 clue.onclick = () => { selectCell(w.sr, w.sc); playSnd('tap'); };
                 list.appendChild(clue);
             });
@@ -2295,9 +2389,7 @@
             const cd = G.grid[r] && G.grid[r][c];
             if (!cd || !cd.active) return;
             
-            document.querySelectorAll('.cell.selected, .cell.highlight').forEach(el => {
-                el.classList.remove('selected', 'highlight');
-            });
+            document.querySelectorAll('.cell.selected, .cell.highlight').forEach(el => el.classList.remove('selected', 'highlight'));
             
             const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
             if (cell) {
@@ -2364,42 +2456,33 @@
             if (!G.sel || !G.selWord) return;
             const w = G.selWord;
             const { r, c } = G.sel;
-            
-            if (w.dir === 'h') {
-                const nc = c + 1;
-                if (nc < w.sc + w.w.length) selectCell(r, nc);
-            } else {
-                const nr = r + 1;
-                if (nr < w.sr + w.w.length) selectCell(nr, c);
-            }
+            if (w.dir === 'h') { if (c + 1 < w.sc + w.w.length) selectCell(r, c + 1); }
+            else { if (r + 1 < w.sr + w.w.length) selectCell(r + 1, c); }
         }
 
         function movePrev() {
             if (!G.sel || !G.selWord) return;
             const w = G.selWord;
             const { r, c } = G.sel;
-            
-            if (w.dir === 'h') {
-                const pc = c - 1;
-                if (pc >= w.sc) selectCell(r, pc);
-            } else {
-                const pr = r - 1;
-                if (pr >= w.sr) selectCell(pr, c);
-            }
+            if (w.dir === 'h') { if (c - 1 >= w.sc) selectCell(r, c - 1); }
+            else { if (r - 1 >= w.sr) selectCell(r - 1, c); }
         }
 
         function checkAnswers() {
             let allCorrect = true;
             let hasError = false;
+            let newSolved = [];
+            let stageNoHint = true;
             
             G.words.forEach((w, idx) => {
                 let correct = true;
-                
                 for (let i = 0; i < w.w.length; i++) {
                     const wr = w.dir === 'h' ? w.sr : w.sr + i;
                     const wc = w.dir === 'h' ? w.sc + i : w.sc;
                     const cd = G.grid[wr][wc];
                     const cell = document.querySelector(`.cell[data-r="${wr}"][data-c="${wc}"]`);
+                    
+                    if (cd.input !== cd.val) stageNoHint = false;
                     
                     if (cd.input === cd.val) {
                         cell.classList.remove('wrong');
@@ -2413,13 +2496,21 @@
                 }
                 
                 if (correct && !G.solved.includes(idx)) {
+                    newSolved.push(idx);
                     G.solved.push(idx);
                     G.streak++;
                     G.maxStreak = Math.max(G.maxStreak, G.streak);
-                    const pts = w.w.length * 10 * Math.min(G.streak, 5);
-                    G.points += pts;
-                    toast(`+${pts} نقطة`, '⭐');
+                    G.totalWords++;
+                    
+                    // Treasure reward
+                    const len = w.w.length;
+                    const g = Math.floor(len * 2 + G.streak);
+                    const s = Math.floor(len * 1.5);
+                    addTreasure(g, s, G.streak >= 5 ? 1 : 0, 0);
+                    
+                    toast(`+${g}🪙 +${s}🥈`, '⭐');
                     playSnd('correct');
+                    
                     const clueEl = document.getElementById(`clue-${idx}`);
                     if (clueEl) clueEl.classList.add('done');
                 }
@@ -2428,6 +2519,7 @@
             if (hasError) {
                 G.streak = 0;
                 G.hearts--;
+                G.errors++;
                 updateStats();
                 playSnd('wrong');
                 
@@ -2435,36 +2527,60 @@
                     setTimeout(() => openModal('gameOverModal'), 400);
                     return;
                 }
-                
                 toast(`تبقت ${G.hearts} حياة`, '💔');
+            }
+            
+            if (stageNoHint && !hasError) {
+                G.noHintStreak++;
+            } else {
+                G.noHintStreak = 0;
             }
             
             updateStats();
             checkAchievements();
-            checkRewards();
+            saveProgress();
             
-            if (allCorrect) stageComplete();
+            if (allCorrect) stageComplete(stageNoHint);
         }
 
-        function stageComplete() {
+        function stageComplete(noHint) {
             stopTimer();
-            const timeBonus = Math.max(0, 100 - G.sec) * 2;
-            G.points += timeBonus;
+            G.totalStages++;
+            
+            // Time bonus
+            const timeBonus = Math.max(0, 100 - G.sec);
+            
+            // Fast stage
+            if (G.sec < 60) {
+                G.fastStages++;
+                G.fastStreak++;
+                if (G.fastTime === null || G.sec < G.fastTime) G.fastTime = G.sec;
+            } else {
+                G.fastStreak = 0;
+            }
+            
+            // No hint stage
+            if (noHint) G.noHintStages++;
+            
+            // Treasure bonus
+            const g = 10 + timeBonus;
+            const s = 5 + Math.floor(timeBonus / 2);
+            const gem = G.sec < 30 ? 2 : G.sec < 60 ? 1 : 0;
+            addTreasure(g, s, gem, G.streak >= 10 ? 1 : 0);
             
             if (!G.done[G.diff].includes(G.stage)) G.done[G.diff].push(G.stage);
             
             updateStats();
             checkAchievements();
-            checkRewards();
+            saveProgress();
             renderLevels();
             
             playSnd('level');
             showConfetti();
             
-            document.getElementById('modalPoints').textContent = G.points;
+            document.getElementById('modalPoints').textContent = `+${g}🪙`;
             document.getElementById('modalTime').textContent = fmtTime(G.sec);
-            document.getElementById('modalStreak').textContent = G.maxStreak;
-            document.getElementById('successMsg').textContent = `أكملت المرحلة ${G.stage + 1}! مكافأة السرعة: +${timeBonus} نقطة`;
+            document.getElementById('successMsg').textContent = `أكملت المرحلة ${G.stage + 1}! سرعة: +${timeBonus}`;
             
             openModal('successModal');
         }
@@ -2474,7 +2590,7 @@
             const total = DATA[G.diff].length;
             
             if (G.stage < total - 1) {
-                G.tools.letter = Math.min(G.tools.letter + 1, 5);
+                G.hints.letter = Math.min(G.hints.letter + 1, 5);
                 G.hearts = Math.min(G.hearts + 1, 3);
                 updateTools();
                 G.stage++;
@@ -2488,23 +2604,23 @@
         function checkDiffComplete() {
             const totalDone = Object.values(G.done).flat().length;
             if (totalDone === 30) {
-                gameComplete();
+                addTreasure(100, 50, 20, 5);
+                document.getElementById('completeMsg').textContent = 'ما شاء الله! أكملت جميع المراحل! أنت بطل حقيقي!';
             } else if (G.done[G.diff].length === 10) {
-                document.getElementById('completeMsg').textContent = COMPLETION_MSGS[G.diff];
-                openModal('completeModal');
-                showConfetti();
-                playSnd('win');
+                addTreasure(50, 25, 10, 2);
+                document.getElementById('completeMsg').textContent = G.diff === 'easy' ? 
+                    'أحسنت يا بطل! أنت الآن تعرف إمامك الكريم.' :
+                    G.diff === 'medium' ? 'ممتاز! معلوماتك قوية ومحبتك للإمام ظاهرة.' :
+                    'ما شاء الله! أنت باحث صغير وموالٍ حقيقي.';
             } else {
                 toast('أكملت هذا المستوى! جرب مستوى آخر', '🎉');
                 showTab('levels');
+                return;
             }
-        }
-
-        function gameComplete() {
-            document.getElementById('completeMsg').textContent = 'ما شاء الله! لقد أكملت جميع المراحل الثلاثين! أنت بطل حقيقي وموالٍ للإمام الحسن عليه السلام.';
             openModal('completeModal');
             showConfetti();
             playSnd('win');
+            saveProgress();
         }
 
         function resetStage() {
@@ -2516,56 +2632,61 @@
             playSnd('tap');
         }
 
-        function restartGame() {
-            G = {
-                diff: 'easy', stage: 0, points: 0, streak: 0, maxStreak: 0,
-                hintsUsed: 0, hearts: 3,
-                done: { easy: [], medium: [], hard: [] },
-                achievements: [], rewards: [],
-                sel: null, selWord: null, timer: null, sec: 0,
-                tools: { letter: 3, word: 1, audience: 1, skip: 1, heart: 1 },
-                grid: [], solved: [], words: [],
-                sound: G.sound, audio: G.audio
-            };
-            closeModal('completeModal');
-            renderLevels();
-            renderAchievements();
-            renderRewards();
-            updateStats();
-            document.getElementById('startScreen').classList.remove('hidden');
+        // ============================================
+        // Treasure System
+        // ============================================
+        function addTreasure(g, s, gem, diamond) {
+            G.treasure.gold += g;
+            G.treasure.silver += s;
+            G.treasure.gem += gem;
+            G.treasure.diamond += diamond;
+            updateTreasureDisplay();
+        }
+
+        function updateTreasureDisplay() {
+            document.getElementById('goldCount').textContent = G.treasure.gold;
+            document.getElementById('silverCount').textContent = G.treasure.silver;
+            document.getElementById('gemCount').textContent = G.treasure.gem;
+            document.getElementById('diamondCount').textContent = G.treasure.diamond;
+            
+            document.getElementById('displayGold').textContent = G.treasure.gold;
+            document.getElementById('displaySilver').textContent = G.treasure.silver;
+            document.getElementById('displayGem').textContent = G.treasure.gem;
+            document.getElementById('displayDiamond').textContent = G.treasure.diamond;
+            
+            document.getElementById('chestGold').textContent = G.treasure.gold;
+            document.getElementById('chestSilver').textContent = G.treasure.silver;
+            document.getElementById('chestGem').textContent = G.treasure.gem;
+            document.getElementById('chestDiamond').textContent = G.treasure.diamond;
         }
 
         // ============================================
         // Help Tools
         // ============================================
         function updateTools() {
-            document.getElementById('hintLetterCount').textContent = `x${G.tools.letter}`;
-            document.getElementById('hintWordCount').textContent = `x${G.tools.word}`;
-            document.getElementById('audienceCount').textContent = `x${G.tools.audience}`;
-            document.getElementById('skipCount').textContent = `x${G.tools.skip}`;
-            document.getElementById('heartCount').textContent = `x${G.tools.heart}`;
+            document.getElementById('hintLetterCount').textContent = `x${G.hints.letter}`;
+            document.getElementById('hintWordCount').textContent = `x${G.hints.word}`;
+            document.getElementById('audienceCount').textContent = `x${G.hints.audience}`;
+            document.getElementById('skipCount').textContent = `x${G.hints.skip}`;
+            document.getElementById('heartCount').textContent = `x${G.hints.heart}`;
             
-            document.getElementById('hintLetterBtn').disabled = G.tools.letter <= 0;
-            document.getElementById('hintWordBtn').disabled = G.tools.word <= 0 || !G.selWord;
-            document.getElementById('audienceBtn').disabled = G.tools.audience <= 0 || !G.selWord;
-            document.getElementById('skipBtn').disabled = G.tools.skip <= 0;
-            document.getElementById('heartBtn').disabled = G.tools.heart <= 0;
+            document.getElementById('hintLetterBtn').disabled = G.hints.letter <= 0;
+            document.getElementById('hintWordBtn').disabled = G.hints.word <= 0 || !G.selWord;
+            document.getElementById('audienceBtn').disabled = G.hints.audience <= 0 || !G.selWord;
+            document.getElementById('skipBtn').disabled = G.hints.skip <= 0;
+            document.getElementById('heartBtn').disabled = G.hints.heart <= 0;
         }
 
         function useHintLetter() {
-            if (G.tools.letter <= 0 || !G.sel) { toast('لا توجد مساعدات', '💡'); return; }
-            
+            if (G.hints.letter <= 0 || !G.sel) { toast('لا توجد مساعدات', '💡'); return; }
             const { r, c } = G.sel;
             const cd = G.grid[r][c];
-            
             if (cd.active && cd.input !== cd.val) {
                 cd.input = cd.val;
                 const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
                 const txt = cell.querySelector('.cell-text');
                 if (txt) { txt.textContent = cd.val; txt.classList.add('hint'); }
-                
-                G.tools.letter--;
-                G.hintsUsed++;
+                G.hints.letter--;
                 updateTools();
                 updateProgress();
                 playSnd('correct');
@@ -2574,8 +2695,7 @@
         }
 
         function useHintWord() {
-            if (G.tools.word <= 0 || !G.selWord) { toast('لا توجد مساعدات', '💡'); return; }
-            
+            if (G.hints.word <= 0 || !G.selWord) { toast('لا توجد مساعدات', '💡'); return; }
             const w = G.selWord;
             for (let i = 0; i < w.w.length; i++) {
                 const wr = w.dir === 'h' ? w.sr : w.sr + i;
@@ -2586,9 +2706,7 @@
                 const txt = cell.querySelector('.cell-text');
                 if (txt) { txt.textContent = cd.val; txt.classList.add('hint'); }
             }
-            
-            G.tools.word--;
-            G.hintsUsed++;
+            G.hints.word--;
             updateTools();
             updateProgress();
             playSnd('correct');
@@ -2596,20 +2714,19 @@
         }
 
         function useAudience() {
-            if (G.tools.audience <= 0 || !G.selWord) { toast('لا توجد مساعدات', '💡'); return; }
+            if (G.hints.audience <= 0 || !G.selWord) { toast('لا توجد مساعدات', '💡'); return; }
             
             const w = G.selWord;
             const bars = document.getElementById('audienceBars');
             bars.innerHTML = '';
             
-            // Generate audience votes
             const letters = [];
             let remaining = 100;
             const correctIdx = Math.floor(Math.random() * w.w.length);
             
             for (let i = 0; i < w.w.length; i++) {
                 const isCorrect = i === correctIdx;
-                const pct = isCorrect ? 35 + Math.floor(Math.random() * 25) : Math.floor(Math.random() * 15);
+                const pct = isCorrect ? 35 + Math.floor(Math.random() * 20) : Math.floor(Math.random() * 12);
                 letters.push({ letter: w.w[i], pct: isCorrect ? pct : Math.min(pct, remaining / 2) });
                 remaining -= letters[letters.length - 1].pct;
             }
@@ -2623,16 +2740,15 @@
                 bars.appendChild(bar);
             });
             
-            G.tools.audience--;
+            G.hints.audience--;
             updateTools();
             playSnd('tap');
             openModal('audienceModal');
         }
 
         function useSkip() {
-            if (G.tools.skip <= 0) { toast('لا توجد مساعدات', '💡'); return; }
-            
-            G.tools.skip--;
+            if (G.hints.skip <= 0) { toast('لا توجد مساعدات', '💡'); return; }
+            G.hints.skip--;
             updateTools();
             nextStage();
             toast('تم تخطي المرحلة!', '⏭️');
@@ -2640,9 +2756,8 @@
         }
 
         function useHeart() {
-            if (G.tools.heart <= 0) { toast('لا توجد مساعدات', '💡'); return; }
-            
-            G.tools.heart--;
+            if (G.hints.heart <= 0) { toast('لا توجد مساعدات', '💡'); return; }
+            G.hints.heart--;
             G.hearts = 3;
             updateTools();
             updateStats();
@@ -2658,7 +2773,11 @@
             stopTimer();
             G.sec = 0;
             updateTimer();
-            G.timer = setInterval(() => { G.sec++; updateTimer(); }, 1000);
+            G.timer = setInterval(() => {
+                G.sec++;
+                G.playTime++;
+                updateTimer();
+            }, 1000);
         }
 
         function stopTimer() {
@@ -2679,14 +2798,13 @@
         // UI Updates
         // ============================================
         function updateStats() {
-            document.getElementById('points').textContent = G.points;
             document.getElementById('streak').textContent = G.streak;
             document.getElementById('hearts').textContent = G.hearts;
+            updateProfile();
         }
 
         function updateProgress() {
             let filled = 0, total = 0;
-            
             for (let r = 0; r < G.grid.length; r++) {
                 for (let c = 0; c < G.grid[r].length; c++) {
                     if (G.grid[r][c].active) {
@@ -2695,10 +2813,23 @@
                     }
                 }
             }
-            
             const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
             document.getElementById('progressBar').style.width = `${pct}%`;
             document.getElementById('progressText').textContent = `${pct}%`;
+        }
+
+        function updateProfile() {
+            const totalDone = Object.values(G.done).flat().length;
+            const diffs = [G.done.easy.length === 10, G.done.medium.length === 10, G.done.hard.length === 10].filter(Boolean).length;
+            
+            document.getElementById('profileStages').textContent = totalDone;
+            document.getElementById('profileWords').textContent = G.totalWords;
+            document.getElementById('profileAch').textContent = G.achievements.length;
+            document.getElementById('recordStages').textContent = totalDone;
+            document.getElementById('recordStreak').textContent = G.maxStreak;
+            document.getElementById('recordFastest').textContent = G.fastTime !== null ? fmtTime(G.fastTime) : '--';
+            document.getElementById('recordWords').textContent = G.totalWords;
+            document.getElementById('recordDiffs').textContent = `${diffs}/3`;
         }
 
         // ============================================
@@ -2706,41 +2837,134 @@
         // ============================================
         function showTab(tab) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-            document.getElementById('gameSection').style.display = tab === 'game' ? 'block' : 'none';
-            document.getElementById('levelsSection').classList.toggle('active', tab === 'levels');
-            document.getElementById('achievementsSection').classList.toggle('active', tab === 'achievements');
-            document.getElementById('rewardsSection').classList.toggle('active', tab === 'rewards');
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tab + 'Section').classList.add('active');
             playSnd('tap');
         }
 
         // ============================================
-        // Achievements & Rewards
+        // Achievements
         // ============================================
         function checkAchievements() {
             const newA = [];
-            
-            if (G.solved.length > 0 && !G.achievements.includes('first_word')) newA.push('first_word');
-            
             const totalDone = Object.values(G.done).flat().length;
-            if (totalDone >= 3 && !G.achievements.includes('stage_3')) newA.push('stage_3');
-            if (totalDone >= 5 && !G.achievements.includes('stage_5')) newA.push('stage_5');
-            if (totalDone >= 10 && !G.achievements.includes('stage_10')) newA.push('stage_10');
-            if (totalDone >= 20 && !G.achievements.includes('stage_20')) newA.push('stage_20');
-            if (totalDone >= 30 && !G.achievements.includes('stage_30')) newA.push('stage_30');
+            const diffs = [G.done.easy.length === 10, G.done.medium.length === 10, G.done.hard.length === 10].filter(Boolean).length;
             
-            if (G.solved.length === G.words.length && G.hintsUsed === 0 && !G.achievements.includes('no_hints')) newA.push('no_hints');
-            if (G.sec < 60 && G.solved.length === G.words.length && !G.achievements.includes('fast')) newA.push('fast');
+            // Check all achievements
+            const checks = {
+                first_word: G.totalWords >= 1,
+                first_stage: totalDone >= 1,
+                stage_3: totalDone >= 3,
+                stage_5: totalDone >= 5,
+                stage_10: totalDone >= 10,
+                stage_15: totalDone >= 15,
+                stage_20: totalDone >= 20,
+                stage_25: totalDone >= 25,
+                stage_30: totalDone >= 30,
+                play_5min: G.playTime >= 300,
+                
+                streak_3: G.maxStreak >= 3,
+                streak_5: G.maxStreak >= 5,
+                streak_7: G.maxStreak >= 7,
+                streak_10: G.maxStreak >= 10,
+                streak_15: G.maxStreak >= 15,
+                streak_20: G.maxStreak >= 20,
+                streak_25: G.maxStreak >= 25,
+                streak_30: G.maxStreak >= 30,
+                streak_40: G.maxStreak >= 40,
+                streak_50: G.maxStreak >= 50,
+                
+                fast_60: G.fastTime !== null && G.fastTime <= 60,
+                fast_45: G.fastTime !== null && G.fastTime <= 45,
+                fast_30: G.fastTime !== null && G.fastTime <= 30,
+                fast_20: G.fastTime !== null && G.fastTime <= 20,
+                fast_5stages: G.fastStages >= 5,
+                fast_10stages: G.fastStages >= 10,
+                speed_demon: G.fastStreak >= 3,
+                flash: G.fastStreak >= 5,
+                time_master: G.fastStages >= 15,
+                speed_king: G.fastStages >= 25,
+                
+                no_hint_1: G.noHintStages >= 1,
+                no_hint_3: G.noHintStages >= 3,
+                no_hint_5: G.noHintStages >= 5,
+                no_hint_10: G.noHintStages >= 10,
+                no_hint_15: G.noHintStages >= 15,
+                no_hint_20: G.noHintStages >= 20,
+                no_hint_25: G.noHintStages >= 25,
+                no_hint_30: G.noHintStages >= 30,
+                no_hint_streak3: G.noHintStreak >= 3,
+                no_hint_streak5: G.noHintStreak >= 5,
+                
+                easy_done: G.done.easy.length === 10,
+                medium_done: G.done.medium.length === 10,
+                hard_done: G.done.hard.length === 10,
+                two_diffs: diffs >= 2,
+                all_diffs: diffs >= 3,
+                easy_5streak: false,
+                medium_5streak: false,
+                hard_5streak: false,
+                easy_perfect: false,
+                hard_perfect: false,
+                
+                gold_10: G.treasure.gold >= 10,
+                gold_50: G.treasure.gold >= 50,
+                gold_100: G.treasure.gold >= 100,
+                gold_250: G.treasure.gold >= 250,
+                gold_500: G.treasure.gold >= 500,
+                silver_20: G.treasure.silver >= 20,
+                silver_100: G.treasure.silver >= 100,
+                silver_250: G.treasure.silver >= 250,
+                gem_5: G.treasure.gem >= 5,
+                gem_25: G.treasure.gem >= 25,
+                gem_50: G.treasure.gem >= 50,
+                diamond_3: G.treasure.diamond >= 3,
+                diamond_10: G.treasure.diamond >= 10,
+                diamond_25: G.treasure.diamond >= 25,
+                all_treasures: G.treasure.gold > 0 && G.treasure.silver > 0 && G.treasure.gem > 0 && G.treasure.diamond > 0,
+                
+                words_10: G.totalWords >= 10,
+                words_25: G.totalWords >= 25,
+                words_50: G.totalWords >= 50,
+                words_100: G.totalWords >= 100,
+                words_150: G.totalWords >= 150,
+                words_200: G.totalWords >= 200,
+                words_300: G.totalWords >= 300,
+                words_400: G.totalWords >= 400,
+                words_500: G.totalWords >= 500,
+                word_master: G.totalWords >= 600,
+                
+                night_owl: false,
+                early_bird: false,
+                weekend_warrior: false,
+                persistent: false,
+                comeback: false,
+                explorer: diffs >= 1,
+                socialite: false,
+                hint_master: false,
+                skipper: false,
+                survivor: false,
+                perfect_run: false,
+                collector: G.achievements.length >= 25,
+                hunter: G.achievements.length >= 50,
+                legend: G.achievements.length >= 75,
+                master: G.achievements.length >= 100,
+                
+                dedicated_1: G.sessions >= 10,
+                dedicated_2: G.sessions >= 20,
+                dedicated_3: G.sessions >= 30,
+                dedicated_4: G.sessions >= 50,
+                hour_1: G.playTime >= 3600,
+                hour_3: G.playTime >= 10800,
+                hour_5: G.playTime >= 18000,
+                hour_10: G.playTime >= 36000,
+                daily_3: G.dailyStreak >= 3,
+                daily_7: G.dailyStreak >= 7
+            };
             
-            if (G.maxStreak >= 3 && !G.achievements.includes('streak_3')) newA.push('streak_3');
-            if (G.maxStreak >= 7 && !G.achievements.includes('streak_7')) newA.push('streak_7');
-            
-            if (G.done.easy.length === 10 && !G.achievements.includes('all_easy')) newA.push('all_easy');
-            if (G.done.medium.length === 10 && !G.achievements.includes('all_medium')) newA.push('all_medium');
-            if (G.done.hard.length === 10 && !G.achievements.includes('all_hard')) newA.push('all_hard');
-            
-            if (G.points >= 500 && !G.achievements.includes('points_500')) newA.push('points_500');
-            if (G.points >= 1500 && !G.achievements.includes('points_1500')) newA.push('points_1500');
-            if (G.points >= 3000 && !G.achievements.includes('points_3000')) newA.push('points_3000');
+            Object.keys(checks).forEach(id => {
+                if (checks[id] && !G.achievements.includes(id)) newA.push(id);
+            });
             
             newA.forEach(id => {
                 G.achievements.push(id);
@@ -2749,39 +2973,63 @@
                 const a = ACHIEVEMENTS.find(x => x.id === id);
                 if (a) {
                     toast(`إنجاز: ${a.name}`, a.icon);
-                    G.points += 100;
+                    addTreasure(5, 2, 0, 0);
                     playSnd('achieve');
                 }
             });
             
-            if (newA.length > 0) updateStats();
+            if (newA.length > 0) {
+                document.getElementById('achCount').textContent = G.achievements.length;
+            }
         }
 
-        function checkRewards() {
-            REWARDS.forEach(r => {
-                if (G.rewards.includes(r.id)) return;
-                
-                let unlock = false;
-                if (r.pts && G.points >= r.pts) unlock = true;
-                if (r.stages) {
-                    const totalDone = Object.values(G.done).flat().length;
-                    if (totalDone >= r.stages) unlock = true;
+        // ============================================
+        // Save/Load
+        // ============================================
+        function saveProgress() {
+            const data = {
+                player: G.player,
+                done: G.done,
+                achievements: G.achievements,
+                treasure: G.treasure,
+                totalWords: G.totalWords,
+                totalStages: G.totalStages,
+                maxStreak: G.maxStreak,
+                fastTime: G.fastTime,
+                fastStages: G.fastStages,
+                noHintStages: G.noHintStages,
+                sessions: G.sessions,
+                playTime: G.playTime,
+                errors: G.errors
+            };
+            try {
+                localStorage.setItem('crossword_treasure', JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        function loadProgress() {
+            try {
+                const data = JSON.parse(localStorage.getItem('crossword_treasure'));
+                if (data) {
+                    G.player = data.player || 'اللاعب';
+                    G.done = data.done || { easy: [], medium: [], hard: [] };
+                    G.achievements = data.achievements || [];
+                    G.treasure = data.treasure || { gold: 0, silver: 0, gem: 0, diamond: 0 };
+                    G.totalWords = data.totalWords || 0;
+                    G.totalStages = data.totalStages || 0;
+                    G.maxStreak = data.maxStreak || 0;
+                    G.fastTime = data.fastTime;
+                    G.fastStages = data.fastStages || 0;
+                    G.noHintStages = data.noHintStages || 0;
+                    G.sessions = data.sessions || 0;
+                    G.playTime = data.playTime || 0;
+                    G.errors = data.errors || 0;
+                    
+                    document.getElementById('playerNameInput').value = G.player;
+                    document.getElementById('playerNameBar').textContent = G.player;
+                    document.getElementById('profileName').textContent = G.player;
                 }
-                if (r.diffs) {
-                    const completed = [G.done.easy.length === 10, G.done.medium.length === 10, G.done.hard.length === 10].filter(Boolean).length;
-                    if (completed >= r.diffs) unlock = true;
-                }
-                
-                if (unlock) {
-                    G.rewards.push(r.id);
-                    const el = document.getElementById(`rew-${r.id}`);
-                    if (el) el.classList.add('unlocked');
-                    toast(`مكافأة: ${r.name}`, r.icon);
-                    G.points += 200;
-                    playSnd('achieve');
-                    updateStats();
-                }
-            });
+            } catch(e) {}
         }
 
         // ============================================
