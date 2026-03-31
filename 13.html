@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مسابقة أبطال الوضوء - المرحلة الابتدائية</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0ea5e9; /* أزرق مائي */
+            --secondary: #facc15; /* أصفر شمس */
+            --accent: #22c55e; /* أخضر */
+            --bg-pattern: url('https://www.transparenttextures.com/patterns/bubbles.png');
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f9ff;
+            background-image: var(--bg-pattern);
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-cairo { font-family: 'Cairo', sans-serif; }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+        
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shine 3.5s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+
+        .card-solved {
+            transform: rotateY(180deg);
+            opacity: 0.6;
+        }
+
+        .modal-enter { animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.8) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .drop-shadow-custom {
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ==========================================
+        // 1. قاعدة بيانات أسئلة الوضوء (25 سؤال)
+        // ==========================================
+        const QUESTIONS_DB = [
+            { id: 1, q: "ما هو أول عمل نقوم به قبل البدء بالوضوء؟", a: ["غسل الوجه", "النية (في القلب)", "غسل القدمين", "مسح الرأس"], correct: 1 },
+            { id: 2, q: "كم مرة يُستحب غسل الوجه في الوضوء؟", a: ["مرة واحدة واجبة والثانية مستحبة", "5 مرات", "10 مرات", "لا نغسل الوجه"], correct: 0 },
+            { id: 3, q: "من أين يبدأ غسل الوجه؟", a: ["من الذقن إلى الأعلى", "من قصاص الشعر (أعلى الجبهة) إلى الأسفل", "من اليمين إلى اليسار", "من الأنف"], correct: 1 },
+            { id: 4, q: "بأي يد نبدأ غسل اليدين؟", a: ["اليد اليسرى", "اليد اليمنى", "اليدين معاً", "لا يهم"], correct: 1 },
+            { id: 5, q: "إلى أين ينتهي غسل اليدين في الوضوء؟", a: ["إلى الرسغ فقط", "إلى المرفقين (المرافق)", "إلى الكتف", "إلى الأصابع"], correct: 1 },
+            { id: 6, q: "ما هو العضو الذي نمسحه بعد غسل اليد اليسرى؟", a: ["القدم اليمنى", "الرأس", "الوجه", "الأذن"], correct: 1 },
+            { id: 7, q: "بأي ماء نمسح الرأس والقدمين؟", a: ["بماء جديد من الحنفية", "ببقية رطوبة الوضوء الموجودة في اليد", "بماء بارد جداً", "لا نحتاج ماء"], correct: 1 },
+            { id: 8, q: "بأي يد نمسح القدم اليمنى؟", a: ["باليد اليسرى", "باليد اليمنى", "بكلتا اليدين", "لا نمسحها"], correct: 1 },
+            { id: 9, q: "ما هو ترتيب مسح القدمين؟", a: ["اليسرى ثم اليمنى", "اليمنى ثم اليسرى", "الاثنتان معاً", "أي واحدة"], correct: 1 },
+            { id: 10, q: "هل يجوز غسل العضو من الأسفل إلى الأعلى؟", a: ["نعم يجوز", "لا، يجب الغسل من الأعلى إلى الأسفل", "في الضرورة فقط", "لا أعرف"], correct: 1 },
+            { id: 11, q: "ماذا نسمي الأشياء التي تبطل الوضوء؟", a: ["مكروهات", "مبطلات الوضوء", "مستحبات", "أركان"], correct: 1 },
+            { id: 12, q: "هل النوم الغالب على السمع والبصر يبطل الوضوء؟", a: ["لا يبطل", "نعم يبطل الوضوء", "يبطل إذا كان طويلاً فقط", "فقط في الليل"], correct: 1 },
+            { id: 13, q: "هل خروج الريح يبطل الوضوء؟", a: ["نعم", "لا", "أحياناً", "فقط إذا كان له صوت"], correct: 0 },
+            { id: 14, q: "إذا توضأنا، هل يجب أن تكون أعضاء الوضوء طاهرة؟", a: ["لا يهم", "نعم يجب أن تكون طاهرة من النجاسة", "فقط الوجه", "فقط اليدين"], correct: 1 },
+            { id: 15, q: "هل يجوز الوضوء بوجود 'المناكير' (صبغ الأظافر) للمرأة؟", a: ["نعم يجوز", "لا، لأنه يمنع وصول الماء للبشرة", "يجوز في البرد", "نعم إذا كان لونه جميلاً"], correct: 1 },
+            { id: 16, q: "كم مرة نمسح الرأس في الوضوء؟", a: ["3 مرات", "مرة واحدة فقط", "مرتين", "10 مرات"], correct: 1 },
+            { id: 17, q: "ما هو المقدار الواجب مسحه من الرأس؟", a: ["كل الرأس", "ولو مقدار إصبع واحد عرضاً", "خلف الأذن", "الرقبة"], correct: 1 },
+            { id: 18, q: "هل المضمضة والاستنشاق واجبان في الوضوء؟", a: ["نعم واجبان", "لا، هما مستحبان (فعل جميل لكن ليس إجبارياً)", "واجبان في صلاة الصبح فقط", "لا أعرف"], correct: 1 },
+            { id: 19, q: "بأي يد نمسح القدم اليسرى؟", a: ["اليد اليمنى", "اليد اليسرى", "اليدين معاً", "لا يهم"], correct: 1 },
+            { id: 20, q: "إذا كنت متوضأً ثم دخلت الحمام (للتبول)، هل يجب إعادة الوضوء؟", a: ["لا، الوضوء باقٍ", "نعم، يجب إعادة الوضوء", "فقط أغسل وجهي", "لا أعرف"], correct: 1 },
+            { id: 21, q: "هل يجب نزع الخاتم الضيق الذي يمنع وصول الماء للجلد؟", a: ["لا داعي", "نعم، يجب نزعه أو تحريكه ليصل الماء تحته", "نتركه للزينة", "نغسل فوقه فقط"], correct: 1 },
+            { id: 22, q: "ماذا نقول بعد الانتهاء من الوضوء (مستحب)؟", a: ["شكراً لله", "أشهد أن لا إله إلا الله وحده لا شريك له..", "الحمد لله على النعمة", "السلام عليكم"], correct: 1 },
+            { id: 23, q: "هل يصح الوضوء بماء مغصوب (أخذناه بدون إذن صاحبه)؟", a: ["نعم يصح", "لا يصح", "يصح إذا كنا مستعجلين", "لا أعرف"], correct: 1 },
+            { id: 24, q: "إذا جف ماء الوضوء عن اليد قبل مسح الرأس بسبب الحر الشديد؟", a: ["أعيد الوضوء", "آخذ رطوبة من اللحية أو الوجه", "أمسح بماء جديد", "لا أمسح"], correct: 1 },
+            { id: 25, q: "ما هو الترتيب الصحيح؟", a: ["وجه -> يدين -> رأس -> قدمين", "رأس -> قدمين -> وجه -> يدين", "يدين -> وجه -> رأس -> قدمين", "أي ترتيب"], correct: 0 },
+        ];
+
+        // ==========================================
+        // 2. محرك الأصوات
+        // ==========================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const playTone = (freq, type, duration, vol = 0.1) => {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        };
+
+        const Sounds = {
+            click: () => playTone(600, 'sine', 0.1, 0.1),
+            correct: () => {
+                [523, 659, 783].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.3, 0.1), i * 100));
+            },
+            wrong: () => {
+                playTone(150, 'sawtooth', 0.5, 0.1);
+            }
+        };
+
+        // ==========================================
+        // 3. المكونات
+        // ==========================================
+
+        // مكون عجلة الحظ
+        const WheelModal = ({ isOpen, onClose, students, setStudents }) => {
+            const [rotation, setRotation] = useState(0);
+            const [isSpinning, setIsSpinning] = useState(false);
+            const [winner, setWinner] = useState(null);
+            const [editMode, setEditMode] = useState(false);
+            const [textInput, setTextInput] = useState(students.join('\n'));
+
+            const spin = () => {
+                if (isSpinning || students.length < 2) return;
+                setIsSpinning(true);
+                setWinner(null);
+                const spins = 5 + Math.random() * 5;
+                const extraDeg = Math.random() * 360;
+                const totalDeg = rotation + (spins * 360) + extraDeg;
+                setRotation(totalDeg);
+
+                setTimeout(() => {
+                    setIsSpinning(false);
+                    const actualDeg = totalDeg % 360;
+                    const segmentAngle = 360 / students.length;
+                    const winIndex = Math.floor(((360 - actualDeg + (segmentAngle/2)) % 360) / segmentAngle);
+                    setWinner(students[winIndex % students.length]);
+                    Sounds.correct();
+                    confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
+                }, 4000);
+            };
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-900/80 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-[2rem] w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="bg-sky-600 p-4 flex justify-between items-center text-white">
+                            <h2 className="text-xl font-bold font-cairo flex items-center gap-2">اختيار البطل المتوضئ</h2>
+                            <button onClick={onClose} className="p-2 hover:bg-sky-700 rounded-full"><i data-lucide="x"></i></button>
+                        </div>
+                        <div className="p-8 flex flex-col items-center overflow-y-auto">
+                            {editMode ? (
+                                <div className="w-full">
+                                    <textarea 
+                                        className="w-full h-48 border-2 border-sky-200 rounded-xl p-3 mb-4 font-bold"
+                                        value={textInput}
+                                        onChange={(e) => setTextInput(e.target.value)}
+                                    ></textarea>
+                                    <button 
+                                        onClick={() => { setStudents(textInput.split('\n').filter(x => x.trim())); setEditMode(false); }}
+                                        className="w-full bg-sky-600 text-white py-3 rounded-xl font-bold"
+                                    >حفظ الأسماء</button>
+                                </div>
+                            ) : winner ? (
+                                <div className="text-center animate-bounce">
+                                    <div className="text-sky-500 text-lg mb-2">البطل القادم هو:</div>
+                                    <div className="text-5xl font-black text-sky-800 mb-8 font-cairo">{winner}</div>
+                                    <button onClick={() => setWinner(null)} className="bg-sky-600 text-white px-8 py-2 rounded-full font-bold">مرة أخرى</button>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="relative mb-8">
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 text-red-600"><i data-lucide="chevron-down" size={40}></i></div>
+                                        <div 
+                                            className="w-48 h-48 md:w-64 md:h-64 rounded-full border-8 border-sky-100 shadow-xl transition-transform duration-[4000ms] cubic-bezier(0.15, 0, 0.15, 1)"
+                                            style={{ 
+                                                transform: `rotate(${rotation}deg)`,
+                                                background: `conic-gradient(${students.map((_,i) => `${i%2?'#0ea5e9':'#facc15'} ${(i/students.length)*100}% ${((i+1)/students.length)*100}%`).join(',')})`
+                                            }}
+                                        ></div>
+                                    </div>
+                                    <button 
+                                        disabled={isSpinning}
+                                        onClick={spin}
+                                        className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-4 rounded-2xl text-2xl font-black shadow-lg hover:scale-105 transition disabled:opacity-50"
+                                    >
+                                        {isSpinning ? 'جاري السحب...' : 'دَوّر العجلة'}
+                                    </button>
+                                    <button onClick={() => setEditMode(true)} className="mt-4 text-gray-400 text-sm underline">تعديل قائمة الطلاب</button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // مكون السؤال
+        const QuestionModal = ({ question, onAnswer }) => {
+            const [selected, setSelected] = useState(null);
+            const [isCorrect, setIsCorrect] = useState(null);
+
+            const handleSelect = (idx) => {
+                if (selected !== null) return;
+                setSelected(idx);
+                const correct = idx === question.correct;
+                setIsCorrect(correct);
+                if (correct) {
+                    Sounds.correct();
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 } });
+                    setTimeout(() => onAnswer(true), 2000);
+                } else {
+                    Sounds.wrong();
+                    setTimeout(() => onAnswer(false), 2000);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 modal-enter">
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-3xl overflow-hidden shadow-2xl border-4 border-sky-400">
+                        <div className="bg-sky-600 p-8 text-center text-white">
+                            <h2 className="text-2xl md:text-3xl font-black font-cairo leading-relaxed">{question.q}</h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {question.a.map((opt, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => handleSelect(i)}
+                                    className={`p-5 rounded-2xl text-xl font-bold text-right transition-all transform hover:scale-105 flex items-center gap-4
+                                        ${selected === null ? 'bg-sky-50 border-2 border-sky-100 hover:bg-sky-100 text-sky-800' : 
+                                          i === question.correct ? 'bg-green-500 text-white scale-105' : 
+                                          i === selected ? 'bg-red-500 text-white' : 'opacity-40 bg-gray-100 text-gray-400'}
+                                    `}
+                                >
+                                    <span className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center text-sm">{i+1}</span>
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // التطبيق الرئيسي
+        const App = () => {
+            const [view, setView] = useState('home');
+            const [cards, setCards] = useState([]);
+            const [activeQuestion, setActiveQuestion] = useState(null);
+            const [wheelOpen, setWheelOpen] = useState(false);
+            const [students, setStudents] = useState(["أحمد", "فاطمة", "علي", "زينب", "حسن", "حسين", "نور", "عباس"]);
+            const [score, setScore] = useState(0);
+
+            useEffect(() => {
+                setCards(QUESTIONS_DB.map(q => ({ ...q, solved: false })));
+                lucide.createIcons();
+            }, []);
+
+            useEffect(() => {
+                lucide.createIcons();
+            }, [view, activeQuestion, wheelOpen]);
+
+            const handleCardClick = (card) => {
+                if (card.solved) return;
+                Sounds.click();
+                setActiveQuestion(card);
+            };
+
+            const onAnswer = (correct) => {
+                if (correct) {
+                    setCards(prev => prev.map(c => c.id === activeQuestion.id ? { ...c, solved: true } : c));
+                    setScore(s => s + 10);
+                }
+                setActiveQuestion(null);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {view === 'home' ? (
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                            <div className="bg-white/90 p-10 rounded-[3rem] shadow-2xl border-4 border-sky-400 max-w-xl animate-float">
+                                <div className="text-sky-500 mb-4 drop-shadow-custom"><i data-lucide="droplets" size={80} className="mx-auto"></i></div>
+                                <h1 className="text-5xl font-black text-sky-900 font-cairo mb-2">أبطال الوضوء</h1>
+                                <p className="text-xl text-sky-600 font-bold mb-8">هل أنت مستعد لتصبح بطلاً في الوضوء؟</p>
+                                <button 
+                                    onClick={() => setView('game')}
+                                    className="bg-sky-600 text-white px-12 py-4 rounded-full text-2xl font-black hover:bg-sky-700 hover:scale-110 transition shadow-lg flex items-center gap-3 mx-auto"
+                                >
+                                    ابدأ الآن <i data-lucide="play" fill="currentColor"></i>
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Header */}
+                            <div className="bg-white/80 backdrop-blur-md p-4 sticky top-0 z-40 flex justify-between items-center px-6 md:px-12 border-b-2 border-sky-100">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-sky-100 p-2 rounded-xl text-sky-600"><i data-lucide="award"></i></div>
+                                    <div className="text-2xl font-black text-sky-900">{score} نـقـطـة</div>
+                                </div>
+                                <h2 className="hidden md:block font-black text-sky-800 text-xl font-cairo">مسابقة درس الوضوء</h2>
+                                <button onClick={() => setView('home')} className="text-gray-400 hover:text-red-500 transition"><i data-lucide="home"></i></button>
+                            </div>
+
+                            {/* Cards Grid */}
+                            <div className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 md:gap-6">
+                                {cards.map((card, i) => (
+                                    <button
+                                        key={card.id}
+                                        onClick={() => handleCardClick(card)}
+                                        className={`aspect-[1/1.2] rounded-3xl shadow-lg text-4xl font-black flex items-center justify-center transition-all duration-500
+                                            ${card.solved ? 'bg-gray-200 text-gray-400 scale-90 cursor-default grayscale' : 
+                                            'bg-gradient-to-br from-sky-400 to-blue-600 text-white hover:scale-105 hover:shadow-2xl shine-effect border-b-8 border-blue-800'}
+                                        `}
+                                    >
+                                        {card.solved ? <i data-lucide="check" size={48}></i> : (i + 1)}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Floating Actions */}
+                            <div className="fixed bottom-6 right-6 flex flex-col gap-4">
+                                <button 
+                                    onClick={() => setWheelOpen(true)}
+                                    className="bg-yellow-400 text-sky-900 p-5 rounded-full shadow-xl hover:scale-110 transition border-4 border-white animate-bounce"
+                                    title="القرعة"
+                                >
+                                    <i data-lucide="refresh-cw"></i>
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {activeQuestion && <QuestionModal question={activeQuestion} onAnswer={onAnswer} />}
+                    <WheelModal isOpen={wheelOpen} onClose={() => setWheelOpen(false)} students={students} setStudents={setStudents} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
