@@ -76,7 +76,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);line-
 #main{margin-top:65px;min-height:calc(100vh - 65px)}
 
 /* ===== SECTION ===== */
-	.section{display:none;padding:clamp(28px,5vw,50px) clamp(14px,4vw,20px) 150px;min-height:calc(100vh - 65px);animation:secIn .45s ease}
+.section{display:none;padding:clamp(28px,5vw,50px) clamp(14px,4vw,20px) 100px;min-height:calc(100vh - 65px);animation:secIn .45s ease}
 .section.active{display:block}
 .sec-inner{max-width:920px;margin:0 auto}
 .sec-hdr{text-align:center;margin-bottom:44px}
@@ -508,7 +508,7 @@ code{background:var(--bg2);padding:2px 7px;border-radius:5px;font-family:'Courie
       تنقّل بالأسهم <kbd>→</kbd> <kbd>←</kbd> أو عبر شريط التنقل بالأسفل
     </div>
 
-    <p style="margin-top:35px; font-size:.85rem; color:var(--tx3); font-weight:500; border-top:1px solid var(--bd); padding-top:15px; width:100%; max-width:400px;">لجميع مراكز التعليم الديني والمشاريع التعليمية</p>
+    <p style="margin-top:35px; font-size:.85rem; color:var(--tx3); font-weight:500; border-top:1px solid var(--bd); padding-top:15px; width:100%; max-width:400px;">لجميع معلمي التعليم الديني والكوادر التعليمية</p>
   </div>
 </div>
 </div>
@@ -1146,6 +1146,15 @@ my-website/
   <div class="al al-bl"><div class="al-i"><i class="fas fa-info-circle"></i></div>
   <div><strong>GDSA = Google Drive as Static Architecture</strong> — معمارية ثورية تحوّل Google Drive إلى قاعدة بيانات حية كاملة بصفر تكلفة. التكلفة الشهرية للمعمارية التقليدية: $20-$500، تكلفة GDSA: <strong style="color:var(--ac)">$0</strong>.</div></div>
 
+  <div style="display:flex; justify-content:center; gap:12px; margin:20px 0;">
+    <button class="btn-p" onclick="loadGDSA()"><i class="fas fa-file-import"></i> قراءة نظام GDSA</button>
+    <a href="GlideStack_GDSA.md" download class="btn-o" style="text-decoration:none"><i class="fas fa-download"></i> تحميل GDSA.md</a>
+  </div>
+  <div id="gdsa-content" style="display:none; margin:20px 0; text-align:right; background:var(--sf); border:1px solid var(--bd); border-radius:var(--rd); padding:20px; max-height:400px; overflow-y:auto; font-size:0.9rem; line-height:1.6; position:relative; box-shadow:0 4px 12px var(--sh);">
+    <button onclick="this.parentElement.style.display='none'" style="position:absolute; top:10px; left:10px; background:none; border:none; color:var(--tx3); cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
+    <div id="gdsa-text" style="white-space: pre-wrap; font-family: 'Courier New', monospace;"></div>
+  </div>
+
   <h3>لماذا هذه المعمارية ثورية للمعلم؟</h3>
   <div class="grid">
     <div class="card" style="border-top:3px solid var(--pr)">
@@ -1316,6 +1325,7 @@ fetch(<span class="str">'https://api.aladhan.com/v1/timingsByCity?city=Manama&co
     <div class="sec-tag"><i class="fas fa-copy"></i> المحور الثامن</div>
     <h1 class="sec-title">مكتبة <span>الأوامر الجاهزة</span></h1>
     <p class="sec-sub">أوامر جاهزة بالعربية للنسخ والاستخدام الفوري — خصّصها بموضوعك وانتهيت في دقائق</p>
+
   </div>
 
   <div class="pb">
@@ -1994,6 +2004,21 @@ function cpPrm(btn){
     btn.innerHTML='<i class="fas fa-check"></i> تم';
     setTimeout(()=>{btn.innerHTML='<i class="fas fa-copy"></i> نسخ';},2000);
   });
+}
+
+async function loadGDSA() {
+  const container = document.getElementById('gdsa-content');
+  const textField = document.getElementById('gdsa-text');
+  try {
+    const response = await fetch('GlideStack_GDSA.md');
+    if (!response.ok) throw new Error('لم يتم العثور على الملف');
+    const text = await response.text();
+    textField.innerText = text;
+    container.style.display = 'block';
+    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    alert('عذراً، لم نتمكن من قراءة ملف GlideStack_GDSA.md. تأكد من وجوده في نفس المجلد.');
+  }
 }
 
 function togAcc(hdr){
